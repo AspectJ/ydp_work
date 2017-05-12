@@ -1,0 +1,63 @@
+package com.cp.init;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+
+import org.apache.log4j.xml.DOMConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.cp.util.Config;
+
+/**
+ * 程序启动初始化加载
+ * 
+ * @author stone 2015-5-29下午4:15:38
+ */
+public class InitService extends HttpServlet
+{
+	private static final long serialVersionUID = 1L;
+	private static Logger logger = LoggerFactory.getLogger(InitService.class);
+
+	@Override
+	public void init() throws ServletException
+	{
+//		// 读取配置文件
+//		String path = getServletConfig().getServletContext().getRealPath("/") + "/WEB-INF/classes/";
+//		
+//		// 初始化日志设置
+//		logLoad(path);
+//
+//		// 加载配置文件
+//		Config.parseConfig(path);
+		
+		String prefix = getServletContext().getRealPath("/");
+		String log4j = getInitParameter("log4j");
+		// 启动日志记录
+		DOMConfigurator.configureAndWatch(prefix + log4j, 60000);
+
+		// 读取配置文件
+		String config = getInitParameter("config");
+		Config.parseConfig(prefix + config);
+		
+		// 微信获取tocken线程
+//		new AccessTokenThread().start();
+	}
+
+	/**
+	 * 初始化日志设置
+	 */
+	public static void logLoad(String path)
+	{
+		try
+		{
+			// 启动日志记录
+			path = path + "log4jcfg.xml";
+			DOMConfigurator.configureAndWatch(path, 60000);
+			logger.info("[int][初始化日志设置][{}]", path);
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+}

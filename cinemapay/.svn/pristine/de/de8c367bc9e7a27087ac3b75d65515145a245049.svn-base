@@ -1,0 +1,72 @@
+package com.cp.util;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * 接口调用测试工具
+ */
+public class HTTPClientTest
+{
+
+	/**
+	 * 发送http请求
+	 * @param path 请求地址
+	 * @param params 请求参数
+	 */
+	public static String sendHttpMess(String path, Map<String, Object> params, String method, String contentType) throws NoSuchAlgorithmException, IOException
+	{
+		StringBuffer paramBuffer = new StringBuffer(); // 参数
+		Set<String> paramKeySet = params.keySet();
+		for (String paramKey : paramKeySet)
+		{
+			if(paramBuffer.length() > 0){
+				paramBuffer.append("&");	
+			}
+			paramBuffer.append(paramKey).append("=").append(params.get(paramKey));
+		}
+
+		HttpURLConnection connection = null;
+		URL url = null;
+		if("GET".equals(method.toUpperCase())){
+			url = new URL(path + "?" + paramBuffer.toString());
+			connection = (HttpURLConnection) url.openConnection();
+		}else {
+			url = new URL(path);
+			connection = (HttpURLConnection) url.openConnection();
+			connection.setDoOutput(true);
+		}
+		connection.setDoInput(true); 
+		connection.setRequestProperty("Accept-Charset", "utf-8");
+		connection.setRequestProperty("contentType", "utf-8");
+		connection.setRequestMethod(method);
+		connection.setUseCaches(false);
+		connection.setRequestProperty("Content-Type", contentType);
+		connection.connect();
+
+		if("POST".equals(method.toUpperCase())){
+			OutputStream out = connection.getOutputStream();
+			out.write(paramBuffer.toString().getBytes("utf-8"));
+			out.flush();
+			out.close();
+		}
+		
+		StringBuffer resultStr = new StringBuffer();
+		BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "utf-8"));
+		String str = reader.readLine();
+		while (str != null)
+		{
+			resultStr.append(str);
+			str = reader.readLine();
+		}
+		System.out.println("返回结果：\n" + resultStr);
+		return resultStr.toString();
+	}
+}

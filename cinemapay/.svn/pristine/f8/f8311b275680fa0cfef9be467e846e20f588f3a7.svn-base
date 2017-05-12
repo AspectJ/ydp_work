@@ -1,0 +1,229 @@
+var page = 1;
+var pagesize = 10;
+var pagingsize = 3;
+var currentpage = 1;
+
+var cardtype = "";//卡类型
+var status = "0";//记录状态
+
+$(function() {
+	//$("#status0").addClass("cur");
+	
+	loadData(1);
+	
+	// 选择卡类型
+	$(".cardType").on("click", function(){
+		if($(this).attr("cardType") == "-1"){
+			cardtype = "";
+		}else{
+			cardtype = parseInt($(this).attr("cardType"));
+		}
+		loadData(1);
+	});
+	
+	$(".status").on("click", function(){
+		status = parseInt($(this).attr("status"));
+		loadData(1);
+	});
+	
+    
+    $("#startTime").click(function(){
+		WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',minDate:'',maxDate:'#F{$dp.$D(\'endTime\')}'});
+	});
+	
+	$("#endTime").click(function(){
+		WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',minDate:'#F{$dp.$D(\'startTime\')}',maxDate:new Date()});
+	});
+	
+});
+
+function loadData(side){
+	page = pageUpDown(side);
+	var param = {};
+	param.page = page;
+	param.pagesize = pagesize;
+	param.search = encodeURIComponent($(".filter_input").val());
+	param.status = status;
+	param.cardtype = cardtype;
+	param.type = "";
+	param.starttime = $("#startTime").val();
+	param.endtime = $("#endTime").val();
+	ajaxRequest("card/getChargeOffCardList", "GET", false, param, 
+			function(data) {
+			var result = data.result;
+			switch (result) {
+				case 1000:
+					var dataArr = [];
+					dataList = data.data;
+					var total = data.total;
+					var totalpage = parseInt(total % pagesize == 0 ? total / pagesize : total / pagesize + 1);
+					if(dataList != null && dataList.length > 0){
+						for (var i=0; i<dataList.length; i++) {
+							var cardrecordinfo = dataList[i];
+							var dataJson = {};
+							dataJson.cardname = cardrecordinfo.cardname;
+							dataJson.cardtype = cardrecordinfo.cardtype_name;
+							dataJson.confcount = cardrecordinfo.confcount;
+							dataJson.confvalue = cardrecordinfo.confvalue;
+							dataJson.cardnumber = cardrecordinfo.cardnumber;
+							dataJson.theatername = cardrecordinfo.theatername;
+							dataJson.username = cardrecordinfo.username;
+							dataJson.count = cardrecordinfo.count;
+							dataJson.value = cardrecordinfo.value;
+							dataJson.createtime = cardrecordinfo.createtime;
+							var opreator = "";
+							if(cardrecordinfo.status == "0"){
+								if(cardPer.indexOf("refundCard")>-1){
+									if(cardrecordinfo.difftime >= 0 && cardrecordinfo.difftime <= 2){
+										opreator += '<i class="get" onclick="javascript: operateCheckTip(\'退款提示\', \'是否对当前核销记录进行退款操作？\', \'退款后，款项将退还用户，不能做任何更改，请谨慎操作！\', function(){ refundChargeOff(\''+ cardrecordinfo.recordid+'\',\''+cardrecordinfo.cardid+'\',\''+cardrecordinfo.cardconfid + '\',\''+cardrecordinfo.cinemaid + '\')});">退款</i>';
+									}else{
+										opreator += '';
+									}
+									dataJson.opreator = opreator;
+								}
+							}else if(cardrecordinfo.status == "1"){
+								dataJson.modifytime = cardrecordinfo.modifytime;
+							}
+							dataArr.push(dataJson);
+						}
+						$(".data-tab tr").not(":first").remove();
+						pushJsonData(".data-tab table", dataArr);
+						var pagingstr = loadPaging(totalpage, page, pagingsize, "loadData");
+						$(".data-tab-ul").html(pagingstr);
+					}
+					break;
+				case 1204 :
+					$(".data-tab tr").not(":first").remove();
+					$(".data-tab-ul").html("");
+					break;
+				case 1205 :
+					$(".data-tab tr").not(":first").remove();
+					$(".data-tab-ul").html("");
+					break;
+				case 9997 :
+					$(".data-tab tr").not(":first").remove();
+					$(".data-tab-ul").html("");
+					errorTip("提示",data.msg);
+					break;
+				default:
+					$(".data-tab tr").not(":first").remove();
+					$(".data-tab-ul").html("");
+					errorTip("提示","请求超时，请稍后重试");
+					break;
+			}
+		}
+		, null, function(){
+			loading();
+			var table_head = "";
+			$(".data-tab table").html(table_head);
+			if(status == 0){
+				if(cardPer.indexOf("refundCard")>-1){
+					table_head = '<tr><th>通卡(券)名</th><th>类型</th><th>次数</th><th>面值</th><th>卡号</th><th>核销影院</th><th>核销人员</th><th>核销次数</th><th>核销面值</th><th>核销时间</th><th>操作</th></tr>';
+				}else{
+					table_head = '<tr><th>通卡(券)名</th><th>类型</th><th>次数</th><th>面值</th><th>卡号</th><th>核销影院</th><th>核销人员</th><th>核销次数</th><th>核销面值</th><th>核销时间</th></tr>';
+				}
+			}else{
+				table_head = '<tr><th>通卡(券)名</th><th>类型</th><th>次数</th><th>面值</th><th>卡号</th><th>核销影院</th><th>核销人员</th><th>核销次数</th><th>核销面值</th><th>核销时间</th><th>退款时间</th></tr>';
+			}
+			$(".data-tab table").append(table_head);
+		},
+		function(){
+			loadover(); // 加载完成
+        	currentpage = $(".data-tab-ul li[class='cur']").text();
+        	if(currentpage == "" || currentpage == undefined){
+        		currentpage = 1;
+        	}
+        }
+		
+	);
+}
+
+function refundChargeOff(recordid,cardid,cardconfid,cinemaid){
+	var url = service_url + "rest/card/refundChargeOff";
+	$.post( url,{recordid:recordid,cardid:cardid,cardconfid:cardconfid,cinemaid:cinemaid},function(data) {
+		var retjson=$.parseJSON(data);
+		var result = parseInt(retjson.result);
+		if(result == 1000){
+			errorTip("提示","退款成功");
+			setTimeout(function(){
+        		loadData(currentpage);
+        	}, 2000);
+        }else if(result == 1205){
+        	errorTip("提示","核销记录数据错误");
+        	return;
+        }else if(result == 1204){
+        	errorTip("提示","获取核销记录不存在");
+        	return;
+        }else if(result == 1208){
+        	errorTip("提示","核销记录数据类型错误");
+        	return;
+        }else if(result == 1301){
+        	errorTip("提示","非影城工作人员，不能进行退款");
+        	return;
+        }else if(result == 9997){
+        	errorTip("提示",retjson.msg);
+        	return;
+        }else{
+        	errorTip("提示","请求超时，请稍后重试");
+        	return;
+        }
+	});
+}
+
+
+/**
+ * 操作员
+ */
+var batchList;
+function batchnameList(batchname){
+	if(batchList == null || batchname != null || batchname != ""){
+		var param = {};
+		if( batchname !=null && batchname != "" ){
+			param.cardname = batchname;
+		}
+		
+		ajaxRequest("manageData/findAllBatch", "GET", true, param, 
+			function(data) {
+				var result = data.result;
+				switch (result) {
+					case 1000:
+						if(batchname != ""){
+							batchList = data.data;
+						}
+						batchHtml(data.data);
+						break;
+					default : errorTip( "提示", "查询操作员错误" ); break;
+				}
+			}
+		);
+	}else{
+		batchHtml();
+	}
+}
+/**
+ * 渲染操作员选项
+ */
+function batchHtml(batchList){
+	var batchHtml = '';
+	if(batchList != null && batchList.length > 0){
+		batchHtml += '<ul class="list-unstyled">';
+		batchHtml += '<li class="filter-item items" batchid="0">所有操作员</li>';
+		for(var i=0; i<batchList.length; i++){
+			batchHtml += '<li class="filter-item items ellipsis" title="'+ batchList[i].username +'" batchid="'+ batchList[i].userid +'">'+ batchList[i].username +'</li>';
+		}
+		batchHtml += '</ul>';
+	}else{
+		batchHtml += '<div class="no-search-results">';
+		batchHtml += '<div class="alert alert-warning" role="alert"><i class="fa fa-warning margin-right-sm"></i>No entry for <strong>"<span></span>"</strong> was found.</div>';
+		batchHtml += '</div>';
+	}
+	$(".batchname_list_filter").html(batchHtml);
+	
+	$(".batchname_list_filter li").on("click", function(){
+		$(this).parents(".selectpicker").removeClass("open");
+		$("#batchname").attr("batchid", $(this).attr("batchid"));
+		$("#batchname").text($(this).text());
+		find_qb(1);
+	});
+}
+

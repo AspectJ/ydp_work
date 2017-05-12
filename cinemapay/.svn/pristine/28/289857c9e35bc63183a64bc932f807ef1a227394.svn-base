@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="user">
+
+	<!-- 新增用户 -->	
+	<insert id="insertUser" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="userid">
+		insert into t_userinfo( username,nickname,mobile,theaternum,wechart,pass,email,roleid,status,createtime,modifytime,operator) 
+			values 
+		(#{username},#{nickname},#{mobile},#{theaternum},#{wechart},#{pass},#{email},#{roleid},#{status},#{createtime},#{modifytime},#{operator})
+	</insert>
+	
+	<!-- 修改用户信息 -->	
+	<update id="updateUser" parameterType="map">
+		update t_userinfo set modifytime = #{modifytime}
+		<if test="mobile != null">
+			, mobile = #{mobile}
+		</if>
+		<if test="wechart != null">
+			, wechart = #{wechart}
+		</if>
+		<if test="pass != null">
+			, pass = #{pass}
+		</if>
+		<if test="email != null">
+			, email = #{email}
+		</if>
+		<if test="roleid != null">
+			, roleid = #{roleid}
+		</if>
+		<if test="status != null">
+			, status = #{status}
+		</if>
+		<if test="nickname != null">
+			, nickname = #{nickname}
+		</if>
+		<if test="lastlogintime != null">
+			, lastlogintime = #{lastlogintime}
+		</if>
+		<if test="operator != null">
+			, operator = #{operator}
+		</if>
+		where userid = #{userid}
+	</update>
+
+	
+	<!-- 删除用户信息 -->
+	<delete id="deleteUser" parameterType="map">
+		delete from t_userinfo 
+		where userid = #{userid} 
+	</delete>
+	
+	
+	<!-- 查询用户信息个人 -->
+	<select id="getUser" parameterType="java.util.Map" resultType="java.util.Map">
+		select u.userid,u.username,u.nickname,u.mobile,u.theaternum,u.wechart,u.pass,u.email,u.roleid,u.status,
+		u.createtime,u.modifytime,u.lastlogintime,r.rolename,r.roletype,t.theatername from t_userinfo u 
+		join t_role r  on u.roleid = r.roleid  
+		join t_theater t on u.theaternum = t.theaternum
+			where 1=1
+				and u.userid = #{userid} 
+	</select>
+	
+	<!-- 用户信息查询 -->
+	<select id="getUserList" parameterType="java.util.Map" resultType="java.util.Map">
+		select u.userid,u.username,u.nickname,u.mobile,u.theaternum,u.wechart,u.pass,u.email,u.roleid,u.status,
+		u.createtime,u.modifytime,u.lastlogintime,r.rolename,r.roletype,t.theatername from t_userinfo u 
+		join t_role r  on u.roleid = r.roleid  
+		join t_theater t on u.theaternum = t.theaternum
+		where 1=1 
+		<if test="username != null">
+			and u.username = #{username}
+		</if>
+		<if test="mobile != null">
+			and u.mobile = #{mobile}
+		</if>
+		<if test="status != null">
+			and u.status = #{status}
+		</if>
+		<if test="theaternum != null">
+			and u.theaternum in 
+			<foreach item="item" index="index" collection="theaternum" open="(" separator="," close=")">
+             	#{item}
+        	</foreach>
+		</if>
+		<if test="roletype != null">
+			and r.roletype in 
+			<foreach item="item" index="index" collection="roletype" open="(" separator="," close=")">
+             	#{item}
+        	</foreach>
+		</if>
+		<if test="search != null">
+			and (u.username like #{search} or u.nickname like #{search} )
+		</if>
+		order by userid desc limit ${pageSize} offset ${offsetNum} 
+	</select>
+	
+	<!-- 用户信息查询 -->
+	<select id="getUserListCount" parameterType="java.util.Map" resultType="java.util.Map">
+		select count(*) as count from t_userinfo  u 
+		join t_role r  on u.roleid = r.roleid  
+		join t_theater t on u.theaternum = t.theaternum
+		where 1=1 
+		<if test="username != null">
+			and u.username = #{username}
+		</if>
+		<if test="mobile != null">
+			and u.mobile = #{mobile}
+		</if>
+		<if test="status != null">
+			and u.status = #{status}
+		</if> 
+		<if test="theaternum != null">
+			and u.theaternum in 
+			<foreach item="item" index="index" collection="theaternum" open="(" separator="," close=")">
+             	#{item}
+        	</foreach>
+		</if>
+		<if test="roletype != null">
+			and r.roletype in 
+			<foreach item="item" index="index" collection="roletype" open="(" separator="," close=")">
+             	#{item}
+        	</foreach>
+		</if>
+		<if test="search != null">
+			and (u.username like #{search} or u.nickname like #{search} )
+		</if>
+		
+	</select>
+	
+	
+	<!-- 用户登录 -->
+	<select id="userLogin" parameterType="java.util.Map" resultType="java.util.Map">
+		select u.userid,u.username,u.pass,u.nickname,u.mobile,u.theaternum,u.wechart,u.pass,u.email,u.roleid,u.status,
+		u.createtime,u.modifytime,r.rolename,r.roletype,r.status as rolestatus,t.theatername,t.theaterid, t.theatertype from t_userinfo u 
+		join t_role r  on u.roleid = r.roleid  
+		join t_theater t on u.theaternum = t.theaternum 
+		where 1=1 and u.username = #{username} 
+		<if test="pass != null">
+			and u.pass = #{pass}
+		</if>
+	</select>
+	
+	<!-- 判断用户名称是否存在 -->
+	<select id="checkRepeatUserName" parameterType="java.util.Map" resultType="java.util.Map">
+		select userid,username from t_userinfo  
+		where 1=1 and status = 0 
+		<if test="username != null">
+			and username = #{username}
+		</if>
+		<if test="userid != null">
+			and userid != #{userid}
+		</if>
+	</select>
+
+
+	<!-- 获取影院的操作员 -->
+	<select id="operaterList" parameterType="java.util.Map" resultType="java.util.Map">
+		select u.userid,u.username from t_userinfo u 
+		 <if test="theaterid != null or filter != null">
+		 	where 
+		 	<if test="theaterid != null">
+		 		u.theaternum = (select theaternum from t_userinfo where theaterid = #{theaterid})
+		 	</if>
+		 	<if test="filter != null">
+			 	<if test="theaterid != null">
+			 		and
+			 	</if>
+		 		username like filter
+		 	</if>
+		 </if>
+	</select>
+</mapper>

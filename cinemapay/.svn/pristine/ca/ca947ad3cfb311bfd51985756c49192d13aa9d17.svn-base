@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>系统</title>
+		<link rel="stylesheet" href="../css/base.css" />
+		<link rel="stylesheet" href="../css/main.css" />
+		<link rel="stylesheet" href="../css/info.css" />
+		
+		<script type="text/javascript" src="../js/jquery-1.11.2.min.js" ></script>
+		<link rel="stylesheet" href="../css/top.css" />
+		<script type="text/javascript" src="../js/top.js" ></script>
+		<script type="text/javascript" src="../js/jquery.pagination.js" ></script>
+		<script type="text/javascript" src="../js/config.js"></script>
+		<script type="text/javascript" src="../js/public.js" ></script>
+		<script type="text/javascript" src="../js/currentUser.js" ></script>
+		<script type="text/javascript" src="../js/userInfo.js" ></script>
+	</head>
+	<body>
+		<!-- 主面板 -->
+		<div class="main-box">
+			<div class="content-title">
+				<span>您当前位置：首页/用户管理</span>
+			</div>
+			
+			
+			<div class="data_box">
+				<!--操作菜单-->
+				<div class="operator">
+					<span class="" id="addUser" style="display:none;">添加用户</span>
+					<span class="" id="roleInfo" style="display:none;">角色信息</span>
+					<span class="" id="menuInfo" style="display:none;">权限信息</span>
+					<input class="query filter_input" id="search" placeholder="请输入登录账号、用户昵称进行查询" />
+					<button class="querybn" onclick="loadData(1);">查询</button>
+				</div>
+				<!-- 数据区 -->
+				<div class="content-data">
+					<p class="headLine">用户列表</p>
+					<div class="data-tab">
+						<table>
+							<tr>
+								<th>登录账号</th>
+								<th>用户昵称</th>
+								<th>手机号</th>
+								<!--<th>微信号</th>-->
+								<th>邮箱</th>
+								<th>状态</th>
+								<th>角色</th>
+								<th>注册时间</th>
+								<th id="ssTheater" style="display:none;">影院</th>
+								<th>操作</th>
+							</tr>
+						</table>
+					<div class="page">
+						<ul class="data-tab-ul">
+						</ul>
+					</div>						
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
+
+
+
+
+
+
+

@@ -1,0 +1,821 @@
+package com.cp.rest.userinfo;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+
+import org.apache.log4j.Logger;
+import org.jboss.resteasy.annotations.cache.NoCache;
+import org.springframework.stereotype.Service;
+
+import com.cp.bean.ResMessage;
+import com.cp.filter.BaseServlet;
+import com.cp.filter.ReVerifyFilter;
+import com.cp.rest.userinfo.dao.MenuInfoDaoImpl;
+import com.cp.rest.userinfo.dao.RoleInfoDaoImpl;
+import com.cp.rest.userinfo.dao.UserInfoDaoImpl;
+import com.cp.rest.userinfo.redis.UserRedisImpl;
+import com.cp.util.BCrypt;
+import com.cp.util.CodeUtil;
+import com.cp.util.Permission;
+import com.mongo.MyMongo;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+@Path("rest/user")
+@NoCache
+@Service()
+public class UserInfoRest extends BaseServlet
+{
+	private static final Logger logger = Logger.getLogger(UserInfoRest.class);
+	
+	@Resource
+	private UserInfoDaoImpl userInfoDao;
+	@Resource
+	private MenuInfoDaoImpl menuInfoDao;
+	@Resource
+	private RoleInfoDaoImpl roleInfoDao;
+	@Resource
+	private LogInfoAdd logInfo;
+	
+	@Resource
+	private UserRedisImpl userRedis;
+	
+	/**
+	 * 新增用户信息
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/addUser")
+	@Produces("text/html;charset=UTF-8")
+	public String addUser(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		String userid = String.valueOf(request.getAttribute("userid"));
+		String theaternum = userRedis.getUserField(userid, "theaternum");
+		
+		if(!privilegeCheck(request, Permission.addUser, userRedis)){
+			MyMongo.mRequestFail(request, ResMessage.Lack_Privilege.code);
+			return this.returnError(resultJson, ResMessage.Lack_Privilege.code, request);
+		}
+		if(userid != null){
+			String username = URLDecoder.decode(request.getParameter("username"), "UTF-8");
+			String nickname = URLDecoder.decode(request.getParameter("nickname"), "UTF-8");
+			String mobile = URLDecoder.decode(request.getParameter("mobile"), "UTF-8");
+			String wechart = URLDecoder.decode(request.getParameter("wechart"), "UTF-8");
+			String email = URLDecoder.decode(request.getParameter("email"), "UTF-8");
+			String roleid = request.getParameter("roleid");
+			String type = request.getParameter("type")==null || request.getParameter("type").equals("null") ? "0" : request.getParameter("type");
+			if(theaternum.equals("0")){
+				if(type.equals("2")){//影投
+					theaternum = request.getParameter("theaternum");
+				}else{
+					theaternum = request.getParameter("theaternum");
+					String theatername = URLDecoder.decode(request.getParameter("theatername"), "UTF-8");
+					if(theaternum != "" && theaternum != null){
+						if(theaternum.indexOf("|")>-1){
+							String[] num = theaternum.split("\\|");
+							String theaterid = num[0];
+							theaternum = num[1];
+							if(theaterid.equals("undefined") || theaternum.equals("undefined")){//未获取到影院id或编码
+								MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+								return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+							}else{
+								//判断该影院信息是否存在、不存在则在t_theater中写入数据
+								Map<String, Object> searchInfo = new HashMap<String, Object>();
+								searchInfo.put("theaternum", theaternum);
+								List<Map<String, Object>> resultList = roleInfoDao.getTheater(searchInfo);
+								if(resultList.size()==0){//添加
+									searchInfo.put("theaterid", Integer.parseInt(theaterid));
+									searchInfo.put("theatername", theatername);
+									roleInfoDao.insertTheater(searchInfo);
+								}
+							}
+						}
+					}else{
+						theaternum = "0";
+					}
+				}
+			}
+			try{
+				if (CodeUtil.checkParam(username)){
+					MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+					return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+				}
+				Map<String,Object> paramMap = new HashMap<String, Object>();
+				paramMap.put("username", username);
+				paramMap.put("nickname", nickname);
+				String password = BCrypt.hashpw(username, BCrypt.gensalt(12));//加密
+				paramMap.put("pass", password);//Md5.md5(username)
+				paramMap.put("mobile", mobile);
+				paramMap.put("wechart", wechart);
+				paramMap.put("email", email);
+				paramMap.put("roleid", Integer.parseInt(roleid));
+				paramMap.put("theaternum", theaternum);
+				paramMap.put("status", Integer.parseInt("0"));//默认启用
+				paramMap.put("createtime", new Date());
+				paramMap.put("modifytime", new Date());
+				paramMap.put("lastlogintime", "");
+				paramMap.put("operator", Integer.parseInt(userid));
+				
+				List<Map<String, Object>> resultList = userInfoDao.checkRepeatUserName(paramMap);
+				if(resultList.size()>0){
+					MyMongo.mRequestFail(request,"不能重复添加用户信息");
+					return this.returnError(resultJson, ResMessage.Commit_Repeat_Fail.code, request);
+				}else{
+					paramMap.put("userid", "");
+					Map<String, Object> resultMap = userInfoDao.insertUser(paramMap);
+					JSONObject data = new JSONObject();
+					data.put("userid", resultMap.get("userid"));
+					resultJson.put("data", data);
+				}
+				
+			} catch (Exception e){
+				MyMongo.mErrorLog("新增用户信息失败", request, e);
+				return this.returnError(resultJson, ResMessage.User_Add_Fail.code, request);
+			}
+			long etime = System.currentTimeMillis();
+			MyMongo.mRequestLog("新增用户信息成功",  etime - stime, request, resultJson);
+			String logContent = "添加用户登录账号["+username+"]";
+			logInfo.addLogInfo(request, "0", logContent);
+			return this.response(resultJson, request);
+		}else{
+			MyMongo.mRequestFail(request, "登录超时");
+			return this.returnError(resultJson, ResMessage.User_Login_TimeOut.code, request);
+		}
+	}
+	
+	
+	/**
+	 * 重置密码
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/resetPass")
+	@Produces("text/html;charset=UTF-8")
+	public String resetPass(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		String userid = request.getParameter("userid")==null || request.getParameter("userid").equals("null") ? String.valueOf(request.getAttribute("userid")) : request.getParameter("userid");
+		String pass = request.getParameter("pass");
+		String username = "";
+		try{
+			if (CodeUtil.checkParam(userid)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			Map<String,Object> paramMap = new HashMap<String, Object>();
+			paramMap.put("userid", Integer.parseInt(userid));
+			String password = BCrypt.hashpw(pass, BCrypt.gensalt(12));
+			paramMap.put("pass", password);
+			paramMap.put("modifytime", new Date());
+			paramMap.put("operator", Integer.parseInt(String.valueOf(request.getAttribute("userid"))));
+			userInfoDao.updateUser(paramMap);
+			Map<String, Object> resultMap = userInfoDao.getUser(paramMap);
+			JSONObject data = new JSONObject();
+			data.put("userid", resultMap.get("userid"));
+			username = resultMap.get("username").toString();
+			resultJson.put("data", data);
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("重置密码失败", request, e);
+			return this.returnError(resultJson, ResMessage.User_Updata_Fail.code, request);
+		}
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("重置密码成功",  etime - stime, request, resultJson);
+		String logContent = "修改用户["+username+"]的登录密码";
+		logInfo.addLogInfo(request, "0", logContent);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 修改用户状态
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/userStatus")
+	@Produces("text/html;charset=UTF-8")
+	public String userStatus(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		String userid = request.getParameter("userid");
+		String status = request.getParameter("status");
+		String username = "";
+		try{
+			if(!privilegeCheck(request, Permission.userStatus, userRedis)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Privilege.code);
+				return this.returnError(resultJson, ResMessage.Lack_Privilege.code, request);
+			}
+			
+			if (CodeUtil.checkParam(userid)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			Map<String,Object> paramMap = new HashMap<String, Object>();
+			paramMap.put("userid", Integer.parseInt(userid));
+			paramMap.put("status", Integer.parseInt(status));
+			paramMap.put("modifytime", new Date());
+			paramMap.put("operator", Integer.parseInt(String.valueOf(request.getAttribute("userid"))));
+			userInfoDao.updateUser(paramMap);
+			Map<String, Object> resultMap = userInfoDao.getUser(paramMap);
+			JSONObject data = new JSONObject();
+			data.put("userid", resultMap.get("userid"));
+			username = resultMap.get("username").toString();
+			resultJson.put("data", data);
+		} catch (Exception e){
+			MyMongo.mErrorLog("修改用户状态失败", request, e);
+			return this.returnError(resultJson, ResMessage.User_Updata_Fail.code, request);
+		}
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("修改用户状态成功",  etime - stime, request, resultJson);
+		String curStatus = CodeUtil.convertUserStatus(status);
+		String logContent = "修改用户["+username+"]为["+curStatus+"]状态";
+		logInfo.addLogInfo(request, "0", logContent);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 修改用户信息（个人）
+	 */
+	@GET
+	@POST
+	@Path("/updateUserMessage")
+	@Produces("text/html;charset=UTF-8")
+	public String updateUserMessage(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		String userid = String.valueOf(request.getAttribute("userid"));
+		String mobile = request.getParameter("mobile");
+		String email = request.getParameter("email");
+		String nickname = request.getParameter("nickname");
+
+		try
+		{
+			Map<String, Object> paramMap = new HashMap<String, Object>();
+			paramMap.put("userid", Integer.parseInt(userid));
+			if(!CodeUtil.checkParam(mobile)){
+				paramMap.put("mobile", mobile);
+			}
+			if(!CodeUtil.checkParam(email)){
+				paramMap.put("email", email);
+			}
+			if(!CodeUtil.checkParam(nickname)){
+				paramMap.put("nickname", URLDecoder.decode(request.getParameter("nickname"), "UTF-8"));
+			}
+			paramMap.put("modifytime", new Date());
+			userInfoDao.updateUser(paramMap);
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("修改用户信息（个人）", request, e);
+			return this.returnError(resultJson, ResMessage.User_Updata_Fail.code, request);
+		}
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("修改用户信息（个人）", etime - stime, request, resultJson);
+		String logContent = "修改用户信息（个人）";
+		logInfo.addLogInfo(request, "0", logContent);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 修改用户信息
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/updateUser")
+	@Produces("text/html;charset=UTF-8")
+	public String updateUser(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		String userid = request.getParameter("userid");
+		String mobile = request.getParameter("mobile");
+		String wechart = request.getParameter("wechart");
+		String email = request.getParameter("email");
+		String roleid = request.getParameter("roleid");
+		String nickname = URLDecoder.decode(request.getParameter("nickname"), "UTF-8");
+		String username = request.getParameter("username");
+		try{
+			if (CodeUtil.checkParam(userid)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			Map<String,Object> paramMap = new HashMap<String, Object>();
+			paramMap.put("userid", Integer.parseInt(userid));
+			paramMap.put("mobile", mobile);
+			paramMap.put("wechart", wechart);
+			paramMap.put("email", email);
+			paramMap.put("roleid", Integer.parseInt(roleid));
+			paramMap.put("nickname", nickname);
+			paramMap.put("modifytime", new Date());
+			String operator = String.valueOf(request.getAttribute("userid"));
+			paramMap.put("operator", Integer.parseInt(operator));
+			Map<String, Object> resultMap = userInfoDao.updateUser(paramMap);
+			JSONObject data = new JSONObject();
+			data.put("userid", resultMap.get("userid"));
+			resultJson.put("data", data);
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("修改用户信息失败", request, e);
+			return this.returnError(resultJson, ResMessage.User_Updata_Fail.code, request);
+		}
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("修改用户信息成功",  etime - stime, request, resultJson);
+		String logContent = "修改用户["+username+"]信息";
+		logInfo.addLogInfo(request, "0", logContent);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 删除用户信息
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/deleteUser")
+	@Produces("text/html;charset=UTF-8")
+	public String deleteUser(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		String userid = request.getParameter("userid");//用户ID
+		try{
+			if (CodeUtil.checkParam(userid)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			Map<String, Object> paramMap = new HashMap<String, Object>();
+			paramMap.put("userid", Integer.parseInt(userid));
+			userInfoDao.deleteUser(paramMap);
+			JSONObject data = new JSONObject();
+			data.put("userid", userid);
+			resultJson.put("data", data);
+		} catch (Exception e){
+			MyMongo.mErrorLog("删除用户信息失败", request, e);
+			return this.returnError(resultJson, ResMessage.User_Delete_Fail.code, request);
+		}
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("删除用户信息成功",  etime - stime, request, resultJson);
+		String logContent = "修改用户["+userid+"]信息";
+		logInfo.addLogInfo(request, "0", logContent);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 查询用户账号是否重复
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/checkUserNameRepeat")
+	@Produces("text/html;charset=UTF-8")
+	public String checkUserNameRepeat(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		String userid = request.getParameter("userid")==null || request.getParameter("userid").equals("null") ? "0" : request.getParameter("userid");
+		String username = URLDecoder.decode(request.getParameter("username"), "UTF-8");
+		try{
+			Map<String, Object> searchInfo = new HashMap<String, Object>();
+			searchInfo.put("userid", Integer.parseInt(userid));
+			searchInfo.put("username", username);
+			List<Map<String, Object>> resultList = userInfoDao.checkRepeatUserName(searchInfo);
+			resultJson.put("total", resultList.size());
+			JSONArray jsonArray = new JSONArray();
+			if(resultList != null && resultList.size() > 0){
+				for(int i=0;i<resultList.size();i++){
+					Map<String, Object> resultMap = resultList.get(i);
+					JSONObject data = new JSONObject();
+					data.put("userid", resultMap.get("userid"));
+					data.put("username", resultMap.get("username"));
+					jsonArray.add(data);
+				}
+				resultJson.put("data", jsonArray);
+			}
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("查询用户账号是否重复失败", request, e);
+			return this.returnError(resultJson, ResMessage.User_Select_Fail.code, request);
+		}
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询用户账号是否重复成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 查看用户信息
+	 */
+	@GET
+	@POST
+	@Path("/getUser")
+	@Produces("text/html;charset=UTF-8")
+	public String getUser(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		String userid = request.getParameter("userid")==null || request.getParameter("userid").equals("null") ? String.valueOf(request.getAttribute("userid")) : request.getParameter("userid");
+		
+		try{
+			if (CodeUtil.checkParam(userid)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			Map<String, Object> paramMap = new HashMap<String, Object>();
+			paramMap.put("userid", Integer.parseInt(userid));
+			Map<String, Object> resultMap = userInfoDao.getUser(paramMap);
+			JSONObject data = new JSONObject();
+			if(resultMap != null && resultMap.size() > 0){
+				data.put("userid", resultMap.get("userid"));
+				data.put("username", resultMap.get("username"));
+				data.put("nickname", resultMap.get("nickname"));
+				data.put("mobile", resultMap.get("mobile"));
+				data.put("theaternum", resultMap.get("theaternum"));
+				data.put("wechart", resultMap.get("wechart"));
+				data.put("email", resultMap.get("email"));
+				data.put("status_name", CodeUtil.convertUserStatus(resultMap.get("status").toString()));
+				data.put("roleid", resultMap.get("roleid"));
+				data.put("createtime", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("createtime")));
+				data.put("modifytime", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("modifytime")));
+				String lastlogintime = resultMap.get("lastlogintime")==null || resultMap.get("lastlogintime").equals("") ? "暂未登录" : new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("lastlogintime"));
+				data.put("lastlogintime", lastlogintime);
+				data.put("rolename", resultMap.get("rolename"));
+				data.put("roletype", resultMap.get("roletype"));
+				data.put("theatername", resultMap.get("theatername"));
+				resultJson.put("data", data);
+			}else{
+				MyMongo.mRequestFail(request, "查询用户信息不存在");
+				return this.returnError(resultJson, ResMessage.User_Select_NotExist.code, request);
+			}
+		} catch (Exception e){
+			MyMongo.mErrorLog("查询用户信息失败", request, e);
+			return this.returnError(resultJson, ResMessage.User_Select_Fail.code, request);
+		}
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询用户信息成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 查看用户信息列表
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/getUserList")
+	@Produces("text/html;charset=UTF-8")
+	public String getUserList(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		String userid = String.valueOf(request.getAttribute("userid"));
+		List<String> userFeilds = userRedis.getUserField(userid, "roletype".getBytes(), "theaternum".getBytes(),"username".getBytes());
+		if(userFeilds != null){
+			if(!privilegeCheck(request, Permission.userInfo, userRedis)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Privilege.code);
+				return this.returnError(resultJson, ResMessage.Lack_Privilege.code, request);
+			}
+			
+			String roletype = userFeilds.get(0);
+			String theaternum = userFeilds.get(1);//从登录用户信息中获取
+			//分页参数、条件查询参数
+			String pagesize = request.getParameter("pagesize");//每页多少条数据
+			String page = request.getParameter("page");//page＝（当前页数－1）*pagesize
+			String search = URLDecoder.decode(request.getParameter("search"), "UTF-8");
+			try{
+				Map<String, Object> searchInfo = new HashMap<String, Object>();
+				searchInfo.put("pageSize", Integer.parseInt(pagesize));
+				searchInfo.put("offsetNum", Integer.parseInt(pagesize) * (Integer.parseInt(page) - 1));
+				if(!CodeUtil.checkParam(search)){
+					searchInfo.put("search", "%" + search + "%");
+				}
+				List<Integer> list = new ArrayList<Integer>();
+				List<String> thList = new ArrayList<String>();
+				if(roletype.equals("3")){//系统内置角色
+					list.add(3);
+					list.add(2);
+					list.add(1);
+					list.add(100);
+				}else if(roletype.equals("2")){//影院管理角色
+					thList.add(theaternum);
+					searchInfo.put("theaternum", JSONArray.fromObject(thList).toArray());
+					list.add(2);
+					list.add(1);
+				}else if(roletype.equals("1")){
+					thList.add(theaternum);
+					searchInfo.put("theaternum", JSONArray.fromObject(thList).toArray());
+					searchInfo.put("username", userFeilds.get(2));
+					list.add(1);
+				}else if(roletype.equals("100")){
+					thList.add(theaternum);
+					searchInfo.put("theaternum", JSONArray.fromObject(thList).toArray());
+					list.add(100);
+				}
+				searchInfo.put("roletype", JSONArray.fromObject(list).toArray());
+				Map<String, Object> countMap = userInfoDao.getUserListCount(searchInfo);
+				String count = countMap.get("count").toString();
+				List<Map<String, Object>> resultList = userInfoDao.getUserList(searchInfo);
+				JSONArray jsonArray = new JSONArray();
+				if(resultList != null && resultList.size() > 0){
+					for(int i=0;i<resultList.size();i++){
+						Map<String, Object> resultMap = resultList.get(i);
+						JSONObject data = new JSONObject();
+						data.put("userid", resultMap.get("userid"));
+						data.put("username", resultMap.get("username"));
+						data.put("nickname", resultMap.get("nickname"));
+						data.put("mobile", resultMap.get("mobile"));
+						data.put("theaternum", resultMap.get("theaternum"));
+						data.put("wechart", resultMap.get("wechart"));
+						data.put("email", resultMap.get("email"));
+						data.put("createtime", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("createtime")));
+						data.put("modifytime", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("modifytime")));
+						String lastlogintime = resultMap.get("lastlogintime")==null || resultMap.get("lastlogintime").equals("") ? "暂未登录" : new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("lastlogintime"));
+						data.put("lastlogintime", lastlogintime);
+						data.put("roleid", resultMap.get("roleid"));
+						data.put("status", resultMap.get("status"));
+						data.put("status_name", CodeUtil.convertUserStatus(resultMap.get("status").toString()));
+						data.put("rolename", resultMap.get("rolename"));
+						data.put("roletype", resultMap.get("roletype"));
+						data.put("theatername", resultMap.get("theatername"));
+						jsonArray.add(data);
+					}
+					resultJson.put("total", count);
+					resultJson.put("current", page);
+					resultJson.put("data", jsonArray);
+				}else{
+					MyMongo.mRequestFail(request, "查询用户信息列表不存在");
+					return this.returnError(resultJson, ResMessage.User_Select_NotExist.code, request);
+				}
+			} catch (Exception e){
+				MyMongo.mErrorLog("查询用户信息列表失败", request, e);
+				return this.returnError(resultJson, ResMessage.User_Select_Fail.code, request);
+			}
+			long etime = System.currentTimeMillis();
+			MyMongo.mRequestLog("查询用户信息列表成功",  etime - stime, request, resultJson);
+			return this.response(resultJson, request);
+		}else{
+			MyMongo.mRequestFail(request, "登录超时");
+			return this.returnError(resultJson, ResMessage.User_Login_TimeOut.code, request);
+		}
+	}
+	
+	
+	/**
+	 * 查询旧密码是否正确
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/checkPass")
+	@Produces("text/html;charset=UTF-8")
+	public String checkPass(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		String username = request.getParameter("username");
+		String pass = request.getParameter("pass");
+		try{
+			if (CodeUtil.checkParam(username)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			Map<String, Object> searchInfo = new HashMap<String, Object>();
+			searchInfo.put("username", username);
+			Map<String, Object> userMap = userInfoDao.userLogin(searchInfo);
+			if(userMap != null && userMap.size() > 0){
+				String dataPass = userMap.get("pass").toString(); // 数据库加密密码
+				//String password = BCrypt.hashpw(pass, BCrypt.gensalt(12));
+				if (BCrypt.checkpw(pass, dataPass)){
+					//if(Md5.md5(pass).equals(userMap.get("pass").toString())){
+					resultJson.put("userid", userMap.get("userid"));
+					resultJson.put("username", username);
+				}else{
+					MyMongo.mRequestFail(request, "密码错误");
+					return this.returnError(resultJson, ResMessage.Userlogin_Pass_Fail.code, request);
+				}
+			}
+		} catch (Exception e){
+			MyMongo.mErrorLog("查询密码失败", request, e);
+			return this.returnError(resultJson, ResMessage.User_Select_Fail.code, request);
+		}
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询密码成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 用户登录
+	 */
+	@GET
+	@POST
+	@Path("/login")
+	@Produces("text/html;charset=UTF-8")
+	public String login(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		String username = request.getParameter("username");
+		String pass = request.getParameter("pass");
+		String mipass = BCrypt.hashpw(pass, BCrypt.gensalt(12));
+		System.out.println("username:"+username+"   pass:"+pass+"   mipass:"+mipass);
+		try{
+			Map<String, Object> searchInfo = new HashMap<String, Object>();
+			searchInfo.put("username", username);
+			Map<String, Object> userMap = userInfoDao.userLogin(searchInfo);
+			if(userMap != null && userMap.size() > 0){
+				if("0".equals(userMap.get("rolestatus").toString())){//角色为启用状态
+					if("0".equals(userMap.get("status").toString())){//启用状态
+						String dataPass = userMap.get("pass").toString(); // 数据库加密密码
+						//String password = BCrypt.hashpw(pass, BCrypt.gensalt(12));//页面加密密码
+						if (BCrypt.checkpw(pass, dataPass)){
+							//if(Md5.md5(pass).equals(userMap.get("pass").toString())){
+							//修改登录时间
+							Map<String,Object> paramMap = new HashMap<String, Object>();
+							paramMap.put("userid", Integer.parseInt(userMap.get("userid").toString()));
+							paramMap.put("modifytime", new Date());
+							paramMap.put("lastlogintime", new Date());
+							userInfoDao.updateUser(paramMap);
+							
+							ReVerifyFilter.addCookie(response, "userid", String.valueOf(userMap.get("userid")), 7 * 24 * 60 * 60);
+							
+							Map<String, Object> user = new HashMap<String,Object>();
+							user.put("loginIP", request.getRemoteAddr());
+							user.put("explorer", CodeUtil.getClientExplorerType(request));
+							user.put("userid", userMap.get("userid").toString());
+							user.put("username", userMap.get("username").toString());
+							user.put("nickname", userMap.get("nickname").toString());
+							user.put("pass", userMap.get("pass").toString());
+							user.put("status", userMap.get("status").toString());
+							user.put("theaternum", userMap.get("theaternum").toString());
+							user.put("theaterid", userMap.get("theaterid").toString());
+							user.put("theatername", userMap.get("theatername").toString());
+							user.put("theatertype", userMap.get("theatertype").toString());
+							user.put("roletype", userMap.get("roletype").toString());
+							user.put("rolename", userMap.get("rolename").toString());
+							user.put("roleid", userMap.get("roleid").toString());
+							request.setAttribute("userid", userMap.get("userid"));
+							// ------------------------------------------------------------------------
+							
+							//查找页面权限Session
+							JSONArray requesturl = new JSONArray();
+							Map<String, Object> searchMenuInfo = new HashMap<String, Object>();
+							searchMenuInfo.put("roleid", Integer.parseInt(userMap.get("roleid").toString()));
+							searchMenuInfo.put("partentid", Integer.parseInt("0"));
+							List<Map<String, Object>> resultList = menuInfoDao.getRolePerList(searchMenuInfo);
+							JSONArray jsonArray = new JSONArray();
+							for(int i=0;i<resultList.size();i++){
+								Map<String, Object> resultMap = resultList.get(i);
+								JSONObject obj = new JSONObject();
+								obj.put("menuid", resultMap.get("menuid"));
+								obj.put("menuname", resultMap.get("menuname"));
+								obj.put("requesturl", resultMap.get("requesturl"));
+								obj.put("partentid", resultMap.get("partentid"));
+								searchMenuInfo.put("partentid", Integer.parseInt(resultMap.get("menuid").toString()));
+								List<Map<String,Object>> sonList = menuInfoDao.getRolePerList(searchMenuInfo);
+								JSONArray jsonArraySon = new JSONArray();
+								for(int j=0;j<sonList.size();j++){
+									Map<String,Object> sonMap = sonList.get(j);
+									jsonArraySon.add(sonMap);
+									requesturl.add(sonMap.get("requesturl"));
+								}
+								obj.put("show", jsonArraySon);
+								jsonArray.add(obj);
+								requesturl.add(resultMap.get("requesturl"));
+							}
+							
+							HttpSession session = request.getSession();
+							session.setAttribute("menuInfo", jsonArray);
+							
+							JSONObject data = new JSONObject();
+							data.put("username", userMap.get("username").toString());
+							data.put("roletype", userMap.get("roletype"));
+							data.put("theaternum", userMap.get("theaternum"));
+							data.put("theatername", userMap.get("theatername"));
+							data.put("theatertype", userMap.get("theatertype"));
+//							data.put("info", "欢迎"+userMap.get("rolename")+","+userMap.get("nickname"));
+							data.put("info", userMap.get("nickname"));
+							data.put("menuInfo", jsonArray);
+							resultJson.put("data", data);
+							
+							user.put("privilege", requesturl);
+							userRedis.saveUser(user);
+						}else{
+							MyMongo.mRequestFail(request, "密码错误");
+							return this.returnError(resultJson, ResMessage.Userlogin_Pass_Fail.code, request);
+						}
+					}else{//禁用状态
+						MyMongo.mRequestFail(request, "账号已被禁用");
+						return this.returnError(resultJson, ResMessage.Userlogin_Status_Fail.code, request);
+					}
+				}else{
+					MyMongo.mRequestFail(request, "角色已被禁用");
+					return this.returnError(resultJson, ResMessage.Userlogin_RoleStatus_Fail.code, request);
+				}
+				
+			}else{
+				MyMongo.mRequestFail(request, "用户名不存在");
+				return this.returnError(resultJson, ResMessage.Userlogin_Name_Fail.code, request);
+			}
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("用户名登录失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog(username+"登录成功",  etime - stime, request, resultJson);
+		String logContent = "用户["+username+"]于"+new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())+"成功登录系统";
+		logInfo.addLogInfo(request, "1", logContent);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 退出登录
+	 */
+	@GET
+	@POST
+	@Path("/loginOut")
+	@Produces("text/html;charset=UTF-8")
+	public String loginOut(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+
+		try{
+			String userid = ReVerifyFilter.getCookieByName(request, "userid").getValue();
+			request.setAttribute("userid", userid);
+			String username = userRedis.getUserField(userid, "username");
+			
+			String logContent = "用户["+username+"]于"+new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())+"退出系统";
+			logInfo.addLogInfo(request, "1", logContent);
+			
+			userRedis.loginOut(userid);
+		} catch (Exception e){
+			MyMongo.mErrorLog("退出登录失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("用户退出登录",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 获取影院的操作员
+	 */
+	@GET
+	@POST
+	@Path("/operaterList")
+	@Produces("text/html;charset=UTF-8")
+	public String operaterList(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+
+		try
+		{
+			String userid = String.valueOf(request.getAttribute("userid"));
+			String filter = request.getParameter("filter");
+
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("userid", Integer.parseInt(userid));
+			if (!CodeUtil.checkParam(filter))
+			{
+				map.put("filter", "%" + filter + "%");
+			}
+			List<Map<String, Object>> operaterList = userInfoDao.operaterList(map);
+			
+			if(operaterList != null && operaterList.size() > 0){
+				resultJson.put("data", operaterList);
+			}
+		} catch (Exception e){
+			MyMongo.mErrorLog("获取影院的操作员", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		logger.info("获取操作员");
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("获取影院的操作员",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+}

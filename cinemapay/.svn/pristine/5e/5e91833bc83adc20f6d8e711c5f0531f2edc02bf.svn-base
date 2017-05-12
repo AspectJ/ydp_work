@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="settle">
+
+	<!-- 查询结算信息 -->
+	<select id="getSettleInfo" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT a.cinemaid, b.theatername, SUM(a.settleprice) SUM
+		FROM t_card_record a JOIN t_theater b ON a.cinemaid = b.theaterid
+		WHERE a.status = 0 AND a.createtime BETWEEN #{beginTime} AND #{endTime}
+		<choose>
+			<when test="isOnline == 0">
+				AND ext_userid = 0
+			</when>
+			<when test="isOnline == 1">
+				AND ext_userid != 0
+			</when>
+		</choose>
+		
+		<choose>
+			<when test="theatertype != 2">
+				GROUP BY a.cinemaid
+			</when>
+			<otherwise>
+				AND a.cinemaid = #{theaterid}
+				GROUP BY a.cinemaid
+			</otherwise>
+		</choose>
+		<if test="limit_start != null and limit_size != null">
+				limit #{limit_start}, #{limit_size}
+		</if>
+	</select>
+	
+	<!-- 查询结算个数 -->
+	<select id="getSettleCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+		SELECT count(*)
+		FROM (
+					SELECT a.cinemaid, b.theatername, SUM(a.settleprice) SUM
+					FROM t_card_record a JOIN t_theater b ON a.cinemaid = b.theaterid
+					WHERE a.status = 0 AND a.createtime BETWEEN #{beginTime} AND #{endTime}
+					<choose>
+						<when test="isOnline == 0">
+							AND ext_userid = 0
+						</when>
+						<when test="isOnline == 1">
+							AND ext_userid != 0
+						</when>
+					</choose>
+					
+					<choose>
+						<when test="theatertype != 2">
+							GROUP BY a.cinemaid
+						</when>
+						<otherwise>
+							AND a.cinemaid = #{theaterid}
+							GROUP BY a.cinemaid
+						</otherwise>
+					</choose>
+		) alias_c
+		
+	</select>
+	
+	<!-- 生成对账单 -->
+	<insert id="createBill" parameterType="java.util.Map">
+		<selectKey keyProperty="sid" order="AFTER" resultType="java.lang.Integer">
+			select LAST_INSERT_ID()
+		</selectKey>
+		INSERT INTO t_statement(starttime,endtime,floatamount,`status`,`type`,cinemaid,amount,createtime,operatorid,modifytime,remarks) VALUES(
+			#{beginTime},#{endTime},#{floatamount},-1,#{channel},#{cinemaid},#{amount},now(),#{userid},now(), #{remarks}
+		)
+	</insert>
+	
+	<!-- 查询id查询账单详细 -->
+	<select id="getOneBill" parameterType="java.util.Map" resultType="java.util.Map">
+			SELECT a.statementid, a.starttime, a.endtime, a.status, a.floatamount, a.type, a.cinemaid, a.amount, a.createtime, a.operatorid, a.modifytime, a.remarks, a.attachfileurl, a.fileuploadtime, a.sign, b.theatername, c.username
+			FROM t_statement a JOIN t_theater b ON a.cinemaid = b.theaterid
+								JOIN t_userinfo c ON a.operatorid = c.userid
+			WHERE a.statementid = #{sid};
+	</select>
+	
+	<!-- 查询账单列表信息 -->
+	<select id="getBillList" parameterType="java.util.Map" resultType="java.util.Map">
+			SELECT a.statementid, a.starttime, a.endtime, a.status, a.floatamount, a.type, a.cinemaid, a.amount, a.createtime, a.operatorid, a.modifytime, a.remarks, a.attachfileurl, a.fileuploadtime, a.sign, b.theatername
+			FROM t_statement a JOIN t_theater b ON a.cinemaid = b.theaterid
+			WHERE 1 = 1
+			<choose>
+				<when test="status != '' and status != null and status != 0">
+					AND a.status = #{status}
+				</when>
+				<when test="status == 0">
+					AND a.status = 0
+				</when>
+			</choose>
+			<choose>
+				<when test="roleType == 1 or roleType == 2">
+					<if test='theaternum != "0"'>
+						AND b.theaternum = #{theaternum}
+						AND a.status != -1
+						AND a.sign != 1
+					</if>
+				</when>
+			</choose>
+			<if test="isCombiningQuery == true">
+				AND a.type = #{online}
+				AND a.cinemaid = #{theaterid}
+				AND a.createtime between  #{beginTime} AND #{endTime}
+			</if>
+			ORDER BY a.createtime DESC
+			LIMIT #{page}, #{pageSize}
+	</select>
+	
+	<!-- 查询账单列表个数 -->
+	<select id="getBillListCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+		SELECT COUNT(*)
+		FROM t_statement a JOIN t_theater b ON a.cinemaid = b.theaterid
+			WHERE 1 = 1 
+			<choose>
+				<when test="status != '' and status != null and status != 0">
+					AND a.status = #{status}
+				</when>
+				<when test="status == 0">
+					AND a.status = 0
+				</when>
+			</choose>
+			<choose>
+				<when test="roleType == 1 or roleType == 2">
+					<if test='theaternum != "0"'>
+						AND b.theaternum = #{theaternum}
+						AND a.status != -1
+						AND a.sign != 1
+					</if>
+				</when>
+			</choose>
+			<if test="isCombiningQuery == true">
+				AND a.type = #{online}
+				AND a.cinemaid = #{theaterid}
+				AND a.createtime between  #{beginTime} AND #{endTime}
+			</if>
+	</select>
+	
+	<!-- 更改账单信息(结算价以及结算备注) -->
+	<update id="changeBillInfo" parameterType="java.util.Map">
+			UPDATE t_statement 
+			SET floatamount = #{floatamount}, remarks = #{remarks}, modifytime = now()
+			WHERE statementid = #{statementid};
+	</update>
+	
+	<!-- 查询消费(结算)明细 -->
+	<select id="getConsumeDetails" parameterType="java.util.Map" resultType="java.util.Map">
+			SELECT a.recordid, a.cardid, c.cardname, c.cardtype, a.count, a.value, a.createtime, a.settleprice, d.theatername
+				FROM t_card_record a
+				JOIN t_card b ON a.cardid = b.cardid
+				JOIN t_card_conf c ON b.cardconfid = c.cardconfid
+				JOIN t_theater d ON a.cinemaid = d.theaterid
+			WHERE a.status = 0 AND a.createtime BETWEEN #{beginTime} AND #{endTime}
+			<choose>
+				<when test="isOnline == 0">
+					AND a.ext_userid = 0
+				</when>
+				<when test="isOnline == 1">
+					AND a.ext_userid != 0
+				</when>
+			</choose>
+			<if test="theatertype == 2">
+					AND a.cinemaid = #{theaterid}
+			</if>
+			ORDER BY a.createtime DESC
+			<if test="limit_start != null and limit_size != null">
+				limit #{limit_start}, #{limit_size}
+			</if>
+	</select>
+	
+	<!-- 查询明细个数 -->
+	<select id="getConsumeDetailsCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+			SELECT COUNT(*) SUM 
+			FROM (
+					SELECT a.recordid, a.cardid, c.cardname, c.cardtype, a.count, a.value, a.createtime, a.settleprice, d.theatername
+						FROM t_card_record a
+						JOIN t_card b ON a.cardid = b.cardid
+						JOIN t_card_conf c ON b.cardconfid = c.cardconfid
+						JOIN t_theater d ON a.cinemaid = d.theaterid
+					WHERE a.status = 0 AND a.createtime BETWEEN #{beginTime} AND #{endTime}
+					<choose>
+						<when test="isOnline == 0">
+							AND a.ext_userid = 0
+						</when>
+						<when test="isOnline == 1">
+							AND a.ext_userid != 0
+						</when>
+					</choose>
+					<if test="theatertype == 2">
+							AND a.cinemaid = #{theaterid}
+					</if>
+			) alias
+	</select>
+	
+	<!-- 查询结算总计金额 -->
+	<select id="getSettleSum" parameterType="java.util.Map" resultType="java.lang.Double">
+				SELECT IFNULL(SUM(settleprice), 0)
+				FROM t_card_record
+				WHERE status = 0 AND createtime BETWEEN #{beginTime} AND #{endTime}
+				<choose>
+					<when test="isOnline == 0">
+						AND ext_userid = 0
+					</when>
+					<when test="isOnline == 1">
+						AND ext_userid != 0
+					</when>
+				</choose>
+				<if test="theatertype == 2">
+						AND cinemaid = #{theaterid}
+				</if>
+	</select>
+	
+	<!-- 查询上一笔账单的最后时间 -->
+	<select id="getNoOccurDate" parameterType="java.lang.Integer" resultType="java.lang.String">
+		SELECT endtime
+		FROM t_statement
+		WHERE cinemaid = #{theaterid}
+		ORDER BY endtime DESC
+		LIMIT 0, 1
+	</select>
+	
+	<!-- 若从未生成过账单，则查询该影院第一笔流水消费时间 作为生成未出账账单的开始时间-->
+<!-- 	<select id="getFirstConsumeTime" parameterType="java.lang.Integer" resultType="java.lang.String">
+		SELECT createtime
+		FROM t_card_record
+		WHERE 1 = 1
+		<choose>
+			<when test="_parameter == 1">
+				AND ext_userid != 0
+			</when>
+			<otherwise>
+				AND cinemaid = #{_parameter}
+				AND ext_userid == 0
+			</otherwise>
+		</choose>
+		ORDER BY createtime
+		LIMIT 0, 1
+	</select> -->
+	
+	<select id="getFirstConsumeTime" parameterType="java.lang.Integer" resultType="java.lang.String">
+		SELECT createtime
+		FROM t_card_record
+		WHERE cinemaid = #{theaterid}
+		ORDER BY createtime
+		LIMIT 0, 1
+	</select>
+	
+	<!-- 上传附件时，更改附件的路径以及上传时间 -->
+	<insert id="insertFilePathAndDate" parameterType="java.util.Map">
+		UPDATE t_statement SET attachfileurl = #{filePath}, fileuploadtime = NOW()
+		WHERE statementid = #{statementid}
+	</insert>
+	
+	<!-- 把重新生成的账单所对应的前一个账单的状态置为1(表示过期) -->
+	<update id="updateBeforeBillState" parameterType="java.lang.Integer">
+		UPDATE t_statement 
+			SET SIGN = 1,
+				modifytime = NOW()
+		WHERE statementid = #{statementid}
+	</update>
+	
+	
+	<!-- 修改账单状态 -->
+	<update id="updateBillStatus" parameterType="java.util.Map">
+		UPDATE t_statement
+		SET `status` = #{status} + 1,
+		     modifytime = NOW()
+		WHERE statementid = #{sid}
+	</update>
+	
+</mapper>

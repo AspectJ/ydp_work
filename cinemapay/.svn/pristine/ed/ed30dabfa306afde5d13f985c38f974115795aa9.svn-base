@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta HTTP-EQUIV="pragma" CONTENT="no-cache"> 
+		<meta HTTP-EQUIV="Cache-Control" CONTENT="no-cache, must-revalidate"> 
+		<meta HTTP-EQUIV="expires" CONTENT="0"> 
+		
+		<link rel="stylesheet" href="../css/main.css" />
+		<link rel="stylesheet" href="../css/ProductCoupons.css" />
+		
+		<script type="text/javascript" src="../js/config.js"></script>
+		<script type="text/javascript" src="../js/jquery-1.11.2.min.js"></script>
+		<link rel="stylesheet" href="../css/top.css" />
+		<script type="text/javascript" src="../js/top.js" ></script>
+		<script type="text/javascript" src="../js/public.js"></script>
+		<script type="text/javascript" src="../js/ProductCoupons.js"></script>
+		<script type="text/javascript" src="../js/My97DatePicker/WdatePicker.js" ></script>
+	</head>
+	<body>
+		<div class="main-box">
+			<div class="content-title">
+				<span>您当前位置：首页/创建卡券</span>
+				<div class="clear"></div>
+			</div>
+			<div class="coupons-box">
+				<p class="title">创建卡券</p>			
+				<div class="coupons">
+					<p><label>卡券名：<span class="must">*</span></label><input id="title" maxlength="9"/><span class="restrict">0/9</span></p>
+					<p><label>副标题：</label><input id="sub_title" maxlength="18"/><span class="restrict">0/18</span></p>
+					<p><label>投放数量：<span class="must">*</span></label><input id="quantity" maxlength="8" oninput="checkNum(this);"/><span class="restrict">0/8</span></p>
+					<p><label>开始时间：<span class="must">*</span></label><input id="beginTime" class="Wdate" onfocus="selectTime('yyyy.MM.dd 00:00:00', changeTime);" /></p>
+					<!--<p><label>过期时间：<span class="must">*</span></label><input id="endTime" class="Wdate" onfocus="selectTime('yyyy.MM.dd 23:59:59', 'changeTime');"/></p>-->
+					<p><label>有效天数：<span class="must">*</span></label><input id="expiry" oninput="checkNum(this);changeTime();" maxlength="2"/></p>
+					<p><label>卡券详情：<span class="must">*</span></label><input id="deal_detail" maxlength="24"/><span class="restrict">0/24</span></p>
+					<p><label>使用说明：<span class="must">*</span></label><textarea id="description" maxlength="1024"></textarea><br/><span class="restrict">0/1024</span><br/></p>
+					<p><label>使用提醒：<span class="must">*</span></label><input id="notice" maxlength="16"/><span class="restrict">0/16</span></p>
+					<p><label></label><button class="submitBn" onclick="subCoupons();">提交</button></p>
+				</div>
+				<div class="review review_message">
+					<div class="coupons_title"></div>
+					<div class="coupons_sub_title"></div>
+					<div class="coupons_expirydate"></div>
+				</div>
+				<div class="review review_detail">
+					<p class="title">团购劵详情</p>
+					<hr/>
+					<p><label>优惠说明</label><div class="coupons_deal_detail"></div></p>
+					<p><label>有效日期</label><div class="coupons_expirydate"></div></p>
+					<p><label>电&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;话</label><div class="tell">400-766-8292</div></p>
+					<p><label>使用须知</label><div class="coupons_description"></div></p>
+				</div>
+				<div class="review review_qrcode">
+					<div class="coupons_title"></div>
+					<div class="coupons_notice"></div>
+				</div>
+				<ul>
+					<li class="li_cur" name="review_message">团购劵</li>
+					<li name="review_detail">团购详情</li>
+					<li name="review_qrcode">扫码</li>
+				</ul>
+				<div class="notice">注:卡劵信息提交成功后将不能做任何修改</div>
+			</div>
+		</div>
+	</body>
+</html>
+
+

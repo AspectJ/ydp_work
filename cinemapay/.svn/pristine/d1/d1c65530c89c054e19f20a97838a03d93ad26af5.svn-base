@@ -1,0 +1,621 @@
+
+var clientWidth; //网页可见区域宽
+var clientHeight; //网页可见区域高
+var offsetWidth; //网页可见区域宽 (包括边线的宽) 
+var offsetHeight; //网页可见区域高 (包括边线的宽) 
+var scrollWidth; //网页正文全文宽
+var scrollHeight; //网页正文全文高
+var scrollTop; //网页被卷去的高
+var scrollLeft; //网页被卷去的左
+var screenTop; //网页正文部分上
+var screenLeft; //网页正文部分左
+var height; //屏幕分辨率的高
+var width; //屏幕分辨率的宽
+var availHeight; //屏幕可用工作区高度
+var availWidth; //屏幕可用工作区宽度
+var main_width; // 右边显示区域宽度
+
+$(function(){
+	var username = sessionStorage.getItem("username");
+	if(window.location.href.indexOf("WXUserOrder") == -1 
+		&& window.location.href.indexOf("WxCardDetail") == -1 
+		&& window.location.href.indexOf("WXPay") == -1 
+		&& (username == "" || username == null)){
+		
+		if(window.location.href.indexOf("top") != -1 || window.location.href.indexOf("nav") != -1 || window.location.href.indexOf("index") != -1){
+			window.location.href= "login.html";//登录页
+		}else{
+			parent.window.location.href= "../login.html";//登录页	
+		}
+	}
+	
+	
+	//下拉框
+	$(".select").find("li").on("click", function(){
+		$(this).parents(".select").find("p>span").text( $(this).text() );
+		$(this).parent().hide(0);
+	});
+	
+	$(".querybn").on("mousedown", function(){$(this).addClass("mouse_down");});
+	$(".querybn").on("mouseup", function(){$(this).removeClass("mouse_down")});
+		
+	//下拉和删除
+	//select_del();
+	
+	// ++++++++++++++++++++++++++++++屏幕、浏览器尺寸++++++++++++++++++++++++++++++
+	clientWidth = document.body.clientWidth;  
+	clientHeight = document.body.clientHeight;
+	offsetWidth = document.body.offsetWidth;
+	offsetHeight = document.body.offsetHeight;
+	scrollWidth = document.body.scrollWidth;
+	scrollHeight = document.body.scrollHeight;
+	scrollTop = document.body.scrollTop;
+	scrollLeft = document.body.scrollLeft;
+	screenTop = window.screenTop;
+	screenLeft = window.screenLeft;
+	height = window.screen.height;
+	width = window.screen.width;
+	availHeight = window.screen.availHeight;
+	availWidth = window.screen.availWidth;
+	// ++++++++++++++++++++++++++++++屏幕、浏览器尺寸++++++++++++++++++++++++++++++
+});
+
+//获取日期
+function getDate( n,hasY, d ){
+	
+	d = d || new Date();
+	d.setDate( d.getDay()+n );
+	var y = d.getFullYear();
+	var m = d.getMonth()+1;
+	var day = d.getDate();
+	
+	var result = fill(m)+'-'+fill(day);
+	result = hasY ? (y+'-')+result : result;
+	return result;
+}
+function fill( m ){
+	return m<10?"0"+m: m;
+}
+
+//指定随机数
+function getRand( min, max ){
+	return Math.floor( Math.random()*(max-min)+min );
+}
+
+//动态添加数据
+function pushData(){
+	
+	if(arguments.length<1){return;}	
+	//容器
+	var selector = arguments[0]; 
+	var count = arguments[1];
+	var column = arguments.length;
+	var tr = "";
+	for(var n=0; n<count; n++){
+		tr += "<tr>";
+		for( var i=2; i<column; i++ ){
+			var val = arguments[i];			
+			tr += "<td";
+			if(obj[name].length>2){
+			if( val.indexOf("||")!=-1 ){
+				tr += " class='"+val.split("||")[0]+"'";
+				val = val.split("||")[1];
+			}
+			}
+			tr += ">" + val + "</td>";
+		}
+		tr += "</tr>";
+	}
+	$(selector).append( tr );
+	select_del();
+}
+
+
+/**
+ * *************************************************************
+ *   -------------------   动态添加json数据   ---------------------- 
+ * *************************************************************
+ */
+var result;
+var dataList;
+function pushJsonData(){
+	if(arguments.length<1){return;}	
+	//容器
+	var selector = arguments[0]; 
+	var jsondata = arguments[1];
+	var count = jsondata.length;
+	var tr = "";
+	for(var n=0; n<count; n++){
+		tr += "<tr index="+ n +">";
+		var obj = jsondata[n];
+		for( var name in obj ){		
+			tr += "<td";
+			if(obj[name].length>2){
+				if( obj[name].indexOf("||")!=-1 ){
+					tr += " class='"+obj[name].split("||")[0]+"'";
+					obj[name] = obj[name].split("||")[1];
+				}
+			}
+			tr += ">" + obj[name] + "</td>";
+		}
+		tr += "</tr>";
+	}
+	$(selector).append( tr );
+}
+
+
+/**
+ * 页面上下翻页
+ * @param side 方向 up, down 或者页码
+ */
+function pageUpDown(side){
+	if(side != null){
+		if("down" == side){ page = page + 1;}
+		else if("up" == side){ if(page > 1){ page = page - 1; }}
+		else{ page = side; }	
+	}
+	return page;
+}
+
+
+/**
+ * 分页加载
+ * @param totalpage 总记录条数
+ * @param page 当前页
+ * @param pagingsize 分页显示左右个数
+ * @param loadfunction 翻页时调用的方法名称
+ */
+function loadPaging(totalpage, page, pagingsize, loadfunction){
+	var str = "";
+	if(totalpage > 1){
+		// 上一页
+		if(page > 1 && totalpage > 1){
+			str += '<li class="prev" onclick="' + loadfunction + '(1);"><<</li>';
+			str += '<li class="prev" onclick=' + loadfunction + '("up");><</li>';
+		}else{
+			str += '<li class="prev nochoice"><</li>';
+		}
+		// 中间显示
+		for(var i=1; i<=totalpage; i++){
+			if(page == i){
+				str += '<li class="cur" onclick="' + loadfunction + '('+page+');">'+page+'</li>';	
+			}else{
+				if(page - pagingsize < i && i < page + pagingsize){
+					str += '<li onclick="' + loadfunction + '('+i+');">'+i+'</li>';
+				}else if(page - pagingsize == i || page + pagingsize == i){
+					str += '<li class="duo">...</li>';
+				}
+			}
+		}
+		// 下一页
+		if(totalpage > page){
+			str += '<li class="next" onclick=' + loadfunction + '("down");>></li>';
+			str += '<li class="next" onclick="' + loadfunction + '(' + totalpage + ');">>></li>';
+		}else{
+			str += '<li class="next nochoice">></li>';
+		}
+	}else{
+//		str += '<li class="cur" class="prev">1</li>';
+	}
+	return str;
+}
+
+ 
+
+
+//上传文件
+function clickUpFile( source, aim, aim1 ){
+	//打开文件
+	$(aim).on("focus click", function(){
+		$(source)[0].click();
+	});
+	if(aim1){
+		$(aim1).on("focus click", function(){
+			$(source)[0].click();
+		});
+	}
+	$(source).on("change",function(){
+		$(aim).val( this.value );
+	});
+}
+
+
+
+////显示信息
+//function showMsg( info, $obj ){
+//	
+//	var msgHtml = '<div class="mask" style="display:block;">';
+//	msgHtml += '<div class="showMess" style="display:block;">';
+//	msgHtml += '<p class="tip">提示</p>';
+//	msgHtml += '<p class="message">确认删除该信息?</p>';
+//	msgHtml += '<p class="btn-p"><button class="sure">确定</button><button class="deny">取消</button></p>';
+//	msgHtml += '</div>';
+//	msgHtml += '</div>';
+//	$("body").append(msgHtml);	
+//	
+//	//确认框
+//	$(".sure").on("click", function(){
+//		removeEle( 50, 200, $(".mask"), function(){
+//			// 执行删除方法
+//			var delResult = delData(dataList[$obj.attr("index")]);
+//			if(delResult == 1000){
+//				removeEle( 50, 200, $(".mask"));
+//				if(dataList.length > 1){ loadData(); }else{ loadData(page - 1);}
+//			}
+//		});
+//		
+//	});
+//	$(".deny").on("click", function(){
+//		removeEle( 50, 200, $(".mask") );
+//	});
+//}
+
+
+//确认(显示信息，来自哪个函数【1、用户禁用、启用；2、重置用户密码；3、锁定、激活角色；4、删除角色；5、删除权限；6、删除通卡(券)；7、生成卡号；】，参数1，参数2)
+function confirmshowMsg(info,type,param1,param2){
+	var msgHtml = '<div class="mask" style="display:block;" id="mask">';
+	msgHtml += '<div class="showMess" style="display:block;">';
+	msgHtml += '<p class="tip">提示</p>';
+	msgHtml += '<p class="message">'+info+'</p>';
+	msgHtml += '<p class="btn-p"><button class="sure" id="sure">确定</button><button class="deny">取消</button></p>';
+	msgHtml += '</div>';
+	msgHtml += '</div>';
+	$("body").append(msgHtml);	
+	
+	//确认框
+	$("#sure").on("click", function(){
+		removeEle( 50, 200, $("#mask"), function(){
+			if(type == 1){
+				updateStatus(param1,param2);
+			}else if(type == 2){
+				resetPass(param1,param2);
+			}else if(type == 3){
+				roleStatus(param1,param2);
+			}else if(type == 4){
+				delRole(param1);
+			}else if(type == 5){
+				delMenu(param1);
+			}else if(type == 6){
+				delCardConf(param1);
+			}else if(type == 7){
+				createCard(param1);
+			}
+		});
+		
+	});
+	$(".deny").on("click", function(){
+		removeEle( 50, 200, $("#mask") );
+	});
+}
+
+
+//移除元素
+function removeEle( delaytime, timespan, $obj, fn ){
+	$obj.delay( delaytime ).fadeOut( timespan, function(){
+		$(this).remove();
+		fn && fn();
+	});
+}
+
+
+/**
+ * *************************************************************
+ *   -------------------------   提示 ---------------------------- 
+ * *************************************************************
+ */
+/**
+ * 错误提示
+ */
+function errorTip(tip, message, success_fn) {
+	var delay = 1800;
+	if(tip.indexOf("_") != -1) {
+		delay = tip.substring(tip.indexOf("_") + 1);
+		tip = tip.substring(0, tip.indexOf("_"));
+	}
+
+	var errorHtml = '<div class="mask" style="display:block;" id="error">';
+	errorHtml += '<div class="error-panel">';
+	errorHtml += '<p class="tip">' + tip + '</p>';
+	errorHtml += '<p class="message">' + message + '</p>';
+	errorHtml += '</div></div>';
+
+	$("body").append(errorHtml);
+	
+	$("#error").fadeIn(300).delay(delay).fadeOut(300,
+		function() {
+			$("#error").remove();
+			if(success_fn != null) {
+				new success_fn();
+			}
+		}
+	);
+}
+
+/**
+ * 确认操作
+ */
+function operateTip(tip, message, sure_fn){
+	var msgHtml = '<div class="mask" style="display:block;">';
+	msgHtml += '<div class="showMess" style="display:block;">';
+	msgHtml += '<p class="tip">'+ tip +'</p>';
+	msgHtml += '<p class="message">'+ message +'</p>';
+	msgHtml += '<p class="btn-p"><button class="sure">确定</button><button class="deny">取消</button></p>';
+	msgHtml += '</div>';
+	msgHtml += '</div>';
+	$("body").append(msgHtml);	
+	
+	$(".sure").on("click", function(){ 
+		$(".mask").remove();
+		if(sure_fn != null){new sure_fn()}; 
+	});
+	$(".deny").on("click", function(){ $(".mask").remove(); });
+	$(".sure").focus();
+}
+
+
+/**
+ * 验证码确认提示
+ */
+function operateCheckTip(tip, message, attention, sure_fn){
+	var msgHtml = '<div class="mask" style="display:block;">';
+	msgHtml += '<div class="checkMess" style="display:block;">';
+	msgHtml += '<p class="tip">'+ tip +'</p>';
+	msgHtml += '<p class="message">'+ message +'</p>';
+	msgHtml += '<p class="message_attention">'+ attention + '</p>';
+	msgHtml += '<p class="verify">';
+	msgHtml +=   '<label>验证码</label>';
+	msgHtml +=   '<input id="vaCode" maxlength="4">';
+	msgHtml +=   '<label class="error_vaCode"></label>';
+	msgHtml += '</p>';
+	msgHtml += '<div id="vCodeImg"></div>';
+	msgHtml += '<p class="btn-p"><button class="sure bn_disable">确定</button><button class="deny">取消</button></p>';
+	msgHtml += '</div>';
+	msgHtml += '</div>';
+	$("body").append(msgHtml);	
+	
+	// 生成验证码
+	vcode = new vCode($(vCodeImg)[0]);
+	$("#vaCode").on("input", function(){
+		if($("#vaCode").val().trim().length == 4){
+			$(".sure").removeClass("bn_disable");
+		}else{
+			if(!$(".sure").hasClass("bn_disable")){ $(".sure").addClass("bn_disable"); }
+		}
+	});
+	$(".sure").on("click", function(){
+		var vaCode = $("#vaCode").val();
+		if(vaCode.length == 4){
+			if(vcode.verify($("#vaCode").val())){
+				$(".mask").remove();
+				if(sure_fn != null){new sure_fn()};
+			}else{
+				$(".error_vaCode").text("验证码输入错误");			
+			}
+		}
+	});
+	$(".deny").on("click", function(){ $(".mask").remove(); });
+	$("#vaCode").focus();
+}
+
+
+/**
+ * *************************************************************
+ *   ----------------------   获取参数   ------------------------- 
+ * *************************************************************
+ */
+function getPramStr(name) {
+	var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+	var r = window.location.search.substr(1).match(reg);
+	if (r != null)
+		return unescape(r[2]);
+	return null;
+}
+
+
+/**
+ * *************************************************************
+ *   ---------------------   截取字符长度   ------------------------ 
+ * *************************************************************
+ */
+function getTextLength(str, len){
+	if(str.length > len){
+		return str.substr(0, len) + "...";
+	}else{
+		return str;
+	}
+}
+
+
+/**
+ * *************************************************************
+ *   ----------------------   日期处理   ------------------------- 
+ * *************************************************************
+ */
+/**
+ * 日期增加一天
+ * @param dd
+ * @param dadd
+ * @returns {Date}
+ */
+function addDate(date,dadd){
+	date = date.valueOf();
+	date = date + dadd * 24 * 60 * 60 * 1000;
+	date = new Date(date);
+	return date;
+}
+Date.prototype.format = function(format){ 
+	var o = { 
+		"M+" : this.getMonth()+1, //month 
+		"d+" : this.getDate(), //day 
+		"h+" : this.getHours(), //hour 
+		"m+" : this.getMinutes(), //minute 
+		"s+" : this.getSeconds(), //second 
+		"q+" : Math.floor((this.getMonth()+3)/3), //quarter 
+		"S" : this.getMilliseconds() //millisecond 
+	};
+
+	if(/(y+)/.test(format)) { 
+		format = format.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length)); 
+	}
+
+	for(var k in o) { 
+		if(new RegExp("("+ k +")").test(format)) { 
+			format = format.replace(RegExp.$1, RegExp.$1.length==1 ? o[k] : ("00"+ o[k]).substr((""+ o[k]).length)); 
+		} 
+	} 
+	return format; 
+}; 
+//使用方法 
+//var now = new Date(); 
+//var nowStr = now.format("yyyy-MM-dd hh:mm:ss"); 
+////使用方法2: 
+//var testDate = new Date(); 
+//var testStr = testDate.format("YYYY年MM月dd日hh小时mm分ss秒"); 
+//alert(testStr); 
+////示例： 
+//alert(new Date().format("yyyy年MM月dd日")); 
+//alert(new Date().format("MM/dd/yyyy")); 
+//alert(new Date().format("yyyyMMdd")); 
+//alert(new Date().format("yyyy-MM-dd hh:mm:ss"));
+
+/**
+ * 选择日期
+ */
+function selectTime(dateFmt, onpicked_fun) {
+	var param = {};
+	param.dateFmt = dateFmt;
+	param.isShowToday = false;
+	param.isShowClear = false;
+	param.readonly="readonly"
+	if(onpicked_fun != null){
+		var $onpicked_fun = eval(onpicked_fun);
+		param.onpicked = function(){$onpicked_fun()};
+	}
+	WdatePicker(param);
+}
+
+
+/**
+ * 加载中
+ */
+function loading(){
+	var loadHtml = '<div class="loader_div"><div class="cell"><div class="card"><span class="dots-loader">Loading&#8230;</span></div></div></div>';
+	$("body").append(loadHtml);
+}
+function loadover(){
+	$(".loader_div").remove();
+}
+
+
+
+/**
+  * 异步上传文件
+  * @param type 文件类型
+  * @param fileID 控件ID
+  * @param fun_success 成功回调
+  * @param fun_error 失败回调
+  */
+function ajaxFileUpload(type, fileID, fn_success, fn_error) {
+    $.ajaxFileUpload({
+        url: service_url + "rest/file/uploadFile?type=" + type,
+        secureuri: false,
+        fileElementId: fileID,
+        dataType: 'json',
+        success: function (data, status){
+			new fn_success(data);        		
+        },
+        error: function (data, status, e){
+        	if(fn_error != null){
+        		new fn_error(data, status);
+        	}
+        }
+    });
+}
+
+
+/**
+ * ajax请求数据
+ * @param {Object} apiName 接口名称 (类型+名称)
+ * @param {Object} type GET/POST
+ * @param {Object} async 是否异步调用 
+ * @param {Object} param 参数
+ * @param {Object} success 成功调用方法
+ * @param {Object} error 失败调用方法
+ * @param {Object} beforefn 请求执行前调用方法
+ * @param {Object} afterfn 请求执行后调用方法
+ */
+function ajaxRequest(apiName, type, async, param, fn_success, fn_error, fn_before, fn_after){
+	$.ajax({
+		url: service_url + "rest/" + apiName,
+		type: type,
+		data: param,
+		async: async,
+		dataType: 'json',
+		cache: false,
+		beforeSend: function(request) { if(fn_before != null){ new fn_before(); } },
+        complete: function(){ if(fn_after != null){ new fn_after(); } },
+		success: function(data) { 
+			var resultCode = data.result;
+			if(1109 == resultCode){
+				window.parent.location.href = "../login.html"; 
+			}else{
+				new fn_success(data);
+			}
+		},
+		error: function( XMLHttpRequest, textStatus, errorThrown ) { if(fn_error != null){ new fn_error(); } },
+		timeout: 120000
+	});
+}
+
+/**
+ * 限制只能输入数字
+ * @param {Object} e
+ */
+function IsNum(e) {
+    var k = window.event ? e.keyCode : e.which;
+    if (((k >= 48) && (k <= 57)) || k == 8 || k == 0) {
+    } else {
+        if (window.event) {
+            window.event.returnValue = false;
+        }
+        else {
+            e.preventDefault(); //for firefox 
+        }
+    }
+}
+function checkNum(obj) {
+	 var str = $(obj).val();
+	 if (str.length != 0) {
+	 	reg = /^[-+]?\d*$/;
+	 	if (!reg.test(str)) {
+	 		obj.value = obj.value.substr(0, obj.value.length - 1);
+	 	}
+	 }   
+}
+function checkPrice(obj) {  
+     //检查是否是非数字值  
+     if (isNaN(obj.value)) {
+         obj.value = obj.value.substr(0, obj.value.length - 1);  
+     }  
+     if (obj != null) {  
+         //检查小数点后是否对于两位http://blog.csdn.net/shanzhizi  
+         if (obj.value.toString().split(".").length > 1 && obj.value.toString().split(".")[1].length > 2) {  
+             obj.value = obj.value.substr(0, obj.value.length - 1);
+         }  
+     }  
+ } 
+ 
+
+/**
+ * 订单状态
+ * @param {Object} status
+ */
+function getOrderStatusText(status){
+	switch(status){
+		case 0 : return "已取消";
+		case 1 : return "等待支付";
+		case 2 : return "<span style='color:red'>支付成功</span>";
+		case 4 : return "已验证";
+		case 6 : return "已核销";
+	}
+}

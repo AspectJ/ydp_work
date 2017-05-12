@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="product">
+
+	<!-- 查找商品 -->
+	<sql id="productListFilter">
+		where p.status = #{status}	
+			<if test="theaterid != null">
+				and p.theaterid = #{theaterid}
+			</if>
+		<if test="filter != null">
+			and p.productname like #{filter}
+		</if>
+	</sql>
+	<select id="productListTotal" parameterType="java.util.Map" resultType="java.lang.Integer">
+		select count(*) from t_product p join t_userinfo u on u.userid = p.operator
+		<include refid="productListFilter"></include>
+	</select>
+	<select id="productList" parameterType="java.util.Map" resultType="java.util.Map">
+		select p.productid, p.productname, p.intro, p.price, p.createtime, u.username, p.status, p.cardid, p.headimg,
+			   t.theaternum, t.theatername, p.online
+		  from t_product p
+		  join t_userinfo u on u.userid = p.operator
+		  join t_theater t on t.theaterid = p.theaterid
+		<include refid="productListFilter"></include>
+	order by p.productid desc
+		 <if test="start != null and pagesize != null">
+		 	limit #{pagesize} offset #{start}
+		 </if>
+	</select>
+
+
+	<!-- 查找商品名称列表 -->
+	<select id="productNameList" parameterType="java.util.Map" resultType="java.util.Map">
+		select productname, productid 
+		  from t_product p where status = 1
+		<if test="filter != null">
+			and productname like #{filter}
+		</if>
+		<if test="theaterid != null">
+			and p.theaterid = #{theaterid}
+		</if>
+		order by productid desc
+	</select>
+
+
+	<!-- 查找商品详情 -->
+	<select id="findProductMess" parameterType="java.lang.Integer" resultType="java.util.Map">
+		select productid, productname, headimg, intro, price, status, online, rule1
+		  from t_product where productid = #{productid}
+	</select>
+	
+	
+	<!-- 添加产品 -->
+	<insert id="addProduct" parameterType="java.util.Map">
+		insert into t_product(productname, headimg, intro, price, createtime, modifytime, operator, status, theaterid, online, rule1) 
+		values(#{productname}, #{headimg}, #{intro}, #{price}, #{createtime}, #{modifytime}, #{operator}, #{status}, #{theaterid}, #{online}, #{rule1}) 
+<!-- 		<selectKey resultType="java.lang.Integer" keyProperty="productid">   -->
+<!--         	SELECT currval('t_product_productid_seq') as productid;   -->
+<!--         </selectKey>   -->
+		<selectKey resultType="java.lang.Integer" keyProperty="productid" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+
+	<!-- 删除商品 -->
+	<delete id="delProduct" parameterType="java.util.Map">
+		delete from t_product  
+		<choose>
+			<when test="productid != null">
+				where productid = #{productid}
+			</when>
+			<when test="products != null">
+				where productid in
+				<foreach collection="products" item="productid" open="(" close=")" separator="," index="index">
+					#{productid}
+				</foreach>
+			</when>
+		</choose>
+	</delete>
+
+	<!-- 修改商品信息 -->
+	<update id="updateProduct" parameterType="java.util.Map">
+		update t_product
+		   set modifytime = #{modifytime}, operator = #{operator}
+		   <if test="productname != null">
+			  , productname = #{productname}
+		   </if>
+		   <if test="headimg != null">
+			  , headimg = #{headimg}
+		   </if> 
+		   <if test="intro != null">
+			  , intro = #{intro}
+		   </if> 
+		   <if test="price != null">
+			  , price = #{price}
+		   </if> 
+		   <if test="status != null">
+			  , status = #{status}
+		   </if>
+		   <if test="rule1 != null">
+			  , rule1 = #{rule1}
+		   </if>
+			  , online = #{online}
+		 where productid = #{productid}
+	</update>
+
+
+	<!-- 创建卡劵 -->
+	<update id="createCoupons" parameterType="java.util.Map">
+		update t_product set cardid = #{cardid} where productid = #{productid}
+	</update>
+
+	<!-- 验证是否可以支付（是否有卡劵, 是否已上架） -->
+	<select id="checkPayProduct" parameterType="java.lang.Integer" resultType="java.util.Map">
+		select p.status, p.cardid, t.theaternum 
+		  from t_product p join t_theater t on p.theaterid = t.theaterid 
+		 where p.productid = #{productid}
+	</select>
+
+	<!-- 商品状态修改 -->
+	<update id="productStatusChange" parameterType="java.util.Map">
+		update t_product set status = #{status} where 
+		<choose>
+			<when test="products != null">
+				productid in
+				<foreach collection="products" open="(" close=")" separator=",">
+					#{productid}
+				</foreach>
+			</when>
+			<when test="productid != null">
+				productid = #{productid}
+			</when>
+		</choose>
+	</update>
+
+	<!-- 获取商品名称 -->
+	<select id="getProductName" parameterType="java.lang.Integer" resultType="java.lang.String">
+		select productname from t_product where productid = #{productid}
+	</select>
+
+
+	<!-- 同步线上状态 -->
+	<select id="getOnline" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+		select online from t_product where productid = #{productid}
+	</select>
+</mapper>

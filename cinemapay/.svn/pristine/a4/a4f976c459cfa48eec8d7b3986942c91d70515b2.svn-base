@@ -1,0 +1,504 @@
+//分页参数
+var page = 1;
+var pagesize = 10;
+var pagingsize = 3;
+var roleType = localStorage.getItem("roletype");
+var theaternum = localStorage.getItem("theaternum"); //0表示全部影院，即影投
+
+//消费渠道默认为线下消费
+var online = 0; 
+//默认时间
+var beginTime = addDate(new Date(), -29).format("yyyy-MM-dd 00:00:00");
+var endTime = new Date().format("yyyy-MM-dd 23:59:59");
+
+$(document).ready(function() {
+	//获取影院列表
+	if(online == 0) {
+		theaterList( null, function(){operator()});
+	}
+	
+	//搜索影院点击事件
+	$("#theatername_search_icon").on("click", function(){
+		if(online == 0) {
+			theaterList($("#theatername_search").val());
+		}
+	});
+	
+	// 选择线上线下订单
+	$(".online").on("click", function(){
+//		$(".drp-timeline-presets li").removeClass();
+//		$(".drp-timeline-presets li:eq(1)").addClass("drp-button");
+//		$(".custom-date option").removeAttr("selected");
+//		$(".custom-date option:eq(1)").attr("selected","selected");
+		
+		online = parseInt($(this).attr("online"));
+		if(online == 1) {   		//线上消费
+			$("button #theatername").html("结算方影院");
+			$("#theatername").removeAttr("theaterid");  //把影院ID置为空，重新选择；
+			
+			$(".theater_list_filter .list-unstyled li").remove();
+			var theaterHtml = '<li class="filter-item items" theaterid="1">所有影院</li>';
+			$(".theater_list_filter .list-unstyled").html(theaterHtml);
+			
+			//添加点击事件
+			$(".theater_list_filter li").on("click", function(){
+				$(this).parents(".selectpicker").removeClass("open");
+				$("#theatername").attr("theaterid", $(this).attr("theaterid"));
+				$("#theatername").text($(this).text());
+				
+				$(".drp-timeline-presets li:eq(1)").click(); //重置日期
+			});
+		}else if(online == 0) {		//线下消费
+			$("button #theatername").html("结算方影院");
+			$("#theatername").removeAttr("theaterid");  //把影院ID置为空，重新选择；
+			
+			theaterList( null, function(){operator()});
+		}
+	});
+	
+//	// 查看未出账账单
+//	$(".no_occur").on("click", function(){
+//		$(this).addClass("cur");
+//		// 点击【未出账单】时，清空时间控件中的时间
+//		$(".rangetime .custom-date option:selected").html('');
+//	});
+	
+	
+	//添加时间点击事件
+	$(".main-box .filter .time .rangetime .drp-popup").on("click", function(){
+		$(".search_settle_detail .no_occur").removeClass("cur");
+		
+		if(beginTime != $(".drp-calendar-date").eq(0).text() || endTime != $(".drp-calendar-date").eq(1).text()){
+			beginTime = $(".drp-calendar-date").eq(0).text() + " 00:00:00";
+			endTime = $(".drp-calendar-date").eq(1).text() + " 23:59:59";
+		}
+	});
+	
+});
+
+
+//查询影院列表
+function theaterList(theaterFilter, complete_fn ){
+	var param = {};
+	if( theaterFilter !=null && theaterFilter != "" ){
+		param.filter = theaterFilter;
+	}
+	ajaxRequest("theater/getTheaterList", "GET", true, param, 
+			function(data) {
+			var result = data.result;
+			switch (result) {
+				case 1000:
+					var dataArr = [];
+					var theaterList = data.data;
+					var theaterHtml = '';
+					if(theaterList != null && theaterList.length > 0){
+						theaterHtml += '<ul class="list-unstyled">';
+						for(var i=0; i<theaterList.length; i++){
+							theaterHtml += '<li class="filter-item items ellipsis" title="'+ theaterList[i].theatername +'" theaterid="'+ theaterList[i].theaterid +'">'+ theaterList[i].theatername +'</li>';
+						}
+						theaterHtml += '</ul>';
+					}else{
+						theaterHtml += '<div class="no-search-results">';
+						theaterHtml += '<div class="alert alert-warning" role="alert"><i class="fa fa-warning margin-right-sm"></i>No entry for <strong>"<span></span>"</strong> was found.</div>';
+						theaterHtml += '</div>';
+					}
+					$(".theater_list_filter").html(theaterHtml);
+					
+					$(".theater_list_filter li").on("click", function(){
+						$(this).parents(".selectpicker").removeClass("open");
+						$("#theatername").attr("theaterid", $(this).attr("theaterid"));
+						$("#theatername").text($(this).text());
+						
+						$(".drp-timeline-presets li:eq(1)").click();
+					});
+					break;
+				default : errorTip( "提示", "查询影院错误" ); break;
+			}
+		}
+		, null, null,
+		function(){ if(complete_fn != null){new complete_fn();}}
+	);
+}
+
+
+//查询操作员
+function operator(operatorName){
+	var param = {};
+	if( operatorName !=null && operatorName != "" ){
+		param.filter = operatorName;
+	}
+	
+	ajaxRequest("user/operaterList", "GET", true, param, 
+		function(data) {
+			var result = data.result;
+			switch (result) {
+				case 1000:
+					var dataArr = [];
+					var operaterList = data.data;
+					var operaterHtml = '';
+					if(operaterList != null && operaterList.length > 0){
+						operaterHtml += '<ul class="list-unstyled">';
+						operaterHtml += '<li class="filter-item items" operatorid="0">操作员</li>';
+						for(var i=0; i<operaterList.length; i++){
+							operaterHtml += '<li class="filter-item items" operatorid="'+ operaterList[i].userid +'">'+ operaterList[i].username +'</li>';
+						}
+						operaterHtml += '</ul>';
+					}else{
+						operaterHtml += '<div class="no-search-results">';
+						operaterHtml += '<div class="alert alert-warning" role="alert"><i class="fa fa-warning margin-right-sm"></i>No entry for <strong>"<span></span>"</strong> was found.</div>';
+						operaterHtml += '</div>';
+					}
+					$(".operator_list_filter").html(operaterHtml);
+					
+					$(".operator_list_filter li").on("click", function(){
+						$(this).parents(".selectpicker").removeClass("open");
+						$("#operatorname").attr("operatorid", $(this).attr("operatorid"));
+						$("#operatorname").text($(this).text());
+						loadData(1);
+					});
+					break;
+				default : errorTip( "提示", "查询操作员错误" ); break;
+			}
+		}
+		, null, null,
+		function(){ if(complete_fn != null){new complete_fn();}}
+	);
+}
+
+
+
+function loadData(side) {
+	page = pageUpDown(side);
+	
+	var param = {};
+	param.page = page;
+	param.pagesize = pagesize;
+	var theater_ID = $("#theatername").attr("theaterid");
+	if(theater_ID == null) {
+		alert("请选择影院");
+		return;
+	}
+	var theater_name = $("#theatername").html();
+	param.theaterName = theater_name;
+	param.theaterid = theater_ID;
+	param.isOnline = online;
+	
+		//获取该笔账单的开始时间以及结束时间关系等数据
+		$.when(
+				$.ajax({
+					url: service_url + "rest/" + "settle/getNoOccurDate",
+					type: "POST",
+					async: true,
+					data: param,
+					dataType: "json"
+				})
+		).done(function(data) {
+			var result = data.result;
+			switch(result) {
+				case 1000:
+//					if($(".search_settle_detail .no_occur").hasClass("cur")) { //查询未出账账单(时间区间)
+//						param.beginTime = data.beginTime;
+//						param.endTime = data.endTime;
+//					}else {
+						param.beginTime = beginTime;
+						param.endTime = endTime;
+//					}
+					param.logicBeginTime = data.beginTime;
+					getConsumeDetails(param);
+					break;
+				default:
+					errorTip("错误提示",data.msg);
+					break;
+			}
+	
+		});
+	
+}
+
+/**
+ * 获取流水明细及其账单合计
+ * @param param
+ */
+function getConsumeDetails(param) {
+	//只有影投用于浏览该页面的权限
+	if(theaternum != 0) {
+		errorTip("错误提示", "非影投工作人员");
+		return;
+	}
+	
+	//获取明细
+	ajaxRequest("settle/getConsumeDetails", "POST", true, param,
+			function(data) {
+				var result = data.result;
+				switch(result) {
+					case 1000: 
+						echoData(data);  //向消费明细table填充数据
+						
+						if(data.data != null && data.data.length > 0) {
+							$("table.sum_table").show();
+							fill_sum_data(param, data); //向结算合计table填充数据
+						}
+						break;
+					default:
+						errorTip("错误提示",data.msg);
+						break;
+				}
+		
+			},
+		null,
+		loading(),
+		loadover()
+		);
+}
+
+/**
+ * 向消费明细table页面填充数据
+ * @param data
+ */
+function echoData(data) {
+	//初始化数据(清空数据)
+	$(".consume_table table:first tr:not(:first)").remove();
+	$(".consume_table table:last").hide();
+	$(".data-tab-ul").empty();
+	//如果有“暂无消费记录”，则清除
+	$("body").find(".no_data").remove();
+	
+	var total = data.total;
+	var resultData = data.data;
+	
+	$("#consumeTotal").html(total);
+	
+	if(resultData != null && resultData.length > 0) {
+		for(var i = 0; i < resultData.length; i++) {
+			//如果是储值卡，则消费次数显示为 '无'
+			var cousumeCount = resultData[i].count;
+			
+			if(resultData[i].cardtype == "0") {
+				resultData[i].cardtype = "次卡";
+			}else if(resultData[i].cardtype == "1") {
+				resultData[i].cardtype = "储值卡";
+				//如果是储值卡，则消费次数显示为 '无'
+				if(cousumeCount == "0" || typeof(cousumeCount) == "undefined") {
+					cousumeCount = '无';
+				}
+			}
+			var html_data  = "<tr>";
+				html_data += "<td>"+ resultData[i].recordid +"</td>";
+				html_data += "<td>"+ resultData[i].cardid +"</td>";
+				html_data += "<td>"+ resultData[i].cardname +"</td>";
+				html_data += "<td>"+ resultData[i].cardtype +"</td>";
+				html_data += "<td>"+ resultData[i].online +"</td>";
+				html_data += "<td>"+ resultData[i].theatername+"</td>";
+				html_data += "<td>"+ cousumeCount +"</td>";
+				html_data += "<td>"+ resultData[i].value +"</td>";
+				html_data += "<td>"+ resultData[i].createtime +"</td>";
+				html_data += "<td>"+ resultData[i].settleprice +"</td>";
+				html_data += "</tr>";
+			
+			$(".consume_table table:eq(0)").append(html_data);
+			
+			
+		}
+		
+		var totalpage = parseInt(total % pagesize == 0 ? total / pagesize : total / pagesize + 1);
+		//分页
+		var pagingstr = loadPaging(totalpage, page, pagingsize, "loadData");
+		$(".data-tab-ul").html(pagingstr);
+	}else {
+		var html = "<div class='no_data'>暂无消费记录</div>"
+//		$("div[class='page']").after(html);
+		$("p[class='statistics']").before(html);
+	}
+}
+
+/**
+ * 向账单合计表格填充数据
+ * @param param
+ * @param data
+ */
+/*function fill_sum_data(param, data) {
+	var paramObj = {};
+	
+	//生成对账单所需数据
+	paramObj.theatername = param.theaterName;
+	paramObj.beginTime = param.beginTime;
+	paramObj.endTime = param.endTime;
+	paramObj.cinemaid = param.theaterid;
+	paramObj.amount = data.SUM;
+	paramObj.channel = param.isOnline;
+	paramObj.logicBeginTime = param.logicBeginTime;
+	var str_obj = JSON.stringify(paramObj); 
+	
+	$(".sum_table table:last tr:not(:first)").remove();
+	var sum_html  = "<tr>";
+		sum_html += 	"<td>"+ param.theaterName +"</td>";
+		sum_html += 	"<td>"+ param.beginTime +"</td>";
+		sum_html += 	"<td>"+ param.endTime +"</td>";
+		sum_html += 	"<td><b>"+ data.SUM+"</b></td>";
+		sum_html += 	"<td><span class='bill_soldout' onclick='create_bill("+ str_obj +")'><b>生成对账单</b></span></td>";
+		sum_html += "</tr>";
+		
+	$("table.sum_table").append(sum_html);
+		
+	if(data.total == '0') {
+		//若消费明细为空，则生成结账单按钮不可用
+		$(".sum_table table td span").removeClass("bill_soldout");
+		$(".sum_table table td span").removeAttr("onclick");
+	}
+}*/
+
+
+function fill_sum_data(param, data) {
+	var paramObj = {};
+	
+	//生成对账单所需数据
+	paramObj.theatername = param.theaterName;
+	paramObj.beginTime = param.beginTime;
+	paramObj.endTime = param.endTime;
+	paramObj.cinemaid = param.theaterid;
+	paramObj.amount = data.SUM;
+	paramObj.channel = param.isOnline;
+	paramObj.logicBeginTime = param.logicBeginTime;
+	var str_obj = JSON.stringify(paramObj); 
+	
+	
+	$(".content-data table:last tr .theaterName").html(param.theaterName);
+	$(".content-data table:last tr .beginTime").html(param.beginTime);
+	$(".content-data table:last tr .endTime").html(param.endTime);
+	$(".content-data table:last tr .SUM").html(data.SUM);
+	$(".content-data table:last tr .create_bill").html("<span class='bill_soldout' onclick='create_bill("+ str_obj +")'><b>生成对账单</b></span>");
+		
+	if(data.total == '0') {
+		//若消费明细为空，则生成结账单按钮不可用
+		$(".sum_table table td span").removeClass("bill_soldout");
+		$(".sum_table table td span").removeAttr("onclick");
+	}
+}
+
+/**
+ * 生成账单操作
+ * @param param
+ */
+function create_bill(param) {
+	//判断账单结束时间(生成对账单的时间只能在今天之前---->至少在昨天晚上23:59:59)
+	if(!isBeforeToday(param.endTime)) {
+		alert("只能生成今天之前的账单，请选择今天之前的日期");
+		return;
+	}
+	
+	//判断账单开始时间(生成对账单的开始时间只能在上一笔订单结束时间之后)
+	console.log(param.logicBeginTime + " : " + param.beginTime);
+	if(!isAfterLastBillTime(param.logicBeginTime, param.beginTime)) {
+		var date = new Date(param.logicBeginTime).getTime();
+		var date1 = new Date((parseInt(date)-1000));
+		var date2 = new Date((parseInt(date)-1000)).format("yyyy-MM-dd hh:mm:ss");
+		alert("该影院上一笔账单已生成到" + date2 + " ; 请选择" + param.logicBeginTime + "及其之后的时间");
+		
+		return;
+	}
+	
+	var msgHtml = '<div class="mask" style="display:block;">';
+	msgHtml += '<div class="showMess" style="display:block;">';
+	msgHtml += '<p class="tip">确认操作</p>';
+	msgHtml += '<p class="message">您正在执行生成<span>['+ param.theatername +']</span></p>';
+	msgHtml += '<p class="message">['+param.beginTime.substring(0,10) +'] 至 ['+  param.endTime.substring(0,10)+']</p>';
+	msgHtml += '<p class="message">账单操作</p>';
+	msgHtml += '<p class="btn-p"><button class="sure">确定</button><button class="deny">取消</button></p>';
+	msgHtml += '</div>';
+	msgHtml += '</div>';
+	$("body").append(msgHtml);
+	
+	$(".sure").on("click", function(){
+		$(".mask").remove();
+		
+
+//		var msgHtml = '<div class="mask alias" style="display:block;">';
+//		msgHtml += '<div class="showMess" style="display:block;">';
+//		msgHtml += '<p class="tip">调整金额</p>';
+//		msgHtml += '<p class="message"><span type="">请输入调整金额:</span><input type="text" value="0"></p>';
+//		msgHtml += '<p class="remarks"><span type="">请输入调整备注:</span><textarea rows="4" cols="30"/></p>';
+//		msgHtml += '<p class="btn-p"><button class="sure">确定</button></p>';
+//		msgHtml += '</div>';
+//		msgHtml += '</div>';
+		
+//		$("body").append(msgHtml);
+		
+		//给确认按钮添加点击事件
+//		$(".btn-p .sure").click(function() {
+//			param.floatamount = parseFloat($(".message input").val()).toFixed(2);
+//			param.remarks = $(".remarks textarea").val();
+//			$(".mask").remove();
+			ajaxRequest("settle/createBill", "POST", true, param,
+			function(data) {
+				var result = parseInt(data.result);
+				var sid = parseInt(data.sid); //生成对账单的主键
+				switch(result) {
+					case 1000:
+						window.location.href = "billDetailInfo.html?sid=" + sid;
+						break; 
+					default:
+						errorTip("请求错误", data.msg);
+						break;
+				}
+		},
+			null,
+			loading(), 
+			loadover())
+//		});	
+	});
+	$(".deny").on("click", function(){ $(".mask").remove(); });
+
+}
+
+
+/**
+ * 判断时间(生成对账单的时间只能在今天之前---->至少在昨天晚上23:59:59)
+ * @param time
+ */
+function isBeforeToday(time) {
+	//获取今天凌晨的毫秒值
+	var date = new Date();
+	var year = date.getFullYear();
+	var month = date.getMonth()+1;
+	var date = date.getDate();
+	var todayMILL = new Date(year, month, date).getTime();
+	
+	//获取time的毫秒值
+	var y = time.substring(0,4);  //var str = "2016-09-07 23:59:59"; 例如取得 "2016"
+	var m = time.substring(5,7);  //var str = "2016-09-07 23:59:59"; 例如取得 "09"
+	var d = time.substring(8,10); //var str = "2016-09-07 23:59:59"; 例如取得 "07"
+	var yedayMILL = new Date(y, m, d, 23, 59, 59).getTime();
+	
+	//time的毫秒值必须小于todayMILL
+	if(parseInt(yedayMILL) < parseInt(todayMILL)) {
+		return true;
+	}else {
+		return false;
+	}
+}
+
+/**
+ * 判断时间(生成对账单的开始时间只能在上一笔订单结束时间之后)
+ * @param LogicBeginTime  逻辑上该笔对账单的理应最先开始时间(上一笔对账单的结束时间+1 秒)
+ * @param actualBeginTime 操作员选择生成对账单的开始时间
+ * @returns {Boolean}
+ */
+function isAfterLastBillTime(LogicBeginTime,actualBeginTime) {
+	var y1 = LogicBeginTime.substring(0,4);  //var str = "2016-09-07 00:00:00"; 例如取得 "2016"
+	var m1 = LogicBeginTime.substring(5,7);  //var str = "2016-09-07 00:00:00"; 例如取得 "09"
+	var d1 = LogicBeginTime.substring(8,10); //var str = "2016-09-07 00:00:00"; 例如取得 "07"
+	var logicMILL = new Date(y1, m1, d1, 0, 0, 0).getTime(); //逻辑上该笔对账单的理应最先开始时间(上一笔对账单的结束时间+1秒)
+	
+	
+	var y2 = actualBeginTime.substring(0,4); 
+	var m2 = actualBeginTime.substring(5,7); 
+	var d2 = actualBeginTime.substring(8,10);
+	var actualMILL = new Date(y2, m2, d2, 0, 0, 0).getTime(); //操作员选择生成对账单的开始时间
+	
+	if(parseInt(actualMILL) >= parseInt(logicMILL)) { //生成对账单的时间应该 >= 逻辑上逻辑上该笔对账单的理应最先开始时间
+		return true;
+	}else {
+		return false;
+	}
+}
+

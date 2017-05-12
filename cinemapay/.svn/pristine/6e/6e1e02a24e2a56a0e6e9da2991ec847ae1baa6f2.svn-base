@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>影院总部管理系统</title>
+		<link rel="stylesheet" href="css/base.css" />
+		<link rel="stylesheet" href="css/nav.css" />	
+		<script type="text/javascript" src="js/jquery-1.11.2.min.js" ></script>
+		<script type="text/javascript" src="js/public.js"></script>
+		<script type="text/javascript" src="js/config.js"></script>
+	</head>
+	<body>
+		<div class="nav">
+			<p class="logo">卖品系统</p>
+			<div class="main_menu">
+				<div class="menu_wrapper">
+					<div class="menu_header close">
+						<i class="usersmanage" style="background:url(img/icon_usersmanage_open.png)"></i>用户管理
+					</div>
+					<ul class="menu_list" style="display: none;">
+						<li id="userInfo" class="privilege-exist">用户信息</li>
+						<li id="addUser">添加用户</li>
+						<li id="roleInfo">角色信息</li>
+						<li id="menuInfo">权限信息</li>
+					</ul>
+				</div>
+				<div class="menu_wrapper">
+					<div class="menu_header close">
+						<i class="goodsmanage"></i>商品管理
+					</div>
+					<ul class="menu_list" style="display: none;">
+						<li id="putaway" class="privilege-exist">已上架商品</li>
+						<li id="stayon" class="privilege-exist">待上架商品</li>
+						<li id="soldout" class="privilege-exist">已下架商品</li>
+						<li id="upload" class="privilege-exist">商品添加</li>
+					</ul>
+				</div>
+				<div class="menu_wrapper">
+					<div class="menu_header close">
+						<i class="ordersmanage"></i>订单管理
+					</div>
+					<ul class="menu_list" style="display: none;">
+						<li id="allOrder" class="privilege-exist">全部订单</li>
+						<li id="paysuccess" class="privilege-exist">已支付订单</li>
+						<li id="chargeoff" class="privilege-exist">已核销订单</li>
+						<li id="orderChecked" class="privilege-exist">已验证订单</li>
+						<li id="refund" class="privilege-exist">已退款订单</li>
+					</ul>
+				</div>
+				<div class="menu_wrapper">
+					<div class="menu_header close">
+						<i class="cardsmanage"></i>影院通卡(券)
+					</div>
+					<ul class="menu_list" style="display: none;">
+						<li id="addCardConf">发行通卡(券)</li>
+						<li id="secconf" class="privilege-exist">次卡</li>
+						<li id="preconf" class="privilege-exist">储值卡</li>
+					</ul>
+				</div>
+				<div class="menu_wrapper">
+					<div class="menu_header close">
+						<i class="writeoff"></i>通卡(券)核销
+					</div>
+					<ul class="menu_list" style="display: none;">
+						<li id="cardchargeoff" class="privilege-exist">核销</li>
+						<li id="cardRecordInfo">核销记录</li>
+					</ul>
+				</div>
+				<div class="menu_wrapper">
+					<div class="menu_header close">
+						<i class="writeoff"></i>核销
+					</div>
+					<ul class="menu_list" style="display: none;">
+						<li id="offline" class="privilege-exist">线下订单</li>
+						<li id="online" class="privilege-exist">线上订单</li>
+					</ul>
+				</div>
+				<div class="menu_wrapper">
+					<div class="menu_header close">
+						<i class="billsmanage"></i>经营管理
+					</div>
+					<ul class="menu_list" style="display: none;">
+						<li id="batch" class="privilege-exist">批次信息</li>
+						<li id="cardnum" class="privilege-exist">卡号查询</li>
+						<li id="records" class="privilege-exist">消费记录</li>
+					</ul>
+				</div>
+				<div class="menu_wrapper">
+					<div class="menu_header close">
+						<i class="billsmanage"></i>账单管理
+					</div>
+					<ul class="menu_list" style="display: none;">
+						<li id="getConsumeDetails">消费明细</li>
+						<li id="getBillStream">账单操作</li>
+					</ul>
+				</div>
+			</div>
+			<script type="text/javascript">
+				var privilege = [];
+				var menu = localStorage.getItem("menuinfo");
+				var menuinfo = JSON.parse(menu);
+				if(menuinfo != null){
+					for(var i=0;i<menuinfo.length;i++){
+						var privilegeUrl = menuinfo[i].requesturl;
+						if(privilegeUrl == "manager/userInfoList.html"){
+							$(".menu_wrapper").eq(0).addClass("privilege-exist");
+						}else if(privilegeUrl == "manager/ProductList.html"){
+							$(".menu_wrapper").eq(1).addClass("privilege-exist");
+						}else if(privilegeUrl == "manager/OrderList.html"){
+							$(".menu_wrapper").eq(2).addClass("privilege-exist");
+ 						}else if(privilegeUrl == "manager/cardConfList.html"){
+ 							$(".menu_wrapper").eq(3).addClass("privilege-exist");
+ 						}else if(privilegeUrl == "manager/cardChargeOff.html"){
+ 							$(".menu_wrapper").eq(4).addClass("privilege-exist");
+						}else if(privilegeUrl == "manager/OrderChargeOff.html"){
+							$(".menu_wrapper").eq(5).addClass("privilege-exist");
+						}else if(privilegeUrl == "manager/ManageData.html"){
+							$(".menu_wrapper").eq(6).addClass("privilege-exist");
+						}else if(privilegeUrl == "manager/settleManage.html"){
+							$(".menu_wrapper").eq(7).addClass("privilege-exist");
+						}
+						
+						var childPrivilege = menuinfo[i].show;
+						for(var j=0; j<childPrivilege.length; j++){
+							privilegeUrl = childPrivilege[j].requesturl;
+							$("#" + privilegeUrl).addClass("privilege-exist");
+						}
+					}
+				}
+				$(".menu_wrapper:not(.privilege-exist)").remove();
+				$(".menu_wrapper li:not(.privilege-exist)").remove();
+				$(".menu_wrapper").show();
+			    $(".menu_wrapper:first").addClass('check')
+			                            .children('.menu_header').removeClass('close').addClass('open')
+			                            .siblings(".menu_list").show()
+			                            .children('li:first').addClass('select');
+				
+				$('.menu_header').click(function(){
+					var listState = $(this).siblings('.menu_list').css('display');
+						listState == 'none' ?
+							$(this).removeClass('close').addClass('open') :
+							$(this).removeClass('open').addClass('close');
+					$(this).siblings('.menu_list').slideToggle();
+				});
+				
+				$('.menu_list li').click(function(){
+					var menu_wrapper = $(this).parent('.menu_list').parent('.menu_wrapper');
+					if(!menu_wrapper.hasClass('check')){
+						var iconName = menu_wrapper.children('.menu_header').children('i');
+						$('.menu_wrapper').removeClass('check').children('.menu_header').children('i').attr('style', '');
+						menu_wrapper.addClass('check');
+						
+						iconName.css('background', 'url(img/icon_' + iconName.attr('class') + '_open.png)');
+					}
+					$('.menu_list li').removeClass('select');
+					$(this).addClass('select');
+					
+					var link_href = '';
+					switch($(this).attr('id')){
+						case 'addUser':
+							link_href = 'userInfoAdd.html';
+							break;
+						case 'userInfo':
+							link_href = 'userInfoList.html';
+							break;	
+						case 'roleInfo':
+							link_href = 'roleInfoList.html';
+							break;
+						case 'menuInfo':
+							link_href = 'menuInfoList.html';
+							break;
+						case 'upload':
+							link_href = 'ProductUpload.html';
+							break;
+						case 'putaway':
+							link_href = 'ProductList.html?status=1';
+							break;
+						case 'stayon':
+							link_href = 'ProductList.html?status=-1';
+							break;
+						case 'soldout':
+							link_href = 'ProductList.html?status=0';
+							break;
+						case 'allOrder':
+							link_href = 'OrderList.html?status=0';
+							break;
+						case 'paysuccess':
+							link_href = 'OrderList.html?status=2';
+							break;
+						case 'chargeoff':
+							link_href = 'OrderList.html?status=6';
+							break;
+						case 'orderChecked':
+							link_href = 'OrderList.html?status=4';
+							break;
+						case 'refund':
+							link_href = 'OrderList.html?status=-2';
+							break;
+						case 'offline':
+							link_href = 'OrderChargeOff.html?status=-1';
+							break;
+						case 'online':
+							link_href = 'OrderChargeOff.html?status=1';
+							break;
+						case 'getConsumeDetails':
+							link_href = 'settleDetails.html';
+							break;
+						case 'getBillStream':
+							link_href = 'billList.html';
+							break;
+						case 'batch':
+							link_href = 'ManageData.html?status=1';
+							break;
+						case 'cardnum':
+							link_href = 'ManageData.html?status=2';
+							break;
+						case 'records':
+							link_href = 'ManageData.html?status=3';
+							break;
+						case 'addCardConf':
+							link_href = 'cardConfAdd.html';
+							break;
+						case 'secconf':
+							link_href = 'cardConfList.html?status=1';
+							break;
+						case 'preconf':
+							link_href = 'cardConfList.html?status=2';
+							break;
+						case 'cardchargeoff':
+							link_href = 'cardChargeOff.html';
+							break;
+						case 'cardRecordInfo':
+							link_href = 'cardRecordList.html';
+							break;
+						default:
+					};
+					
+					$(parent.document).find("iframe#mainFrame").attr("src", "manager/" + link_href);
+				});
+			</script>
+		</div>
+	</body> 
+</html>

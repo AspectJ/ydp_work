@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="role">
+
+	<!-- 新增角色 -->	
+	<insert id="insertRole" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="roleid">
+		insert into t_role( rolename,theaternum,roletype,status) 
+			values 
+		(#{rolename},#{theaternum},#{roletype},#{status})
+	</insert>
+	
+	<!-- 修改角色信息 -->	
+	<update id="updateRole" parameterType="map">
+		update t_role set roleid = #{roleid} 
+		<if test="rolename != null">
+			,rolename = #{rolename} 
+		</if>
+		<if test="theaternum != null">
+			,theaternum = #{theaternum}
+		</if>
+		<if test="roletype != null">
+			,roletype = #{roletype}
+		</if>
+		<if test="status != null">
+			,status = #{status}
+		</if>
+		where roleid = #{roleid}
+	</update>
+	
+	<!-- 删除角色信息 -->
+	<delete id="deleteRole" parameterType="map">
+		delete from t_role 
+		where roleid = #{roleid} 
+	</delete>
+	
+	<!-- 角色信息查询 -->
+	<select id="getRoleList" parameterType="java.util.Map" resultType="java.util.Map">
+		select r.roleid,r.rolename,r.theaternum,r.roletype,r.status,t.theatername,t.theatertype from t_role r 
+		join t_theater t on  r.theaternum=t.theaternum
+		where 1=1 
+		<if test="search != null">
+			and r.rolename like #{search}
+		</if>
+		<if test="theaternum != null">
+			and r.theaternum in 
+			<foreach item="item" index="index" collection="theaternum" open="(" separator="," close=")">
+             	#{item}
+        	</foreach>
+		</if>
+		<if test="roletype != null">
+			and r.roletype in 
+			<foreach item="item" index="index" collection="roletype" open="(" separator="," close=")">
+             	#{item}
+        	</foreach>
+		</if>
+		order by r.roleid desc limit ${pageSize} offset ${offsetNum} 
+	</select>
+	
+	<!-- 角色信息查询 -->
+	<select id="getRoleListCount" parameterType="java.util.Map" resultType="java.util.Map">
+		select count(*) as count from t_role r 
+		join t_theater t on  r.theaternum=t.theaternum
+		where 1=1 
+		<if test="search != null">
+			and r.rolename like #{search}
+		</if>
+		<if test="theaternum != null">
+			and r.theaternum in 
+			<foreach item="item" index="index" collection="theaternum" open="(" separator="," close=")">
+             	#{item}
+        	</foreach>
+		</if>
+		<if test="roletype != null">
+			and r.roletype in 
+			<foreach item="item" index="index" collection="roletype" open="(" separator="," close=")">
+             	#{item}
+        	</foreach>
+		</if>
+	</select>
+	
+	<!-- 新增影院查询信息 -->	
+	<insert id="insertTheater" parameterType="java.util.Map" useGeneratedKeys="true">
+		insert into t_theater( theaterid,theaternum,theatername,theatertype) 
+			values 
+		(#{theaterid},#{theaternum},#{theatername},#{theatertype})
+	</insert>
+	
+	<!-- 影院信息查询 -->
+	<select id="getTheater" parameterType="java.util.Map" resultType="java.util.Map">
+		select theaterid,theaternum,theatername,theatertype from t_theater  
+		where 1=1 and theaternum != '0' 
+		<if test="theaterid != null">
+			and theaterid = #{theaterid}
+		</if>
+		<if test="theaternum != null">
+			and theaternum = #{theaternum}
+		</if>
+		<if test="theatertype != null">
+			and theatertype = #{theatertype}
+		</if>
+		order by theaterid desc
+	</select>
+	
+	<!-- 角色信息查询 -->
+	<select id="getRoleInfo" parameterType="java.util.Map" resultType="java.util.Map">
+		select roleid,rolename,theaternum,roletype,status from t_role  
+		where 1=1 
+		<if test="roleid != null">
+			and roleid = #{roleid}  
+		</if>
+		<if test="rolename != null">
+			and rolename = #{rolename}  
+		</if>
+		<if test="status != null">
+			and status = #{status}  
+		</if>
+		<if test="theaternum != null">
+			and theaternum in 
+			<foreach item="item" index="index" collection="theaternum" open="(" separator="," close=")">
+             	#{item}
+        	</foreach>
+		</if>
+		<if test="roletype != null">
+			and roletype in 
+			<foreach item="item" index="index" collection="roletype" open="(" separator="," close=")">
+             	#{item}
+        	</foreach>
+		</if>
+		order by roletype,roleid 
+	</select>
+	
+	
+	<!-- 判断角色是否被使用 -->
+	<select id="checkRoleForUser" parameterType="java.util.Map" resultType="java.util.Map">
+		select userid,username from t_userinfo  
+		where 1=1 
+		<if test="roleid != null">
+			and roleid = #{roleid}
+		</if>
+	</select>
+	
+	<!-- 判断角色名称是否存在 -->
+	<select id="checkRepeatRoleName" parameterType="java.util.Map" resultType="java.util.Map">
+		select roleid,rolename from t_role  
+		where 1=1 
+		<if test="rolename != null">
+			and rolename = #{rolename}
+		</if>
+		<if test="roletype != null">
+			and roletype = #{roletype}
+		</if>
+		<if test="theaternum != null">
+			and theaternum = #{theaternum}
+		</if>
+		<if test="status != null">
+			and status = #{status}
+		</if>
+		<if test="roleid != null">
+			and roleid != #{roleid}
+		</if>
+	</select>
+	
+	
+	
+</mapper>

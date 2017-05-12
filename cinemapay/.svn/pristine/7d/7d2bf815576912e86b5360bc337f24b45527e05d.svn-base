@@ -1,0 +1,102 @@
+.filter .placeholder_condition{display: none;}
+
+/*操作按钮*/
+.data-tab .dataoperator i{margin: 0 3px; padding:2px 5px;display: inline-block;font-size: 13px;font-weight: bold;border-radius: 3px;}
+.data-tab .dataoperator .refund{cursor: pointer;background-color: #2B2A3C;   color: #ECECEC;font-weight: 100;}
+
+.statistics{float: right;
+	margin-top: 10px;
+    right: 100px;
+	font-weight: bold;
+	color: #AAAAAA;
+	font-size: 15px;
+}
+    
+.statistics span{
+	border: 2px solid #D3D3D3; padding: 2px 12px;margin: 5px;
+	color: #515254;
+	
+}
+
+.bill_soldout{
+	cursor: pointer;
+	/* background-color: #2B2A3C; 
+	color: #ECECEC;*/
+	font-weight: 100;
+}
+.all_bill{
+	cursor:pointer;
+}
+
+.bill_soldout:hover, .all_bill:hover{
+	text-decoration: underline;
+	background-color: #2B2A3C; 
+	color: #ECECEC;
+}
+
+.change_div{
+	text-align: center!important;
+	margin-top: 50px;
+}
+
+.change_div button {
+	font-weight: bold;
+    color: #fff;
+    background-color: #249B6A;
+    height: 45px;
+    border-radius: 3px;
+    line-height: 45px;
+    width: 120px;
+    text-align: center;
+    border: none;
+    font-size: 18px;
+}
+
+
+.alias .showMess{
+	height: 400px;
+}
+.alias .showMess span{
+	float: left;
+	margin-left:15px;
+}
+
+.alias .showMess .remarks{
+	text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: #383b43;
+}
+
+.alias .showMess .remarks textarea{
+	margin-top: 10px;
+}
+
+.alias .showMess .message input{
+	height:35px;width:235px;text-align:center;border:2px solid black
+}
+
+.alias .showMess .btn-p button{
+	/* float: none!important; */
+	/* margin: 20px 0 0 105px */
+	margin-top:20px;
+}
+
+table .summation{
+	color:blue!important;
+}
+
+
+.mask #uploadfile {
+    margin: 40px 0 40px 50px;
+}
+
+.mask .Tip {
+	color: blue;
+}
+
+td .file:hover{
+	cursor: pointer;
+	text-decoration: underline;
+	color:#6495ED
+}

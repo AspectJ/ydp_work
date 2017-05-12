@@ -1,0 +1,360 @@
+
+$sumWidth: 930px;
+$font: "微软雅黑";
+$backimg: url(../img/icon.png) no-repeat;
+$rcolor: #ff4400;
+$bcolor: #272636;
+$btnColor: #E94718;
+$normalColor: #333247;
+
+/*主框架*/
+.main-box{
+    min-width: $sumWidth;overflow: hidden;
+    width:100%;
+    margin:0 auto;
+}
+.bigImg{
+    padding:10px 30px;
+    p{
+        background:$backimg;
+        height:214px; width:460px;
+        position:relative;
+        span, i{
+            position:absolute;color:#fff; font-family: $font;            
+            width:200px; height:40px; line-height: 40px;
+            text-align: center;
+        }
+        span{right:40px;top:55px;font-size:25px;font-weight: bold;}
+        i{right:40px; top:115px;font-size:40px;}
+    }
+    .left{ background-position:0 -246px;float:left; margin-left:30px; }
+    .right{ background-position:-467px -246px;float:right; margin-right:30px;}
+}
+.content-title{
+    padding:10px 0;
+    width:100%; text-align: right;
+    background:#fff;
+    span{
+        color:red;margin-right:20px; float:right;
+        font-size:14px; font-family: $font; margin-top:10px;
+    }
+}
+.search{
+  width: 310px;height: 38px; border:none;
+  background: url(../img/icon.png) no-repeat;
+  background-position: -87px -207px; margin-right:15px; 
+  padding-top: 3px; float:right;
+  input{      
+      width: 240px;
+      padding-left: 20px;
+      float: left; border:none;
+      height: 32px; background:transparent;
+      line-height: 32px;font-size:16px;
+  }
+  i{  float: right;
+      width: 42px;
+      height: 38px;
+      cursor: pointer;
+  }
+}
+
+/* 图形展示 */
+.show,.content-data{
+    width:96%; 
+    margin:10px auto;
+    font-family: $font;
+}
+.show{
+    margin-top:0;
+    background:#fff;
+    vertical-align: top;
+    .data-tab{
+        th{cursor: pointer;}
+        th:hover{background:$rcolor;}
+    }
+    .select{margin-right:30px; background:#fff; margin-top:2px;}
+    .graph-title{
+        border-left:3px solid $bcolor;padding-left:10px;
+        margin-top:10px;margin-left:8px;
+    }
+    .graph-box{
+        background:#fff; height:340px;
+        width:900px;margin:0 auto; overflow: hidden;
+    }
+    .piao-type{
+        padding:10px 0;
+        i{
+            background:$bcolor;margin-right:10px; cursor: pointer;
+            float:left; color:#fff; text-align: center;
+            width:120px; height:50; line-height: 50px;
+            &:hover{ background:$rcolor; }
+        }
+    }
+    .cur{ background:$rcolor !important; }
+    .normal{ background:$normalColor !important; cursor: default !important;}
+}
+/* 筛选条件 */
+.filter-box{
+    padding:0 10px;
+    height:50px; line-height: 50px; 
+}
+
+/* 内容区域 */
+.content-data{   
+    position:relative;
+    &>.title{
+        background:#fff;
+        padding:10px 0 5px 10px;
+        font-size:25px; 
+        font-family: $font; line-height: 40px;
+        s{font-size:16px; margin-left:30px;}
+    }
+}
+
+.data-tab{    
+    background:#fff;
+    font-family: $font;
+    th{
+        font-weight: normal; background:#333247;color:#fff;
+        overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    }
+    .normal{overflow:visible;}
+    th,td{
+        height:40px; line-height: 40px;
+        text-align: center; border:none;
+        vertical-align: middle;
+        padding:5px 0;
+    }
+    i{ 
+        display: block;margin:0 auto;
+        background:$backimg;cursor:pointer;
+        width:40px; height:40px; font-style: normal;
+        border-radius:5px; color:#fff; font-size:12px;
+    }
+    a{color:#fff !important;}
+    &>tbody>tr:nth-child(even){ background:#F7F7F7; }
+    .check{background-position:-122px 0; }
+    .checked{background-position:-83px 0;}
+    .edit,.del{ float:right;margin-right: 10px; }
+    .edit{background-position: -210px 0;}
+    .del{background-position: -247px 0;}
+    .none{
+        background:none; width:51px; height:27px; line-height: 27px;
+        background-color:$bcolor;float:left;margin:0; margin-top:7px;
+        margin-left:5px;
+    }
+    
+    .state{width:260px;
+        i{
+            margin:0;
+            float:left;margin-left:5px;
+            cursor:default; height:28px; line-height: 28px;
+            width:58px; background:$bcolor;
+        }   
+    }
+    .cur{background:$rcolor !important;}
+    .down{
+        margin:0 auto;
+        background-position:-327px 0;
+    }
+    .name{width:260px; text-align: left; padding-left:15px;}
+    .content{ padding:7px 15px;
+        i{
+            width:76px;font-size:16px;
+            background:$rcolor; line-height: 32px; height:32px;
+            float:left;
+        }
+        p{
+            float:left; text-align: left; width:80%;
+            line-height: 22px; margin-left:10px;
+        }
+    }
+    .xiaofei{
+        width:80px; color:#fff; height:30px; line-height: 30px;
+        background:#262635;
+        &:hover{
+            background:$rcolor;
+        }
+    }
+}
+//标题
+//#data-tab-title{
+//  th{
+//      
+//  }
+//}
+
+
+//分页
+.page{
+    height:40px;
+    padding:15px 0;
+    background:#fff;
+    position:relative;
+    font-family:$font;
+    .add,.delSelect{
+        height:34px; line-height: 34px;
+        margin-left:20px; text-align: center;
+        cursor: pointer; border-radius:5px;
+        display:block; color:#fff;
+    }
+    .add{
+        width:40px; height:40px;
+        background:$backimg;
+        background-position:-167px 0;
+    }
+    .delSelect{
+        width:80px; background:$rcolor;
+    }
+    &>ul{
+        width:370px;
+        height:40px;
+        position:absolute;
+        left:0;right:0; top:15px;
+        margin:0 auto;
+    }
+    &>ul>li{
+        width:32px; height:32px; 
+        float:left; text-align: center;line-height: 32px;
+        border:1px solid #aaa;margin-left:8px;
+        cursor: pointer;
+        font-family: $font;
+    }
+    .duo{border:none;}
+    .cur{background:$btnColor; color:#fff; border-color:$btnColor;}
+    .prev, .next{
+        width:80px;
+    }
+}
+
+//控制面板
+.panel{
+    width:100%;
+    margin-top:10px;
+    padding:10px 0;
+    background:#fff;
+    display:none;
+}
+.panel-tab{
+    border:none; border-collapse: collapse;
+    font-family: $font;
+    td{
+        height:50px; line-height: 50px;
+        border:none;
+    }
+    input{
+        width:300px;
+        height:20px; vertical-align: middle;
+        padding:10px 7px; border:1px solid #ddd;border-radius:5px;
+    }
+    p{position:relative;}
+    .w{width:718px;}
+    .file{
+        width:40px; height:40px; position:absolute;right:-10px; top:7px;
+        background:$backimg;
+        background-position:-167px 0;
+    }
+    .title{  width:80px; padding-right:5px;  text-align: right;}
+}
+
+//自定义下拉框
+$selecth: 40px;
+.select{
+    width:310px; display:inline-block; 
+    border:1px solid #ddd;
+    border-radius:5px;
+    position:relative;
+    height:$selecth; line-height: $selecth;
+    transition: all .3s;
+    font-family: $font;
+    font-size:16px;
+    
+    &:hover{
+      ul{ display: block !important;}
+       p i{
+           transform: rotate(180deg); 
+       }
+    }
+    p{
+        border-radius:5px;width:100%;text-overflow:ellipsis;
+    }
+    p i{
+        position:absolute;right:7px;top:14px;
+        width:26px; height:12px;            
+        background:url(../img/arrow_down.png) no-repeat;
+        background-size:25px 12px;transition: all .3s;
+    }
+    p,li{padding-left:10px;cursor: pointer; transition: all .3s; box-sizing: border-box;}
+    ul{  position:absolute; top:$selecth; z-index:2;background:$bcolor; color:#fff; display:none;
+        width:100%;
+    }
+    li{
+        &:hover{
+            background:$btnColor;
+        }
+    }
+    .l{left:0;}
+    .r{right:0;}
+}
+.select-red{
+    border:none;
+    height:34px !important; line-height: 34px !important;
+    p{
+        background:$rcolor;
+        span{color:#fff;}
+        i{                      
+            background: $backimg;
+            background-position: -273px -47px; 
+         }
+     }
+    .select-option{ width:96%;top:34px; }
+}
+.title-select{
+    border:none;float:right;
+    background:$normalColor !important;
+    margin-right:0 !important;
+    p{
+        background:$normalColor;
+        span{color:#fff;}
+        i{                      
+            background: url(../img/arrow.png) no-repeat;
+         }
+     }
+     ul{
+         width:150%;
+         li{padding:7px 0;}
+     }
+}
+
+.panel-btn{
+    padding:20px; text-align: center;
+    button{
+        transition: all .3s;
+        border:none; font-family: $font; font-size:18px;
+        background:$btnColor; color:#fff; cursor: pointer;
+        width:120px; height:40px; line-height: 40px;
+        border-radius:5px;
+        &:hover{
+            background:$rcolor;
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

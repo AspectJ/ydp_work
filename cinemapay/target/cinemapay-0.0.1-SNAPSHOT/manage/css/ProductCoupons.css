@@ -1,0 +1,35 @@
+.main-box .coupons-box{background-color:#fff;margin-top:0px;padding-top:5px;margin-left:30px;padding-left:0}
+.main-box .title{width:95%;height:40px;line-height: 40px; margin: 0 auto; padding:5px 0px;font-weight:bold;color:#505052;font-size:18px}
+.main-box .coupons{border:2px solid #e8e9ea !important;width:95%;margin-left:auto;margin-right:auto;}
+.coupons p{margin-left:20px;color:#505052;margin-top:30px;}
+.coupons label{font-weight:bold;font-size:15px;width:100px;display:inline-block;text-align:left}
+.coupons input{outline:medium;background-color:#fafafa !important;border:1px solid #e8e9ea;margin-left:10px;margin-right:50px;line-height:26px;height:30px;width:450px !important;font-size:14px;padding-left:10px;color:#505052; padding-right: 7px;}
+.coupons textarea{margin-left:10px;background-color:#fafafa;vertical-align:text-top;border:1px solid #e8e9ea;height:50px;width:452px;font-size:14px;padding-left:10px;padding-top:10px;color:#505052}
+.coupons .restrict{color:#B1B1B1;position:absolute;left:610px;margin-top:7px;font-size:13px}
+.coupons label .must{color:red;font-weight:bold;margin-left:3px}
+.coupons .submitBn{background-color:#57B382;color:#fff;text-align:center;margin-top:50px;border:2px solid #e8e9ea;width:380px;line-height:45px;font-size:20px;font-weight:bold;letter-spacing:16px;padding-left:20px;cursor:pointer;margin-left:50px;margin-right:50px}
+.review{width:332px;height:614px;line-height:height:614px;position:absolute;margin-top:-680px;margin-left:700px}
+.review_message{background-image:url(../img/coupons_message.png)}
+.review_message .coupons_title{margin-top:185px;text-align:center;font-weight:bold;font-size:18px;color:#505052;line-height:25px;height:25px;width:100%}
+.review_message .coupons_sub_title{margin-top:35px;text-align:center;font-weight:bold;font-size:13px;color:#B1B1B1;line-height:20px;height:20px;width:100%}
+.review_message .coupons_expirydate{font-size: 13px; color: #B1B1B1;text-align: center;}
+.review_detail{display:none;background-image:url(../img/coupons_detail.png)}
+.review_detail .title{padding-left:25px;margin-top:100px;margin-bottom:0}
+.review_detail hr{width:88%;margin-left:6.1%;border:none;border-top:1px solid #C6C4C4}
+.review_detail p{margin-left:30px;line-height:15px;}
+.review_detail label{color:#B1B1B1;font-size:14px;display:inline-block;width:75px}
+.review_detail div{position:absolute;margin-left:110px;margin-top:-32px;font-size:14px;font-weight:bold;color:#515254;width: 200px; word-break: break-all;max-height: 200px; overflow: auto;}
+.review_detail .tell{color:#469058}
+.review_qrcode{display:none;background-image:url(../img/coupons_qrcode.png)}
+.review_qrcode .coupons_title{margin-top:168px;text-align:center;font-weight:bold;font-size:18px;color:#505052;line-height:25px;height:25px;width:100%}
+.review_qrcode .coupons_notice{margin-top:230px;text-align:center;font-weight:bold;font-size:14px;color:#AAAAAA;line-height:25px;height:25px;width:100%}
+
+.coupons-box{height: -moz-calc(100% - (60px));
+    height: -webkit-calc(100% - (60px) * 1);
+    height: calc(100% - (60px));}
+.coupons-box ul{position:absolute;margin-top:-500px;margin-left:1030px;list-style-type:none}
+.coupons-box li{margin-top:30px;border:3px solid #DDDDDD;text-align:center;height:40px;line-height:40px;color:#7E7B7B;width:100px;cursor:pointer}
+.coupons-box .li_cur{color:#7E7B7B;font-weight:bold;border:3px solid #469058;cursor:auto}
+.coupons-box .notice{color:#B1B1B1;font-weight:bold;position:absolute;margin-top:-50px;margin-left:720px}
+
+.Wdate{border-radius: 0 !important;}

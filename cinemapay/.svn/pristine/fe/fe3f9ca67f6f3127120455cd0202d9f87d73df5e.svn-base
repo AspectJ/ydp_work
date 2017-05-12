@@ -1,0 +1,96 @@
+package com.cp.bean;
+
+import java.text.DecimalFormat;
+
+
+/**
+ * 类型转换
+ * @author stone 2015-4-23下午6:16:54
+ */
+public class Convert
+{
+	
+	
+	/**
+	 * 通卡（券）类型转换
+	 * @param type
+	 * @return
+	 */
+	public static String convertCardConfType(String type){
+		String result = "";
+		if(type.equals("0")){//0、次卡；1、储值卡
+			result = "次卡";
+		}else if(type.equals("1")){
+			result = "储值卡";
+		}
+		return result;
+	}
+	
+	/**
+	 * 是否生成卡号转换
+	 * @param status
+	 * @return
+	 */
+	public static String convertCardConfStatus(String status){
+		String result = "";
+		if(status.equals("0")){//0、未生成卡号；1、已生成卡号
+			result = "未生成";
+		}else if(status.equals("1")){
+			result = "已生成";
+		}
+		return result;
+	}
+	
+	
+	/**
+	 * 消费状态转换
+	 * @param status
+	 * @return
+	 */
+	public static String convertCardRecordStatus(String status){
+		String result = "";
+		if(status.equals("0")){//0、正常；1、已退款  
+			result = "正常";
+		}else if(status.equals("1")){
+			result = "已退款";
+		}
+		return result;
+	}
+	
+	/**
+	 * 销售类型转化
+	 * @param status
+	 * @return
+	 */
+	public static String convertConfCinemaType(String type){
+		String result = "";
+		if(type.equals("1")){//1、线上；2、前台；3、BOTH;
+			result = "线上";
+		}else if(type.equals("2")){
+			result = "前台";
+		}else if(type.equals("3")){
+			result = "BOTH";
+		}
+		return result;
+	}
+	
+	
+	/**
+	 * 保留两位小数
+	 */
+	public static String saveDecimalTwo(Object value){
+		DecimalFormat fnum = new  DecimalFormat("##0.00");
+		return fnum.format(value);
+	}
+	
+	/**
+	 * 保留一位小数
+	 */
+	public static String saveDecimalOne(Object value){
+		DecimalFormat fnum = new  DecimalFormat("##0.0");
+		return fnum.format(value);
+	}
+	
+	
+	
+}

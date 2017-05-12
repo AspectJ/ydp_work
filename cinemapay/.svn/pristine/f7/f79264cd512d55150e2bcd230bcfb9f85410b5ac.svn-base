@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<style>
+			html, body{background-color: #fff;}
+			div{ position: absolute; right: 20px; }
+			span{display: inline-block;font-weight: bold;color: #7C7B7B;background-repeat: no-repeat; height: 50px; padding-left: 40px; line-height: 50px; background-position: 0px 8px; margin-left: 20px;}
+			.message{ background-image: url(img/message.png); }
+			.manage{ background-image: url(img/manage.png); }
+		</style>
+		<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+		<script type="text/javascript" src="js/public.js"></script>
+		<script type="text/javascript" src="js/config.js"></script>
+		<script type="text/javascript" src="js/top.js"></script>
+	</head>
+
+	<body>
+		<div>
+			<span class="message" id="newnotice">最新消息</span>
+			<span class="manage" id="userlogin"></span>
+			<span class="manage" id="loginout">退出登录</span>
+		</div>
+	</body>
+
+</html>

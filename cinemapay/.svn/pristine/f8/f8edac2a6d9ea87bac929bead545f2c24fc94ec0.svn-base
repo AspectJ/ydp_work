@@ -1,0 +1,108 @@
+var userid = "";
+$(function(){
+	$("#oldPass").blur(function(){
+		checkOldPass();
+	});
+	
+	$("#firstPass").blur(function(){
+		var firstPass = $("#firstPass").val();
+		if(firstPass.length < 6 || firstPass.length > 16){
+			$("#firstmsg").html("新密码为6-16位");
+			return;
+		}else{
+			$("#firstmsg").html("");
+		}
+	});
+	
+	$("#secondPass").blur(function(){
+		var firstPass = $("#firstPass").val();
+		var secondPass = $("#secondPass").val();
+		if(secondPass.length < 6 || secondPass.length > 16){
+			$("#secondmsg").html("新密码为6-16位");
+			return;
+		}else if(firstPass != secondPass){
+			$("#secondmsg").html("两次密码输入不一致");
+			return;
+		}else{
+			$("#secondmsg").html("");
+		}
+	});
+	
+	$("#commit").on("click",function(){
+		if(checkSamePass()){
+			changePass();
+		}
+	});
+});
+
+
+function checkOldPass(){
+	var username = sessionStorage.getItem("username");
+	var pass = $("#oldPass").val();
+	var url= service_url + "rest/user/checkPass";
+	if(pass != ""){
+		if(pass.length >= 6 && pass.length <= 16){
+			$.post( url,{username : username, pass : pass},function(data) {
+				var retjson=$.parseJSON(data);
+				var result = parseInt(retjson.result);
+		        if(result == 1000){
+		        	$("#oldmsg").html("");
+		        	userid = retjson.userid;
+		        	return true;
+		        }else if(result == 1102){
+		        	$("#oldmsg").html("原始密码输入错误");
+		        	$("#oldPass").val("");
+		        	return false;
+		        }
+			});
+		}else{
+			$("#oldmsg").html("原始密码为6-16位");
+			return false;
+		}
+	}else{
+		$("#oldmsg").html("请输入原始密码");
+		return false;
+	}
+}
+
+function checkSamePass(){
+	var oldPass = $("#oldPass").val();
+	var firstPass = $("#firstPass").val();
+	var secondPass = $("#secondPass").val();
+	if(firstPass.length < 6 || firstPass.length > 16){
+		$("#firstmsg").html("新密码为6-16位");
+		return false;
+	}else if(secondPass.length < 6 || secondPass.length > 16){
+		$("#secondmsg").html("新密码为6-16位");
+		return false;
+	}else if(firstPass != secondPass){
+		$("#secondmsg").html("两次密码输入不一致");
+		return false;
+	}else if(oldPass == secondPass && oldPass == firstPass){
+		$("#secondmsg").html("新密码与原始密码一致");
+		return false;
+	}else{
+		return true;
+	}
+}
+
+function changePass(){
+	var firstPass = $("#firstPass").val();
+	var url = service_url + "rest/user/resetPass";
+	$.post( url,{userid : userid,pass : firstPass },function(data) {
+		var retjson=$.parseJSON(data);
+		var result = parseInt(retjson.result);
+        if(result == 1000){
+        	errorTip("提示","密码修改成功,请重新登录");
+        	setTimeout(function(){
+        		window.parent.location="../login.html";//登录页
+        	}, 3000);
+        }else if(result == 1105){
+        	errorTip("提示","密码修改失败，请稍后重试");
+        	return;
+        }else{
+        	errorTip("提示","请求超时，请稍后重试");
+        	return;
+        }
+	});
+}

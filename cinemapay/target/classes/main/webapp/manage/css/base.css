@@ -1,0 +1,47 @@
+@charset "UTF-8";
+
+html,body,ul,h1,h2,h3,h4,h5,h6,p{margin:0;padding:0;font-weight:normal;}
+*{font-family: Microsoft YaHei;}
+ul{list-style: none;}
+a{text-decoration: none; color:#000;}
+button:focus,input:focus{outline: none;}
+iframe{margin:0;padding:0;border:0; overflow: hidden;float:left;}
+.clear{width:100%; height:1px; clear:both; }
+.clearfix:after {
+    content: ".";
+    display: block;
+    clear: both;
+    visibility: hidden;
+    height: 0;
+}
+.clearfix {
+    height: 1%;
+}
+table{width:100%; border:none; border-collapse: collapse;}
+s,i{font-style:normal; text-decoration: none;}
+.red{color:red;}
+.fl{float:left;}
+.fr{float:right;}
+
+.w50{width:50px !important;}
+.w60{width:60px !important;}
+.w80{width:80px !important;}
+.w100{width:100px !important;}
+.w120{width:120px !important;}
+.w140{width:140px !important;}
+.w150{width:150px !important;}
+.w160{width:160px !important;}
+.w200{width:200px !important;}
+.w240{width:240px !important;}
+.w250{width:250px !important;}
+
+.w10_{width:10% !important;}
+.w20_{width:20% !important;}
+.w30_{width:30% !important;}
+
+.fs_14{font-size: 14px !important;}
+.fs_15{font-size: 15px !important;}
+.fs_18{font-size: 18px !important;}
+.fs_20{font-size: 20px !important;}
+
+.ml_2r{margin-left:2rem}

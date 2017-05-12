@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link rel="stylesheet" href="../css/base.css" />
+		<link rel="stylesheet" href="../css/main.css" />
+		<link rel="stylesheet" href="../css/info.css" />
+		<link rel="stylesheet" href="../css/top.css" />
+		<link rel="stylesheet" href="../js/libs/icheck/skins/minimal/green.css" />
+		<style>
+			.select-area{
+				float: left;
+				width: 900px;
+			}
+			.select-area li{
+				float: left;
+			    margin: 0 20px 10px 0;
+		        padding: 5px 10px;
+	            border: 1px solid transparent;
+			    cursor: pointer;
+			}
+			.select-area li.selected{
+				color: #249b6a;
+			    border: 1px solid #249b6a;
+			}
+			.cinema-name{
+				margin-left: 5px;
+				font-weight: normal!important;
+			    font-size: 16px!important;
+		        vertical-align: bottom;
+		        cursor: pointer;
+			}
+			#cinema-table{
+				max-width: 1200px;
+			    margin: 0 0 0 45px;
+			    border: 0;
+			    border-collapse: collapse;
+			}
+			#cinema-table th{
+			    border: 2px solid #e2e0e0;
+			    text-align: center;
+			    padding: 7px;
+			    color: #989899;
+			    background-color: #f5f5f5;
+			}
+			#cinema-table td{
+			    border: 2px solid #e2e0e0;
+			    text-align: center;
+			    padding: 10px;
+			    color: #515254;
+			    font-size: 15px;
+		    }
+		    #cinema-table .settle{
+			    margin: 0;
+			    padding: 0;
+	    	    border: 0;
+			    outline: 0;
+			    background-color: #fff;
+			    font-weight: normal;
+			    text-align: center;
+		    }
+		</style>
+	</head>
+	<body>
+		<!-- 主面板 -->
+		<div class="main-box">
+			<div class="content-title">
+				<span>您当前位置：首页/卡券中心</span>
+				<div class="clear"></div>
+			</div>
+			
+			<div class="productBox">
+				<p class="title">发行卡券</p>			
+				<div class="product">
+					<input type="hidden" id="cardconfid"/>
+					<p>
+						<label>卡券名<span class="must">*</span></label><input id="cardname" placeholder="" maxlength="16"/> 
+						<label>类型<span class="must">*</span></label>
+						<select id="cardtype">
+							<option value="0">次卡</option>
+							<option value="1">储值卡</option>
+						</select>
+					</p>
+					<p id="countcard">
+						<label>使用次数<span class="must">*</span></label><input id="count" maxlength="6"/> 
+						<label>面值<span class="must">*</span></label><input id="value" maxlength="6"/> 
+						<label>发行数量<span class="must">*</span></label><input id="quantity" maxlength="6"/> 
+					</p>
+					<p id="storecard" style="display:none;">
+						<label>面值<span class="must">*</span></label><input id="value_store" maxlength="6"/> 
+						<label>发行数量<span class="must">*</span></label><input id="quantity_store" maxlength="6"/> 
+					</p>
+					<p>
+						<label>生效时间<span class="must">*</span></label><input id="starttime" readonly="readonly"/> 
+						<label>失效时间<span class="must">*</span></label><input id="endtime" readonly="readonly"/> 
+					</p>
+					<p>
+						<label>备注</label>
+						<textarea id="note" cols="50" rows="4" maxlength="100"></textarea>
+					</p>
+					<p>
+						<label style="padding-left: 10px;border-left: 5px solid #249b6a;font-size: 16px;">影院配置</label>
+						<!-- <select id="areaid"></select> -->
+						<!-- <div id="multi-select">
+							<span class="select-style">请选择</span>
+							<ul id="cityarea">
+								<li></li>
+							</ul>
+						</div> -->
+					</p>
+					<div class="clearfix" style="margin-left: 45px;color: #505052;margin-bottom: 15px;">
+						<label style="float: left;line-height: 30px;">选择地区<span class="must">*</span></label>
+						<ul id="city" class="select-area clearfix">
+						</ul>
+					</div>
+					<div class="clearfix" style="margin-left: 45px;color: #505052;margin-bottom: 50px;">
+						<label style="float: left;line-height: 35px;">选择影院<span class="must">*</span></label>
+						<ul id="cinema" class="select-area clearfix"></ul>
+					</div>
+					<table id="cinema-table">
+						<colgroup width="40%"></colgroup>
+  						<colgroup width="40%"></colgroup>
+  						<colgroup width="10%"></colgroup>
+  						<colgroup width="10%"></colgroup>
+						<tr>
+							<th>影院名称</th>
+							<th>使用方式</th>
+							<th>结算价</th>
+							<th>操作</th>
+						</tr>
+					</table>
+					<p align="center">
+						<button class="submitBn" id="add" onClick="if(this.className!='submitBn'){return;}saveCardConf('add');">提交</button>
+						<button class="cancelBn">返回</button>
+					</p>
+				</div>
+			</div>
+		</div>
+		
+		<script type="text/javascript" src="../js/jquery-1.11.2.min.js" ></script>
+		<script type="text/javascript" src="../js/libs/icheck/icheck.min.js" ></script>
+		<script type="text/javascript" src="../js/My97DatePicker/WdatePicker.js"></script>
+		<script type="text/javascript" src="../js/top.js" ></script>
+		<script type="text/javascript" src="../js/config.js"></script>
+		<script type="text/javascript" src="../js/public.js" ></script>
+		<script type="text/javascript" src="../js/cinemainfo.js" ></script>
+		<script type="text/javascript" src="../js/cardConfAdd.js" ></script>
+	</body>
+</html>
+
+
+
+
+
+
+

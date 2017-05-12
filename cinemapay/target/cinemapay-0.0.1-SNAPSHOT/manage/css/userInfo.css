@@ -1,0 +1,7 @@
+.title{font-weight: bold; font-size: 15px; color: #515254;}
+tr{border: 1px solid #e2e0e0;}
+td{text-align: left !important; border: none !important; height: 35px; line-height: 35px;}
+.lab{font-weight: bold; color: #989899 !important;}
+.revisability a{color: #16A06C !important; font-weight: bold; cursor: pointer;}
+.revisability a:hover{text-decoration: underline;}
+.revisability_text{border:none; font-size: 17px; font-weight: bold; color: mediumblue;}

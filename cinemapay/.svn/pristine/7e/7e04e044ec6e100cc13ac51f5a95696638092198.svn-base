@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="theater">
+	
+	<!-- 查询影院列表(PS:不查询"全部影院这条数据") -->
+	<select id="getTheaterList" resultType="java.util.Map" parameterType="java.util.Map">
+		SELECT theaterid, theaternum, theatername 
+		FROM t_theater
+		WHERE theaterid != 1
+		<if test="filter != null and filter != ''">
+			AND theatername like '%${filter}%' 
+		</if>
+	</select>
+</mapper>

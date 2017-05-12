@@ -1,0 +1,166 @@
+
+$(function() {
+	getArea();
+	
+	$("#starttime").click(function(){
+		WdatePicker({minDate:new Date(),maxDate:'#F{$dp.$D(\'endtime\')}'});
+	});
+	
+	$("#endtime").click(function(){
+		WdatePicker({minDate:'#F{$dp.$D(\'starttime\')}',maxDate:''});
+	});
+	
+	$("#cardtype").change(function(){
+		var cardtype = $("#cardtype").val();
+		if(cardtype == "0"){
+			$("#countcard").show();
+			$("#storecard").hide();
+		}else if(cardtype == "1"){
+			$("#storecard").show();
+			$("#countcard").hide();
+		}
+	});
+	
+	$("#count,#quantity,#quantity_store").on("input",function(){
+		checkNum(this);
+	});
+	
+	$("#value,#value_store").on("input",function(){
+		checkPrice(this);
+	});
+	
+	$(".cancelBn").on("click",function(){
+		window.location.href = "cardConfList.html";
+	});
+	
+});
+
+
+
+function addCardConf(){
+	var cardname = $("#cardname").val();
+	var cardtype = $("#cardtype").val();
+	var count = $("#count").val();
+	var value = $("#value").val();
+	var quantity = $("#quantity").val();
+	if(cardtype == "1"){
+		value = $("#value_store").val();
+		quantity = $("#quantity_store").val();
+	}
+	var starttime = $("#starttime").val();
+	var endtime = $("#endtime").val();
+	var note = $("#note").val();
+	if(cardname == ""){
+		errorTip("提示","请填写通卡(券)名称");
+		return;
+	}
+	if(cardtype == "0" && count == ""){
+		errorTip("提示","请填写次卡使用次数");
+		return;
+	}
+	if(cardtype == "1"){
+		count = 0;
+	}
+	if(value == "" || quantity == "" || starttime == "" || endtime == ""){
+		errorTip("提示","请填写有效信息");
+		return;
+	}
+	if(checkCardName() == false){
+		return;
+	}
+	var cinemainfo = $("#cinemainfo").html();
+	var cinemaids = "";
+	var consumetypes = "";
+	var settlerates = "";
+	var settlevalues = "";
+	var cinemanums = "";
+	var cinemanames = "";
+	var cinemacount = 0;
+	var pricestatus = 0;
+	
+	if(cinemainfo == ""){
+		errorTip("提示","请选择影院配置对应信息");
+		return;
+	}else{
+		$("#cinemainfo tr:gt(0)").each(function(){
+			var checkCinema = $(this).attr("id");
+			var cinema = checkCinema.replace("cinema_","");
+			var cinemanum = $("#cinemanum_"+cinema).val();
+			var cinemaname = $("#cinemaname_"+cinema).val();
+			var price = $("#settle_"+cinema).val();
+			if(price == ""){
+				price =0;
+			}
+			var types = document.getElementsByName("type_"+cinema);
+			for(var i=0;i<types.length;i++){
+				if(types[i].checked){
+					consumetypes += types[i].value+",";
+				}  
+			}
+			cinemaids += cinema + ",";
+			cinemanums += cinemanum + ",";
+			cinemanames += cinemaname + ",";
+			settlerates += price + ",";
+			settlevalues += price + ",";
+			if(price == "" || price == 0){
+				pricestatus = 1;
+			}
+			cinemacount++;
+		});
+	}
+	console.log("cardname :"+cardname);
+	console.log("cardtype :"+cardtype);
+	console.log("count :"+count);
+	console.log("value :"+value);
+	console.log("quantity :"+quantity);
+	console.log("starttime :"+starttime);
+	console.log("endtime :"+endtime);
+	console.log("note :"+note);
+	console.log("cinemaids :"+cinemaids);
+	console.log("consumetypes :"+consumetypes);
+	console.log("settlerates :"+settlerates);
+	console.log("settlevalues :"+settlevalues);
+	console.log("cinemacount:"+cinemacount);
+	console.log("pricestatus:"+pricestatus);
+	console.log("cinemanums:"+cinemanums);
+	console.log("cinemanames:"+cinemanames);
+
+	if(cinemacount == 0 || pricestatus == 1){
+		errorTip("提示","请填写影院配置的完整信息");
+		return;
+	}
+	
+	//return;
+	//设置保存按钮不可多次点击
+	$("#add").attr("class","submitBn-temp");
+	var url= service_url + "rest/cardConf/addCardConf";
+	$.post( url,{cardname : encodeURIComponent(cardname),
+				 cardtype : cardtype,count : count,value : value,quantity : quantity,
+				 starttime : starttime,endtime : endtime,note : encodeURIComponent(note),
+				 cinemaids : cinemaids,consumetypes : consumetypes,settlerates : settlerates,
+				 settlevalues : settlevalues,
+				 cinemanums : cinemanums,
+				 cinemanames : cinemanames},function(data) {
+		var retjson=$.parseJSON(data);
+		var result = parseInt(retjson.result);
+		$("#add").attr("class","submitBn");
+        if(result == 1000){
+			var page = "manager/cardConfList.html";
+			window.parent.$("#mainFrame").attr("src",page);
+        }else if(result == 1201){
+        	errorTip("提示","通卡(券)添加失败，请稍后重试");
+        	return;
+        }else if(result == 1207){
+			var page = "manager/cardConfList.html";
+			window.parent.$("#mainFrame").attr("src",page);
+        }else{
+        	errorTip("请求超时，请稍后重试");
+        	return;
+        }
+	});
+	
+}
+
+
+
+

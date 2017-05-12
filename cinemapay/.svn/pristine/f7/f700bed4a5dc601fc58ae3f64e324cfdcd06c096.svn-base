@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>确认交易</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<meta content="telephone=no" name="format-detection" />
+		<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+		<meta http-equiv="Expires " CONTENT="0 ">
+       	<meta content="yes" name="apple-mobile-web-app-capable" content="no-cache " />
+		<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+		<meta http-equiv="Pragma" content="no-cache" />
+		<meta http-equiv="Pragma" content="no-cache" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		
+		<style>
+			html,body{margin: 0;padding: 0;width: 100%;height: 100%;text-align: center; font-family: "微软雅黑"; background-color: #EDEDED;}
+			p{padding: 0;margin: 0;}
+			#productname{font-size: 1.2rem; margin-top: 1.5rem; color: #2B2A3C;}
+			#price{font-size: 3rem;border-bottom: 1px solid #DDDDDD;height: 6rem; line-height: 6rem;}
+			#price span{font-weight: bold;}
+			#gathering{background-color: #fff; line-height: 3.5rem; height: 3.5rem; text-align: left; padding-left: 1.2rem;color: #AAAAAA; font-weight: 100;}
+			#gathering span{float: right; margin-right: 1.2rem; color: #505052;}
+			#go_pay{margin-top:1rem;width:92%; height: 3rem; line-height: 3rem;display: inline-block;background-color: #1AAD19;color: #fff; font-size: 1.2rem;border-radius: 0.3rem;}
+		</style>
+		
+		<script type="text/javascript" src="../manage/js/config.js"></script>
+		<script type="text/javascript" src="../manage/js/jquery-1.11.2.min.js"></script>
+		<script type="text/javascript" src="../manage/js/public.js" ></script>
+		<script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.1.0.js"></script>
+	</head>
+	<body>
+		<div>
+			<p id="productname"></p>
+			<p id="price">￥<span></span></p>
+			<p id="gathering">收款方<span>易得票</span></p>
+			<p><span id="go_pay">立即支付</span></p>
+		</div>
+	</body>
+</html>
+
+<script>
+	var productid;
+
+	$(function(){
+		productid = getPramStr("productid");	
+		
+		// 展示商品详情
+		productDetail();
+	});
+	
+	
+	/**
+	 * 展示商品详情
+	 */
+	function productDetail(){
+		var param = {};
+		param.productid = productid;
+		
+		ajaxRequest("product/payProductMess", "GET", true, param,
+			function(data){
+				var result = data.result;
+				switch (result) {
+					case 1000:
+						var product = data.data;
+						$("#productname").text(product.productname);
+						$("#price span").text(product.price.toFixed(2));
+						break;
+					default : 
+						$(".error-panel").text(data.msg).fadeIn(200).delay(1500).fadeOut(300);
+						break;
+				}
+			},null,null,
+			function(){
+				$("#go_pay").on("click", wxpayRequest);
+			}
+		);
+	}
+	
+	
+	/**
+	 * 微信支付请求
+	 */
+	var wxPayParam;
+	function wxpayRequest(){
+		var wechatInfo = navigator.userAgent.match(/MicroMessenger\/([\d\.]+)/i) ;
+		if( !wechatInfo ) {
+		    $("#error-panel").width(350).text("请使用微信浏览").stop(true,true).fadeIn(200).delay(2000).fadeOut(300);
+		    return;
+		} else if ( wechatInfo[1] < "5.0" ) {
+			$("#error-panel").width(350).text("您的微信版本过低").stop(true,true).fadeIn(200).delay(2000).fadeOut(300);
+		    return;
+		}
+		
+		var param = {};
+		param.productid = productid;
+		
+		ajaxRequest("order/wxPay", "GET", true, param,
+			function(data) {
+				
+				var resultcode = data.result;
+				switch (resultcode) {
+				case 1000:
+					wxPayParam = data.data;
+					if (typeof WeixinJSBridge == "undefined"){
+						if( document.addEventListener ){
+							document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
+						}else if (document.attachEvent){
+							document.attachEvent('WeixinJSBridgeReady', onBridgeReady); 
+							document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
+						}
+					}else{
+						onBridgeReady();
+					}
+					break;
+				default: 
+					$("#error-panel").width(350).text(data.msg).stop(true,true).fadeIn(200).delay(2000).fadeOut(300);
+					break;
+				}
+			}
+		);
+	}
+	
+	
+	/**
+	 * 微信支付
+	 * @returns
+	 */
+	function onBridgeReady(){
+		var appId = wxPayParam.appId; // 商户注册具有支付权限的公众号成功后即可获得
+		// timeStamp = Number(wxPayParam.timeStamp); // 当前的时间
+		var nonceStr = wxPayParam.nonceStr; // 随机字符串，不长于32位
+		var package_ = wxPayParam.package_; // 订单详情扩展字符串
+		var signType = wxPayParam.signType; // 签名算法，暂支持MD5
+		var paySign = wxPayParam.paySign; // 签名
+		
+		WeixinJSBridge.invoke(
+			'getBrandWCPayRequest', {
+				"appId" : appId, //公众号名称，由商户传入     
+				"timeStamp" : wxPayParam.timeStamp, //时间戳，自1970年以来的秒数     
+		        "nonceStr" : nonceStr, //随机串     
+		        "package" : package_,     
+		        "signType" : signType, //微信签名方式：     
+		        "paySign" : paySign //微信签名 
+			},
+			function(res){ 
+				// alert(JSON.stringify(res));
+				// $("#error-panel").width(350).text(JSON.stringify(res)).stop(true,true).fadeIn(200).delay(2000).fadeOut(300);
+				
+				// 微信支付同步成功
+				if(res.err_msg == "get_brand_wcpay_request:ok" ) {
+					var param = {};
+					param.ordernumber = wxPayParam.ordernumber;
+					
+					ajaxRequest("wxpay/return_url", "GET", true, param, 
+						function(data) {
+							var resultcode = data.result;
+							switch (resultcode) {
+							case 1000:
+								var wxcard = data.data;
+								
+								wx.addCard({
+								    cardList: [{
+								        cardId: wxcard.card_id,
+								        cardExt: wxcard.card_ext
+								    }], // 需要添加的卡券列表
+								    success: function (res) {
+//								        var cardList = res.cardList; // 添加的卡券列表信息
+//								        alert(JSON.stringify(cardList));
+										wx.closeWindow();
+								    }
+								});
+								
+								window.location.href = "weix/WXUserOrder.html";
+								break;
+								
+							default: alert(data.msg); break;
+							}
+						}
+					);
+				}else{
+					alert(res.err_desc);
+					// $("#error-panel").width(350).text(res.err_desc).stop(true,true).fadeIn(200).delay(2000).fadeOut(300);
+				}
+			}
+		); 
+	}
+</script>

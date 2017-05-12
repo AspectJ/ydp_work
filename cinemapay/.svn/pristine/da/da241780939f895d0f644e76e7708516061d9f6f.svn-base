@@ -1,0 +1,145 @@
+package com.cp.rest.userinfo;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+
+import org.jboss.resteasy.annotations.cache.NoCache;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cp.bean.ResMessage;
+import com.cp.filter.BaseServlet;
+import com.cp.util.CodeUtil;
+import com.mongo.MyMongo;
+import com.ydp.servier.bean.DataMessage;
+import com.ydp.servier.facade.IServiceCinema;
+import com.ydp.servier.facade.IServiceZone;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+@Path("rest/cinema")
+@NoCache
+@Service()
+public class CinemaInfoRest extends BaseServlet
+{
+	@Autowired
+	private IServiceCinema serviceCinema;
+	@Autowired
+	private IServiceZone serviceZone;
+	
+	
+	/**
+	 * 地区列表
+	 */
+	@SuppressWarnings("unchecked")
+	@GET
+	@POST
+	@Path("/areaList")
+	@Produces("application/json;charset=UTF-8")
+	public String areaList(@Context HttpServletRequest request){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		try
+		{
+			DataMessage dataMessage = null;
+			dataMessage = serviceZone.movieZone();
+			if (dataMessage.isSuccess())
+			{
+				List<Map<String, Object>> areaList = (List<Map<String, Object>>) dataMessage.getData();
+				if (areaList != null && areaList.size() > 0)
+				{
+					JSONArray areaArr = new JSONArray();
+					for (Map<String, Object> map : areaList)
+					{
+						JSONObject areaObject = new JSONObject();
+						areaObject.put("citycode", map.get("citycode"));
+						areaObject.put("name", map.get("name"));
+						areaArr.add(areaObject);
+					}
+					resultJson.put("data", areaArr);
+				}
+			}else{
+				
+				return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+			}
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("地区列表", e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("地区列表", etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 影院列表
+	 */
+	@SuppressWarnings("unchecked")
+	@GET
+	@POST
+	@Path("/cinemaList")
+	@Produces("application/json;charset=UTF-8")
+	public String cinemaList(@Context HttpServletRequest request){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+
+		// 验证参数
+		String citycode = request.getParameter("areaid");//BaseServlet.getParam(request, "citycode", "430100");
+		try
+		{
+			DataMessage dataMessage = null;
+			if (!CodeUtil.checkParam(citycode))
+			{
+				dataMessage = serviceCinema.cityCinema(citycode);
+			}
+
+			if (dataMessage.isSuccess())
+			{
+				List<Map<String, Object>> cinemaList = (List<Map<String, Object>>) dataMessage.getData();
+
+				if (cinemaList != null && cinemaList.size() > 0)
+				{
+					JSONArray cinemaArr = new JSONArray();
+					for (Map<String, Object> map : cinemaList)
+					{
+						JSONObject cinemaObject = new JSONObject();
+						String theaterid = map.get("theaterid").toString();
+						//String theaternum = map.get("theatenumber").toString();
+						//if(theaternum.equals("43010101") && theaterid.equals("1")){//湖南大剧院、全部影院占用了1的编号
+						if(theaterid.equals("1")){//正式环境、湖南大剧院影院id为1
+							cinemaObject.put("theaterid", "-1");
+						}else{
+							cinemaObject.put("theaterid", map.get("theaterid"));
+						}
+						cinemaObject.put("theaternum", map.get("theatenumber"));
+						cinemaObject.put("theatername", map.get("theatername"));
+						cinemaArr.add(cinemaObject);
+					}
+					resultJson.put("data", cinemaArr);
+				}
+			}
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("影院列表", e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("影院列表", etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+}

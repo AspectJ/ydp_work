@@ -1,0 +1,337 @@
+var beginTime;
+var endTime;
+
+var refund_privilege;
+
+var online = 0;
+	
+$(function(){
+	
+	var menu = localStorage.getItem("menuinfo");
+	var menuinfo = JSON.parse(menu);
+	if(menuinfo != null){
+		for(var i=0;i<menuinfo.length;i++){
+			var requesturl = menuinfo[i].requesturl;
+			if(requesturl == "manager/OrderList.html"){
+				var show = menuinfo[i].show;
+				if(show != null){
+					for(var j=0;j<show.length;j++){
+						var label = show[j].requesturl;
+						if(label == "refund_privilege"){ refund_privilege = 1; }
+					}
+				}
+				break;
+			}
+		}
+	}
+	
+	$(".allOrder").on("click", function(){ window.location.href = "billList.html"; });
+//	$(".paysuccess").on("click", function(){ status = 2; loadData(1); $(".filter .placeholder_condition").hide(); });
+//	$(".refund").on("click", function(){ status = -2; loadData(1); $(".filter .placeholder_condition").show(); });
+//	$(".orderChecked").on("click", function(){ status = 4; loadData(1);$(".filter .placeholder_condition").show(); });
+//	$(".chargeoff").on("click", function(){ status = 6; loadData(1);$(".filter .placeholder_condition").show(); });
+//	$(".operator span").on("click", function(){
+//		$(".operator span").removeClass("cur");
+//		$(this).addClass("cur");		
+//	});
+	
+	beginTime = addDate(new Date(), -30).format("yyyy-MM-dd");
+	endTime = new Date().format("yyyy-MM-dd");
+	
+	// 初始化加载数据(订单，商品列表, 操作员)
+	loadData(null, function(){theaterList( null, function(){operator()})});
+	$("#theatername_search_icon").on("click", function(){ theaterList($("#theatername_search").val()); });
+	
+	$(".main-box .filter .time .rangetime .drp-popup").on("click", function(){
+		if(beginTime != $(".drp-calendar-date").eq(0).text() || endTime != $(".drp-calendar-date").eq(1).text()){
+			beginTime = $(".drp-calendar-date").eq(0).text();
+			endTime = $(".drp-calendar-date").eq(1).text();
+			loadData(1);
+		}
+	});
+	// 选择线上线下订单
+	$(".online").on("click", function(){
+		beginTime = addDate(new Date(), -30).format("yyyy-MM-dd");
+		endTime = new Date().format("yyyy-MM-dd");
+		online = parseInt($(this).attr("online"));
+		status = 0;
+		page = 1;
+		loadData(1);
+	});
+});
+
+
+/**
+ * 加载权限列表
+ */
+var page = 1;
+var pagesize = 10;
+var pagingsize = 3;
+var status = 0;
+function loadData(side, complete_fn){
+	page = pageUpDown(side);
+	var param = {};
+	param.page = page;
+	param.pagesize = pagesize;
+//	param.status = status;
+//	param.filter = $(".filter_input").val();
+	param.beginTime = beginTime;
+	param.endTime = endTime;
+	var theater_ID = $("#theatername").attr("theaterid");
+	if(theater_ID == null) {
+		theater_ID = 0;
+	}
+	param.theaterid = theater_ID;
+	param.isOnline = online;
+	
+	
+//	var apiName = "order/orderList";
+//	if(online == 0){
+//		// 线下订单
+//		if($("#productname").attr("productid") != null && $("#productname").attr("productid") != 0){
+//			param.productid = $("#productname").attr("productid");
+//		}
+//		if((status == -2 || status == 6) && $("#operatorname").attr("operatorid") != null
+//				&& $("#operatorname").attr("operatorid") != 0){
+//			param.operatorid = $("#operatorname").attr("operatorid");
+//		}
+//		$(".product_condition").show();
+//	}else{
+//		// 线上订单
+//		apiName = "order/onlineOrderList";
+////		$(".product_condition").hide();
+//	}
+	
+	var apiName = "settle/getSettleInfo";
+	ajaxRequest(apiName, "GET", true, param,
+		function(data) {
+			var result = data.result;
+			switch (result) {
+				case 1000:
+					var paramsObj = {} //生成对账单所需的参数对象;
+					
+					var dataArr = [];
+					dataList = data.data;
+					var total = data.total;
+					$("#orderTotal").text(total == null ? "0" : total);
+						
+					if(total > 0 && dataList != null && dataList.length > 0){
+						var totalpage = parseInt(total % pagesize == 0 ? total / pagesize : total / pagesize + 1);
+						for(var i=0; i<dataList.length; i++){
+							var order = dataList[i];
+							var dataJson = {};
+							
+//							dataJson.cinemaid = order.cinemaid + "";
+							dataJson.theatername = order.theatername + "";
+							dataJson.amount = order.SUM + "";
+							
+							//生成对账单所需的参数;
+							paramsObj.theatername = order.theatername;
+							paramsObj.amount = order.SUM;
+							paramsObj.cinemaid = order.cinemaid;
+							paramsObj.channel = online; //交易渠道
+							paramsObj.beginTime = beginTime; //开始时间
+							paramsObj.endTime = endTime; //结束时间
+							var obj_str = JSON.stringify(paramsObj);
+							dataJson.createBill = "<i class='bill_soldout' onclick='create_bill("+obj_str+")'>生成对账单</i>";
+							dataArr.push(dataJson);
+							
+							
+						}
+					}
+					
+					$(".data-tab tr").not(":first").remove();
+					pushJsonData(".data-tab table", dataArr);
+					
+//					 分页
+					var pagingstr = loadPaging(totalpage, page, pagingsize, "loadData");
+					$(".data-tab-ul").html(pagingstr);
+					
+					//合计
+					var table_tail = '<tr><td><b>合计【结算总价】</b></td><td><b>'+ data.summation +'</b></td><td><b class="all_bill" onclick="create_bill('+ paramsObj +')">生成对账单</b></td>';
+					table_tail += '</tr>';
+					$(".data-tab table").append(table_tail);
+					
+					break;
+				default : 
+					errorTip("错误提示",data.msg);
+					break;
+			}
+		}, null,
+		function(){ 
+			loading();
+			
+			var table_head = '<tr><th>结算方影院</th><th>结算总价(元)</th><th>操作</th>';
+			table_head += '</tr>';
+			$(".data-tab table").append(table_head);
+		}, 
+		function(){
+			if(complete_fn != null){
+				complete_fn();
+			}
+			loadover();
+		}
+	);
+}
+
+
+/**
+  * 影院列表
+  */
+function theaterList( theaterFilter, complete_fn ){
+	var param = {};
+	if( theaterFilter !=null && theaterFilter != "" ){
+		param.filter = theaterFilter;
+	}
+	ajaxRequest("theater/getTheaterList", "GET", true, param, 
+			function(data) {
+			var result = data.result;
+			switch (result) {
+				case 1000:
+					var dataArr = [];
+					var theaterList = data.data;
+					var theaterHtml = '';
+					if(theaterList != null && theaterList.length > 0){
+						theaterHtml += '<ul class="list-unstyled">';
+						theaterHtml += '<li class="filter-item items" theaterid="0">所有影院</li>';
+						for(var i=0; i<theaterList.length; i++){
+							theaterHtml += '<li class="filter-item items ellipsis" title="'+ theaterList[i].theatername +'" theaterid="'+ theaterList[i].theaterid +'">'+ theaterList[i].theatername +'</li>';
+						}
+						theaterHtml += '</ul>';
+					}else{
+						theaterHtml += '<div class="no-search-results">';
+						theaterHtml += '<div class="alert alert-warning" role="alert"><i class="fa fa-warning margin-right-sm"></i>No entry for <strong>"<span></span>"</strong> was found.</div>';
+						theaterHtml += '</div>';
+					}
+					$(".theater_list_filter").html(theaterHtml);
+					
+					$(".theater_list_filter li").on("click", function(){
+						$(this).parents(".selectpicker").removeClass("open");
+						$("#theatername").attr("theaterid", $(this).attr("theaterid"));
+						$("#theatername").text($(this).text());
+						loadData(1);
+					});
+					break;
+				default : errorTip( "提示", "查询影院错误" ); break;
+			}
+		}
+		, null, null,
+		function(){ if(complete_fn != null){new complete_fn();}}
+	);
+}
+
+
+/**
+ * 操作员列表
+ */
+function operator(operatorName){
+	var param = {};
+	if( operatorName !=null && operatorName != "" ){
+		param.filter = operatorName;
+	}
+	
+	ajaxRequest("user/operaterList", "GET", true, param, 
+		function(data) {
+			var result = data.result;
+			switch (result) {
+				case 1000:
+					var dataArr = [];
+					var operaterList = data.data;
+					var operaterHtml = '';
+					if(operaterList != null && operaterList.length > 0){
+						operaterHtml += '<ul class="list-unstyled">';
+						operaterHtml += '<li class="filter-item items" operatorid="0">操作员</li>';
+						for(var i=0; i<operaterList.length; i++){
+							operaterHtml += '<li class="filter-item items" operatorid="'+ operaterList[i].userid +'">'+ operaterList[i].username +'</li>';
+						}
+						operaterHtml += '</ul>';
+					}else{
+						operaterHtml += '<div class="no-search-results">';
+						operaterHtml += '<div class="alert alert-warning" role="alert"><i class="fa fa-warning margin-right-sm"></i>No entry for <strong>"<span></span>"</strong> was found.</div>';
+						operaterHtml += '</div>';
+					}
+					$(".operator_list_filter").html(operaterHtml);
+					
+					$(".operator_list_filter li").on("click", function(){
+						$(this).parents(".selectpicker").removeClass("open");
+						$("#operatorname").attr("operatorid", $(this).attr("operatorid"));
+						$("#operatorname").text($(this).text());
+						loadData(1);
+					});
+					break;
+				default : errorTip( "提示", "查询操作员错误" ); break;
+			}
+		}
+		, null, null,
+		function(){ if(complete_fn != null){new complete_fn();}}
+	);
+}
+
+
+/**
+ * 退款
+ */
+function refund(ordernumber){
+	var param = {};
+	param.ordernumber = ordernumber;
+	
+	ajaxRequest("order/refund", "GET", true, param, 
+		function(data){
+			var result = data.result;
+			switch (result) {
+				case 1000:
+					errorTip("操作成功", "退款成功！");
+					loadData();
+					break;
+				default : errorTip("操作失败", data.msg); break;
+			}
+		}
+	);
+}
+
+function create_bill(param) {
+	operateTip("确认操作", "您正在执行生成账单操作",function(){
+		setFloatAmount(param);
+		
+	});
+}
+
+/**
+ * 填写调整金额
+ */
+function setFloatAmount(param) {
+	var msgHtml = '<div class="mask alias" style="display:block;">';
+	msgHtml += '<div class="showMess" style="display:block;">';
+	msgHtml += '<p class="tip">调整金额</p>';
+	msgHtml += '<p class="message"><span type="">请输入调整金额:</span><input type="text" value="0"></p>';
+	msgHtml += '<p class="remarks"><span type="">请输入调整备注:</span><textarea rows="4" cols="30"/></p>';
+	msgHtml += '<p class="btn-p"><button class="sure">确定</button></p>';
+	msgHtml += '</div>';
+	msgHtml += '</div>';
+	
+	$("body").append(msgHtml);
+	
+	//给确认按钮添加点击事件
+	$(".btn-p .sure").click(function() {
+		param.floatamount = parseFloat($(".message input").val()).toFixed(2);
+		param.remarks = $(".remarks textarea").val();
+		$(".mask").remove();
+		
+		ajaxRequest("settle/createBill", "POST", true, param,
+				function(data) {
+					var result = parseInt(data.result);
+					var sid = parseInt(data.sid); //生成对账单的主键
+					switch(result) {
+						case 1000:
+							window.location.href = "billDetailInfo.html?sid=" + sid;
+							break; 
+						default:
+							errorTip("请求错误", data.msg);
+							break;
+					}
+			},
+				null,
+				loading(), 
+				loadover())
+	});	
+}

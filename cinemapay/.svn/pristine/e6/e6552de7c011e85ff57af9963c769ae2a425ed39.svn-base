@@ -1,0 +1,1160 @@
+var s_time;
+var e_time;
+
+var refund_privilege;
+
+var card_type = null;
+var card_status = null;
+var status_money1 = null;
+
+
+$(function(){
+	var menu = sessionStorage.getItem("menuinfo");
+	var menuinfo = JSON.parse(menu);
+	if(menuinfo != null){
+		for(var i=0;i<menuinfo.length;i++){
+			var requesturl = menuinfo[i].requesturl;
+			if(requesturl == "manager/ManageData.html"){
+				var show = menuinfo[i].show;
+				if(show != null){
+					for(var j=0;j<show.length;j++){
+						var label = show[j].requesturl;
+						if(label == "refund_privilege"){ refund_privilege = 1; }
+					}
+				}
+				break;
+			}
+		}
+	}
+
+	var header_nav = '',
+		url_status = window.location.href.split('status=');
+	status = url_status[1];
+	
+	switch(status){
+		case '1':
+			header_nav = '批次信息';
+			break;
+		case '2':
+			header_nav = '卡号查询';
+			bb(1,null);
+			$("#inputSerch").show();
+			$(".querybn").show();
+			break;
+		case '3':
+			header_nav = '消费记录';
+			cc(1,null);
+			$("#inputSerch").show();
+			$(".querybn").show();
+			break;
+		default:
+	}
+	$('.content-title span').html('您当前位置：首页/' + header_nav);
+	
+//	$(".check_batch").on("click", function(){
+//		javascript:window.location.reload();
+//	});
+//	
+//	$(".check_cardnumber").on("click", function(){
+//		$("#inputSerch").val("");
+//		bb(1,null);
+//		$("#inputSerch").show();
+//		$(".querybn").show();
+//	});
+//	
+//	$(".check_qb").on("click",function(){
+//		cc(1,null);
+//	});
+//	
+//	$(".graph").on("click", function(){
+//		loadData(1);
+//	});
+//	
+//	$(".operator span").on("click", function(){
+//		$(".operator span").removeClass("cur");
+//		$(this).addClass("cur");
+//	});
+	
+//	$(".data-tab2").append("<div class='operator'><span class='check_record'>查消费记录</span></div>");
+	
+	s_time = addDate(new Date(), -30).format("yyyy-MM-dd");
+	e_time = new Date().format("yyyy-MM-dd");
+	
+	// 初始化加载数据(批次信息，消费记录, 操作员)
+	loadData(1,null);
+	
+//	 $("#batchname_search_icon").on("click", function(){ batchnameList($("#batchname_search").val()); });
+	
+	
+	$(".main-box .filter .time .rangetime .drp-popup").on("click", function(){
+		if(s_time != $(".drp-calendar-date").eq(0).text() || e_time != $(".drp-calendar-date").eq(1).text()){
+			s_time = $(".drp-calendar-date").eq(0).text();
+			e_time = $(".drp-calendar-date").eq(1).text();
+		//	loadData(1);
+		}
+	});
+	
+	// 选择卡类型
+	$(".cardType").on("click", function(){
+		card_type = parseInt($(this).attr("card_type"));
+		console.log(card_type);
+		loadData(1);
+	});
+	
+	// 选择状态
+	$(".cardState").on("click", function(){
+		card_status = parseInt($(this).attr("card_status"));
+		console.log(card_status);
+		loadData(1);
+	});
+	
+
+});
+
+
+/**
+ * 加载权限列表
+ */
+var page = 1;
+var pagesize = 10;
+var pagingsize = 3;
+var status = 0;
+
+function loadData(side, complete_fn){
+	page = pageUpDown(side);
+	var param = {};
+	param.page = page;
+	param.pagesize = pagesize;
+
+//	param.status = status;
+	param.filter = $(".filter_input").val();
+	param.s_time = s_time;
+	param.e_time = e_time;
+	
+	$("#inputSerch").attr("placeholder","请输入批次ID、卡名、备注、或操作员名 精确查询");
+	
+	var apiName = "manageData/findBatchByName";
+	
+// ------------------------------------	
+	if(card_type == 0){
+		//次卡
+		param.cardtype = 0;
+		
+	}else if(card_type == 1){
+		// 储值卡
+		param.cardtype = 1;
+	
+	}else{
+		param.cardtype = null;
+	}
+
+// ----------------------------------------
+	if(card_status == 0){
+		//未生成卡号
+		param.card_status = 0;
+		
+	}else if(card_status == 1){
+		// 已生成卡号
+		param.card_status = 1;
+	
+	}else{
+		param.card_status = null;
+	}
+	
+	
+	
+	ajaxRequest(apiName, "GET", true, param,
+		function(data) {
+			var result = data.result;
+			switch (result) {
+				case 1000:
+					var dataArr = [];
+					dataList = data.data;
+					console.log(dataList);
+					var total = data.total;
+
+					$("#orderTotal").text(total == null ? "0" : total);
+					
+					
+						
+					if(total > 0 && dataList != null && dataList.length > 0){
+						var totalpage = parseInt(total % pagesize == 0 ? total / pagesize : total / pagesize + 1);
+						for(var i=0; i<dataList.length; i++){
+							var batchInfo = dataList[i];
+							var dataJson = {};
+//							dataJson.check = '<i class="check"></i>';
+							dataJson.cardconfid = batchInfo.cardconfid + "";
+							dataJson.cardname = "<a href='javascript:void(0)' onclick='aa(1,null,"+batchInfo.cardconfid+");'>" + batchInfo.cardname + "</a>" + "";
+     						if(batchInfo.cardtype==0){dataJson.cardtype="次卡"+ ""}else{dataJson.cardtype="储值卡"+ ""} ;
+//							dataJson.cardtype = batchInfo.cardtype + "";
+							dataJson.count = batchInfo.count + "";
+							dataJson.value = batchInfo.value + "";
+							dataJson.starttime = batchInfo.starttime + "";
+							dataJson.endtime = batchInfo.endtime + "";
+							dataJson.quantity = batchInfo.quantity + "";
+							dataJson.note = batchInfo.note + "";							
+							if(batchInfo.status==0){dataJson.status="未生成卡号"+ ""}else{dataJson.status="已生成卡号"+ ""} ;
+							dataJson.createtime=batchInfo.createtime + "";
+							dataJson.operatorid=batchInfo.username + "";
+//							dataJson.operatorid=batchInfo.operatorid + "";
+							dataJson.modifytime=batchInfo.modifytime + "";
+//							if(refund_privilege == 1){
+//								dataJson.refund = "dataoperator||" + (order.status == 2 ? '<i class="refund" onclick="javascript: operateCheckTip(\'退款提示\', \'是否对当前订单进行退款操作？\', \'退款后，款项将退还用户，不能做任何更改，请谨慎操作！\', function(){ refund(\''+ order.ordernumber + '\')});">退款</i>' : "");
+//							}
+							dataArr.push(dataJson);
+						}
+					}
+					
+					$(".data-tab tr").not(":first").remove();
+					pushJsonData(".data-tab table", dataArr);
+					
+					
+					// 分页
+					var pagingstr = loadPaging(totalpage, page, pagingsize, "loadData");
+					$(".data-tab-ul").html(pagingstr);
+					break;
+				default : 
+					errorTip("错误提示",data.msg);
+					break;
+			}
+		}, null,
+		function(){ 
+			loading();
+			
+			var table_head = '<tr><th>批次ID</th><th>卡名</th><th>卡类型</th><th>次卡次数</th><th>次卡单次价值或储值卡总点数</th><th>生效时间</th><th>失效时间</th><th>发行份数</th><th>备注</th><th>状态</th><th>创建时间</th><th>操作员</th><th>修改时间</th>';
+//			table_head += refund_privilege == 1 ? '<th class="w80">操作</th>' : "";
+			table_head += '</tr>';
+			$(".data-tab table").html(table_head);
+		}, 
+		function(){
+			if(complete_fn != null){
+				complete_fn();
+			}
+			loadover();
+		}
+	);
+	$(".headLine").html("数据列表");
+}
+
+
+
+
+
+
+//这个aa函数是专门为了查询可用影院和查询批次（详情）传值的
+var cardconfid;
+function aa(side,complete_fn,id){
+	$("#inputSerch").hide();
+	$(".querybn").hide();
+	cardconfid = id;
+	selectCardInfo(side,complete_fn);
+	findBatchDeatil(side,complete_fn);
+}
+
+//这个bb函数是专门为了“查卡号”这个功能定制的入口函数
+function bb(side,complete_fn){
+	selectCardInfo_cardnumber(side,complete_fn);
+	findBatchDeatil_cardnumber(side,complete_fn);
+	$("#check_record").show();
+	$("#check_record").attr("onclick","findCardRecord(1,null);");
+	// 隐藏条件搜索长条框
+	$(".filter").hide();
+}
+
+//这个cc函数是专门为了“查全部消费记录”这个功能定制的入口函数
+function cc(side,complete_fn){
+	$(".content-data1").hide();
+	$(".content-data2").hide();
+	$(".content-data").show();
+	$(".querybn").show();
+    find_qb(side,complete_fn);
+
+}
+//查询可用影院
+function selectCardInfo(side,complete_fn){
+	$("#inputSerch").attr("placeholder","请输入影院名称、卡号、精确查询");
+	
+	page = pageUpDown(side);
+	var param = {};
+	param.cardconfid = cardconfid;
+	param.page = page;
+	param.pagesize = pagesize;
+	param.filter = $(".filter_input").val();
+	
+	var apiName = "manageData/findUsableCinema";
+	
+	
+	ajaxRequest(apiName, "GET", true, param,
+		function(data) {
+			var result = data.result;
+			switch (result) {
+				case 1000:
+					var dataArr1 = [];
+//					var dataArr2 = [];
+					dataList = data.data;
+					console.log(dataList);
+					var total = data.total;
+
+					$("#orderTotal1").text(total == null ? "0" : total);
+//					$("#orderTotal2").text(total == null ? "0" : total);
+
+				
+					
+					if(total > 0 && dataList != null && dataList.length > 0){
+						var totalpage1 = parseInt(total % pagesize == 0 ? total / pagesize : total / pagesize + 1);
+//						var totalpage2 = parseInt(total % pagesize == 0 ? total / pagesize : total / pagesize + 1);
+						
+						for(var i=0; i<dataList.length; i++){
+							var batchDetailInfo = dataList[i];
+							
+							var dataJson1 = {};
+//							var dataJson2 ={};
+//							dataJson.check = '<i class="check"></i>';
+							dataJson1.theatername = batchDetailInfo.theatername + "";
+							if(batchDetailInfo.consumetype==1){dataJson1.consumetype="线上" + ""}else if(batchDetailInfo.consumetype==2){dataJson1.consumetype="线下" + ""}else{dataJson1.consumetype="线上 + 线下" + ""};
+							dataJson1.settlerate = batchDetailInfo.settlerate + "";
+							dataJson1.settlevalue = batchDetailInfo.settlevalue + "";
+							$("#sp1").html("您当前位置："+"<p id='sp1_p' style='display:inline;'>" + batchDetailInfo.cardname + "</p>");
+							$("#sp1_p").css("color","red");
+//							dataJson2.cardnumber = batchDetailInfo.cardnumber + "" ;
+//							dataJson2.restcount = batchDetailInfo.restcount + "";
+//							dataJson2.restvalue = batchDetailInfo.restvalue + "";
+//							dataJson.createtime = batchDetailInfo.createtime + "";
+//							dataJson.operatorid = batchDetailInfo.username + "";
+//							dataJson2.modifytime = batchDetailInfo.modifytime + "";							
+			
+//							if(refund_privilege == 1){
+//								dataJson.refund = "dataoperator||" + (order.status == 2 ? '<i class="refund" onclick="javascript: operateCheckTip(\'退款提示\', \'是否对当前订单进行退款操作？\', \'退款后，款项将退还用户，不能做任何更改，请谨慎操作！\', function(){ refund(\''+ order.ordernumber + '\')});">退款</i>' : "");
+//							}
+							dataArr1.push(dataJson1);
+//							dataArr2.push(dataJson2);
+						}
+					}
+					
+					$(".content-data").hide();
+					
+					$(".data-tab1 tr").not(":first").remove();
+//					$(".data-tab2 tr").not(":first").remove();
+					pushJsonData(".data-tab1 table", dataArr1);
+//					pushJsonData(".data-tab2 table",dataArr2);
+					
+					// 分页
+					var pagingstr1 = loadPaging(totalpage1, page, pagingsize, "selectCardInfo");
+//					var pagingstr2 = loadPaging(totalpage2,page,pagingsize,"selectCardInfo");
+					console.log(pagingstr1);
+//					console.log(pagingstr2);
+					$(".data-tab-ul1").html(pagingstr1);
+//					$(".data-tab-ul2").html(pagingstr2);
+					$(".content-data1").show();
+//					$(".content-data2").show();
+					break;
+				default : 
+					errorTip("错误提示",data.msg);
+					break;
+			}
+		}, null,
+		function(){ 
+			loading();
+			
+			var table_head1 = '<tr><th>影院名称</th><th>消费类型</th><th>储值卡结算比值</th><th>次卡结算价</th>';
+//			var table_head2 = "<th>卡号</th><th>次卡剩余次数</th><th>储值卡剩余点数</th><th>消费时间</th>";
+//			table_head += refund_privilege == 1 ? '<th class="w80">操作</th>' : "";
+			table_head1 += '</tr>';
+//			table_head2 += '</tr>';
+			$(".data-tab1 table").html(table_head1);
+//			$(".data-tab2 table").html(table_head2);
+		}, 
+		function(){
+			if(complete_fn != null){
+				complete_fn();
+			}
+			loadover();
+		}
+		);
+		$(".headLine1").html("可用影院");
+//		$(".headLine2").html("批次详情");;
+		
+
+		// 隐藏条件搜索长条框
+		$(".filter").hide();
+}
+
+//这个函数用于input输入框里面的精确查询的点击事件
+function clickSerchBtn(){
+	var value = $("#inputSerch").attr("placeholder");
+	if(value == "请输入影院名称、卡号、精确查询"){
+		aa(1,null,cardconfid);
+	}else if(value == "请输入批次ID、卡名、备注、或操作员名 精确查询"){
+		loadData(1);
+	}else if(value == "请输入卡号查询"){
+		bb(1,null);
+		$(".operator span").on("click", function(){
+			$(".operator span").removeClass("cur");
+			$(".check_cardnumber").addClass("cur");		
+		});		
+	}else if(value == "查消费记录"){
+		findCardRecord(1,null);
+	}else if(value == ""){
+		find_qb(1,null);
+	}
+}
+
+//查询批次（详情）ajax
+function findBatchDeatil(side,complete_fn){
+	$("#inputSerch").attr("placeholder","请输入影院名称、卡号、精确查询");
+	
+	page = pageUpDown(side);
+	var param = {};
+	param.cardconfid = cardconfid;
+	param.page = page;
+	param.pagesize = pagesize;
+	param.filter = $(".filter_input").val();
+	
+	var apiName = "manageData/findBatchDeatil";
+	
+	
+	ajaxRequest(apiName, "GET", true, param,
+		function(data) {
+			var result = data.result;
+			switch (result) {
+				case 1000:
+//					var dataArr1 = [];
+					var dataArr2 = [];
+					dataList = data.data;
+					console.log(dataList);
+					var total = data.total;
+					
+//					var countSum = 0;
+//					var restcountSum = 0;
+//					var value1Sum = 0;
+//					var restvalueSum = 0;
+					
+//					$("#orderTotal1").text(total == null ? "0" : total);
+					$("#orderTotal2").text(total == null ? "0" : total);
+
+				
+					
+					if(total > 0 && dataList != null && dataList.length > 0){
+//						var totalpage1 = parseInt(total % pagesize == 0 ? total / pagesize : total / pagesize + 1);
+						var totalpage2 = parseInt(total % pagesize == 0 ? total / pagesize : total / pagesize + 1);
+						
+						for(var i=0; i<dataList.length; i++){
+							var batchDetailInfo = dataList[i];
+							
+//							 countSum += batchDetailInfo.count;
+//							 restcountSum += batchDetailInfo.restcount;
+//							
+//							 value1Sum += batchDetailInfo.value;
+//							 restvalueSum += batchDetailInfo.restvalue;
+							
+//							var dataJson1 = {};
+							var dataJson2 ={};
+//							dataJson.check = '<i class="check"></i>';
+//							dataJson1.theatername = batchDetailInfo.theatername + "";
+//							if(batchDetailInfo.consumetype==1){dataJson1.consumetype="线上" + ""}else if(batchDetailInfo.consumetype==2){dataJson1.consumetype="线下" + ""}else{dataJson1.consumetype="线上 + 线下" + ""};
+//							dataJson1.settlerate = batchDetailInfo.settlerate + "";
+//							dataJson1.settlevalue = batchDetailInfo.settlevalue + "";
+							dataJson2.cardnumber = batchDetailInfo.cardnumber + "" ;
+							dataJson2.restcount = batchDetailInfo.restcount + "";
+							dataJson2.restvalue = batchDetailInfo.restvalue + "";
+//							dataJson.createtime = batchDetailInfo.createtime + "";
+//							dataJson.operatorid = batchDetailInfo.username + "";
+							dataJson2.modifytime = batchDetailInfo.modifytime + "";							
+			
+//							if(refund_privilege == 1){
+//								dataJson.refund = "dataoperator||" + (order.status == 2 ? '<i class="refund" onclick="javascript: operateCheckTip(\'退款提示\', \'是否对当前订单进行退款操作？\', \'退款后，款项将退还用户，不能做任何更改，请谨慎操作！\', function(){ refund(\''+ order.ordernumber + '\')});">退款</i>' : "");
+//							}
+//							dataArr1.push(dataJson1);
+							dataArr2.push(dataJson2);
+						}
+					}
+					
+					$(".content-data").hide();
+					
+//					$(".data-tab1 tr").not(":first").remove();
+					$(".data-tab2 tr").not(":first").remove();
+//					pushJsonData(".data-tab1 table", dataArr1);
+					pushJsonData(".data-tab2 table",dataArr2);
+					
+					// 分页
+//					var pagingstr1 = loadPaging(totalpage1, page, pagingsize, "selectCardInfo");
+					var pagingstr2 = loadPaging(totalpage2,page,pagingsize,"findBatchDeatil");
+//					console.log(pagingstr1);
+					console.log(pagingstr2);
+//					$(".data-tab-ul1").html(pagingstr1);
+					$(".data-tab-ul2").html(pagingstr2);
+//					if(data.c !=0 && data.rc !=0){
+//						$(".data-tab-ul2-sum").html("次卡总次数 ： " + data.c + "," + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +   "剩余次数 ：" + data.rc   );
+//					}else if(data.v!=0 && data.rv!=0){
+//						$(".data-tab-ul2-sum").html("储值卡总点数 ： " + data.v + "," + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +   "剩余点数 ：" + data.rv   );
+//					}else{
+//						$(".data-tab-ul2-sum").html("次卡总次数 ： " + data.c + "," + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +   "剩余次数 ：" + data.rc  +"</br>" + "储值卡总点数 ： " + data.v + "," + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +   "剩余点数 ：" + data.rv );
+//					}
+					
+					
+//					$(".content-data1").show();
+					$(".content-data2").show();
+					break;
+				default : 
+					errorTip("错误提示",data.msg);
+					break;
+			}
+		}, null,
+		function(){ 
+			loading();
+			
+//			var table_head1 = '<tr><th>影院名称</th><th>消费类型</th><th>储值卡结算比值</th><th>次卡结算价</th>';
+			var table_head2 = "<th>卡号</th><th>次卡剩余次数</th><th>储值卡剩余点数</th><th>最后消费时间</th>";
+//			table_head += refund_privilege == 1 ? '<th class="w80">操作</th>' : "";
+//			table_head1 += '</tr>';
+			table_head2 += '</tr>';
+//			$(".data-tab1 table").html(table_head1);
+			$(".data-tab2 table").html(table_head2);
+		}, 
+		function(){
+			if(complete_fn != null){
+				complete_fn();
+			}
+			loadover();
+		}
+		);
+//		$(".headLine1").html("可用影院");
+		$(".headLine2").html("批次详情");
+		
+		// 隐藏条件搜索长条框
+		$(".filter").hide();
+}
+
+
+
+//查询可用影院（查卡号）
+function selectCardInfo_cardnumber(side,complete_fn){
+	$("#inputSerch").attr("placeholder","请输入卡号查询");
+	
+	page = pageUpDown(side);
+	var param = {};
+	param.page = page;
+	param.pagesize = pagesize;
+	param.filter = $(".filter_input").val();
+	
+	var apiName = "manageData/findUsableCinema_cardnumber";
+	
+	
+	ajaxRequest(apiName, "GET", true, param,
+		function(data) {
+			var result = data.result;
+			switch (result) {
+				case 1000:
+					var dataArr1 = [];
+//					var dataArr2 = [];
+					dataList = data.data;
+					console.log(dataList);
+					var total = data.total;
+
+					$("#orderTotal1").text(total == null ? "0" : total);
+//					$("#orderTotal2").text(total == null ? "0" : total);
+
+				
+					
+					if(total > 0 && dataList != null && dataList.length > 0){
+						var totalpage1 = parseInt(total % pagesize == 0 ? total / pagesize : total / pagesize + 1);
+//						var totalpage2 = parseInt(total % pagesize == 0 ? total / pagesize : total / pagesize + 1);
+						
+						for(var i=0; i<dataList.length; i++){
+							var batchDetailInfo = dataList[i];
+							
+							var dataJson1 = {};
+//							var dataJson2 ={};
+//							dataJson.check = '<i class="check"></i>';
+							dataJson1.theatername = batchDetailInfo.theatername + "";
+							if(batchDetailInfo.consumetype==1){dataJson1.consumetype="线上" + ""}else if(batchDetailInfo.consumetype==2){dataJson1.consumetype="线下" + ""}else{dataJson1.consumetype="线上 + 线下" + ""};
+							dataJson1.settlerate = batchDetailInfo.settlerate + "";
+							dataJson1.settlevalue = batchDetailInfo.settlevalue + "";
+							$("#sp1").html("您当前位置： 查卡号" );
+							
+//							dataJson2.cardnumber = batchDetailInfo.cardnumber + "" ;
+//							dataJson2.restcount = batchDetailInfo.restcount + "";
+//							dataJson2.restvalue = batchDetailInfo.restvalue + "";
+//							dataJson.createtime = batchDetailInfo.createtime + "";
+//							dataJson.operatorid = batchDetailInfo.username + "";
+//							dataJson2.modifytime = batchDetailInfo.modifytime + "";							
+			
+//							if(refund_privilege == 1){
+//								dataJson.refund = "dataoperator||" + (order.status == 2 ? '<i class="refund" onclick="javascript: operateCheckTip(\'退款提示\', \'是否对当前订单进行退款操作？\', \'退款后，款项将退还用户，不能做任何更改，请谨慎操作！\', function(){ refund(\''+ order.ordernumber + '\')});">退款</i>' : "");
+//							}
+							dataArr1.push(dataJson1);
+//							dataArr2.push(dataJson2);
+						}
+					}
+					
+					$(".content-data").hide();
+					
+					$(".data-tab1 tr").not(":first").remove();
+//					$(".data-tab2 tr").not(":first").remove();
+					pushJsonData(".data-tab1 table", dataArr1);
+//					pushJsonData(".data-tab2 table",dataArr2);
+					
+					// 分页
+					var pagingstr1 = loadPaging(totalpage1, page, pagingsize, "selectCardInfo_cardnumber");
+//					var pagingstr2 = loadPaging(totalpage2,page,pagingsize,"selectCardInfo");
+					console.log(pagingstr1);
+//					console.log(pagingstr2);
+					$(".data-tab-ul1").html(pagingstr1);
+//					$(".data-tab-ul2").html(pagingstr2);
+					$(".content-data1").show();
+//					$(".content-data2").show();
+					break;
+				default : 
+					errorTip("错误提示",data.msg);
+					break;
+			}
+		}, null,
+		function(){ 
+			loading();
+			
+			var table_head1 = '<tr><th>影院名称</th><th>消费类型</th><th>储值卡结算比值</th><th>次卡结算价</th>';
+//			var table_head2 = "<th>卡号</th><th>次卡剩余次数</th><th>储值卡剩余点数</th><th>消费时间</th>";
+//			table_head += refund_privilege == 1 ? '<th class="w80">操作</th>' : "";
+			table_head1 += '</tr>';
+//			table_head2 += '</tr>';
+			$(".data-tab1 table").html(table_head1);
+//			$(".data-tab2 table").html(table_head2);
+		}, 
+		function(){
+			if(complete_fn != null){
+				complete_fn();
+			}
+			loadover();
+		}
+		);
+		$(".headLine1").html("可用影院");
+//		$(".headLine2").html("批次详情");;
+		
+
+}
+
+
+//查询批次（详情） -- By cardnumber
+function findBatchDeatil_cardnumber(side,complete_fn){
+	$("#inputSerch").attr("placeholder","请输入卡号查询");
+	
+	page = pageUpDown(side);
+	var param = {};
+	param.page = page;
+	param.pagesize = pagesize;
+	param.filter = $(".filter_input").val();
+	
+	var apiName = "manageData/findBatchDeatil_cardnumber";
+	
+	
+	ajaxRequest(apiName, "GET", true, param,
+		function(data) {
+			var result = data.result;
+			switch (result) {
+				case 1000:
+//					var dataArr1 = [];
+					var dataArr2 = [];
+					dataList = data.data;
+					console.log(dataList);
+					var total = data.total;
+					
+					var countSum = 0;
+					var restcountSum = 0;
+					var value1Sum = 0;
+					var restvalueSum = 0;
+					
+//					$("#orderTotal1").text(total == null ? "0" : total);
+					$("#orderTotal2").text(total == null ? "0" : total);
+
+				
+					
+					if(total > 0 && dataList != null && dataList.length > 0){
+//						var totalpage1 = parseInt(total % pagesize == 0 ? total / pagesize : total / pagesize + 1);
+						var totalpage2 = parseInt(total % pagesize == 0 ? total / pagesize : total / pagesize + 1);
+						
+						for(var i=0; i<dataList.length; i++){
+							var batchDetailInfo = dataList[i];
+							
+//							 countSum += batchDetailInfo.count;
+//							 restcountSum += batchDetailInfo.restcount;
+//							
+//							 value1Sum += batchDetailInfo.value;
+//							 restvalueSum += batchDetailInfo.restvalue;
+							
+//							var dataJson1 = {};
+							var dataJson2 ={};
+//							dataJson.check = '<i class="check"></i>';
+//							dataJson1.theatername = batchDetailInfo.theatername + "";
+//							if(batchDetailInfo.consumetype==1){dataJson1.consumetype="线上" + ""}else if(batchDetailInfo.consumetype==2){dataJson1.consumetype="线下" + ""}else{dataJson1.consumetype="线上 + 线下" + ""};
+//							dataJson1.settlerate = batchDetailInfo.settlerate + "";
+//							dataJson1.settlevalue = batchDetailInfo.settlevalue + "";
+							dataJson2.cardnumber = batchDetailInfo.cardnumber + "" ;
+							dataJson2.restcount = batchDetailInfo.restcount + "";
+							dataJson2.restvalue = batchDetailInfo.restvalue + "";
+//							dataJson.createtime = batchDetailInfo.createtime + "";
+//							dataJson.operatorid = batchDetailInfo.username + "";
+							dataJson2.modifytime = batchDetailInfo.modifytime + "";							
+			
+//							if(refund_privilege == 1){
+//								dataJson.refund = "dataoperator||" + (order.status == 2 ? '<i class="refund" onclick="javascript: operateCheckTip(\'退款提示\', \'是否对当前订单进行退款操作？\', \'退款后，款项将退还用户，不能做任何更改，请谨慎操作！\', function(){ refund(\''+ order.ordernumber + '\')});">退款</i>' : "");
+//							}
+//							dataArr1.push(dataJson1);
+							dataArr2.push(dataJson2);
+						}
+					}
+					
+					$(".content-data").hide();
+					
+//					$(".data-tab1 tr").not(":first").remove();
+					$(".data-tab2 tr").not(":first").remove();
+//					pushJsonData(".data-tab1 table", dataArr1);
+					pushJsonData(".data-tab2 table",dataArr2);
+					
+					// 分页
+//					var pagingstr1 = loadPaging(totalpage1, page, pagingsize, "selectCardInfo");
+					var pagingstr2 = loadPaging(totalpage2,page,pagingsize,"findBatchDeatil_cardnumber");
+//					console.log(pagingstr1);
+					console.log(pagingstr2);
+//					$(".data-tab-ul1").html(pagingstr1);
+					$(".data-tab-ul2").html(pagingstr2);
+					if(data.c !=0 && data.rc !=0){
+						$(".data-tab-ul2-sum").html("次卡总次数 ： " + data.c + "," + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +   "剩余次数 ：" + data.rc   );
+					}else if(data.v!=0 && data.rv!=0){
+						$(".data-tab-ul2-sum").html("储值卡总点数 ： " + data.v + "," + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +   "剩余点数 ：" + data.rv   );
+					}else{
+						$(".data-tab-ul2-sum").html("次卡总次数 ： " + data.c + "," + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +   "剩余次数 ：" + data.rc  +"</br>" + "储值卡总点数 ： " + data.v + "," + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +   "剩余点数 ：" + data.rv );
+					}
+					
+					
+//					$(".content-data1").show();
+					$(".content-data2").show();
+					break;
+				default : 
+					errorTip("错误提示",data.msg);
+					break;
+			}
+		}, null,
+		function(){ 
+			loading();
+			
+//			var table_head1 = '<tr><th>影院名称</th><th>消费类型</th><th>储值卡结算比值</th><th>次卡结算价</th>';
+			var table_head2 = "<th>卡号</th><th>次卡剩余次数</th><th>储值卡剩余点数</th><th>最后消费时间</th>";
+//			table_head += refund_privilege == 1 ? '<th class="w80">操作</th>' : "";
+//			table_head1 += '</tr>';
+			table_head2 += '</tr>';
+//			$(".data-tab1 table").html(table_head1);
+			$(".data-tab2 table").html(table_head2);
+		}, 
+		function(){
+			if(complete_fn != null){
+				complete_fn();
+			}
+			loadover();
+		}
+		);
+//		$(".headLine1").html("可用影院");
+		$(".headLine2").html("批次详情");;
+		
+}
+
+
+//查询消费记录
+function findCardRecord(side,complete_fn){
+	page = pageUpDown(side);
+	var param = {};
+	param.page = page;
+	param.pagesize = pagesize;
+	param.status =  status_money1;
+	param.cardnumber = $(".filter_input").val();
+	param.s_time = s_time;
+	param.e_time = e_time;
+	
+	$("#inputSerch").hide();
+	
+	var apiName = "manageData/findCardRecord";
+	
+
+	
+	
+	ajaxRequest(apiName, "GET", true, param,
+		function(data) {
+			var result = data.result;
+			switch (result) {
+				case 1000:
+					var dataArr = [];
+					dataList = data.data;
+					console.log(dataList);
+					var total = data.total;
+
+					$("#orderTotal").text(total == null ? "0" : total);
+					
+					
+						
+					if(total > 0 && dataList != null && dataList.length > 0){
+						var totalpage = parseInt(total % pagesize == 0 ? total / pagesize : total / pagesize + 1);
+						for(var i=0; i<dataList.length; i++){
+							var cardRecord = dataList[i];
+							var dataJson = {};
+//							dataJson.check = '<i class="check"></i>';
+							dataJson.cardnumber = cardRecord.cardnumber + "";
+							dataJson.theatername = cardRecord.theatername + "";
+//							dataJson.value = cardRecord.value + "";
+							if(cardRecord.value == undefined){dataJson.value = 0 + "";}else{dataJson.value = cardRecord.value + "";}
+//							dataJson.count = cardRecord.count + "";
+							if(cardRecord.count == undefined){dataJson.count = 0 + "";}else{dataJson.count = cardRecord.count + "";}
+//							dataJson.settleprice = cardRecord.settleprice + "";
+							if(cardRecord.settleprice == undefined){dataJson.settleprice = 0 + "";}else{dataJson.settleprice = cardRecord.settleprice + "";}
+							if(cardRecord.status==0){dataJson.status="正常"+ ""}else{dataJson.status="已退款"+ ""} ;
+							dataJson.createtime = cardRecord.createtime + "";
+							dataJson.modifytime = cardRecord.modifytime + "";
+
+							dataArr.push(dataJson);
+						}
+					}
+					
+					$(".data-tab tr").not(":first").remove();
+					pushJsonData(".data-tab table", dataArr);
+					
+					
+					// 分页
+					var pagingstr = loadPaging(totalpage, page, pagingsize, "findCardRecord");
+					$(".data-tab-ul").html(pagingstr);
+					$(".data-tab-ul2-sum").html("累计已消费总金额 ： " + data.v + "," + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +   "累计已消费总次数 ：" + data.c  + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + "累计已结算总价 ：" + data.s );
+					$(".data-tab-ul2-sum").show();
+					
+					break;
+				default : 
+					errorTip("错误提示",data.msg);
+					break;
+			}
+		}, null,
+		function(){ 
+			loading();
+			
+			var table_head = '<tr><th>卡号</th><th>影院名称</th><th>消费金额</th><th>次卡消费次数</th><th>结算价</th><th>状态</th><th>创建时间</th><th>退款时间</th>';
+//			table_head += refund_privilege == 1 ? '<th class="w80">操作</th>' : "";
+			table_head += '</tr>';
+			$(".data-tab table").html(table_head);
+			
+		}, 
+		function(){
+			if(complete_fn != null){
+				complete_fn();
+			}
+			loadover();
+		}
+	);
+	$(".headLine").html("消费记录");
+	
+	//隐藏 浮动div1
+    $(".content-data1").hide();
+    //隐藏浮动 div2
+    $(".content-data2").hide();
+    //隐藏“查询”按钮
+ //   $(".querybn").hide();
+    //清空输入框内容
+ //   $("#inputSerch").val("");
+    
+      //重置占位符内容，为的是重置当我点击查询按钮时跳转的页面
+    $("#inputSerch").attr("placeholder","查消费记录");
+    
+    //隐藏条件搜索卡类型
+    $(".cardtype_condition").hide();
+    //隐藏条件搜索卡状态
+    $(".cardstate_condition").hide();
+    //显示条件搜索  状态
+    $(".status_condition").show();
+    // 显示整个条件搜索框
+    $(".filter").show();
+    //显示 数据层 div
+    $(".content-data").show();
+    
+ // 选择状态
+	$(".status_money").on("click", function(){
+		status_money1 = parseInt($(this).attr("status_money1"));
+		console.log(status_money1);
+		findCardRecord(1,null);
+	});
+	
+	//选择时间范围
+	$(".main-box .filter .time .rangetime .drp-popup").on("click", function(){
+		if(s_time != $(".drp-calendar-date").eq(0).text() || e_time != $(".drp-calendar-date").eq(1).text()){
+			s_time = $(".drp-calendar-date").eq(0).text();
+			e_time = $(".drp-calendar-date").eq(1).text();
+			findCardRecord(1,null);
+		}
+	});
+	
+}
+
+
+function find_qb(side,complete_fn){
+	
+    //隐藏条件搜索卡类型
+    $(".cardtype_condition").hide();
+    //隐藏条件搜索卡状态
+    $(".cardstate_condition").hide();
+    //显示条件搜索  状态
+    $(".status_condition").show();
+    //显示查询所有批次
+    $(".batchname_condition").show();
+    //显示查询所有影院
+    $(".cinemaname_condition").show();
+    // 显示整个条件搜索框
+    $(".filter").show();
+    //隐藏 input 搜索框
+    $("#inputSerch").hide();
+    
+
+    
+    // 选择状态
+	$(".status_money").on("click", function(){
+		status_money1 = parseInt($(this).attr("status_money1"));
+		console.log(status_money1);
+		find_qb(1,null);
+	});
+	
+	//选择时间范围
+	$(".main-box .filter .time .rangetime .drp-popup").on("click", function(){
+		if(s_time != $(".drp-calendar-date").eq(0).text() || e_time != $(".drp-calendar-date").eq(1).text()){
+			s_time = $(".drp-calendar-date").eq(0).text();
+			e_time = $(".drp-calendar-date").eq(1).text();
+			find_qb(1,null);
+		}
+	});
+    
+	
+	
+	
+	 
+    
+	page = pageUpDown(side);
+	var param = {};
+	param.page = page;
+	param.pagesize = pagesize;
+
+//	param.status = status_money1;
+//	param.filter = $(".filter_input").val();
+	param.s_time = s_time;
+	param.e_time = e_time;
+	
+	$("#inputSerch").attr("placeholder","");
+	
+	var apiName = "manageData/findCardRecord_qb";
+	
+// ------------------------------------	
+	if(status_money1 == 0){
+		//正常
+		param.status = 0;
+		
+	}else if(status_money1 == 1){
+		// 已退款
+		param.status = 1;
+	
+	}else{
+		param.status = null;
+	}
+
+// ----------------------------------------
+     
+	//给批次添加选中点击事件
+	if($("#batchname").attr("batchid") != null && $("#batchname").attr("batchid") != 0){
+		
+		param.cardconfid = $("#batchname").attr("batchid");
+		
+	}
+	//给批次添加选中点击事件
+	if($("#cinemaname").attr("cinemaid") != null && $("#cinemaname").attr("cinemaid") != 0){
+		
+		param.cinemaid = $("#cinemaname").attr("cinemaid");
+		
+	}
+	
+	
+	ajaxRequest(apiName, "GET", true, param,
+		function(data) {
+			var result = data.result;
+			switch (result) {
+				case 1000:
+					var dataArr = [];
+					dataList = data.data;
+					console.log(dataList);
+					var total = data.total;
+					
+					var valueSum = 0;
+					var countSum = 0;
+					var settlepriceSum = 0;
+
+					$("#orderTotal").text(total == null ? "0" : total);
+					
+					
+						
+					if(total > 0 && dataList != null && dataList.length > 0){
+						var totalpage = parseInt(total % pagesize == 0 ? total / pagesize : total / pagesize + 1);
+						for(var i=0; i<dataList.length; i++){
+							var batchInfo = dataList[i];
+							
+//						   if(batchInfo.value == undefined){valueSum += 0;}else{valueSum += batchInfo.value;}
+//						   if(batchInfo.count == undefined){countSum += 0;}else{countSum += batchInfo.count;}
+//						   if(batchInfo.settleprice == undefined){settlepriceSum += 0;}else{settlepriceSum += batchInfo.settleprice;}
+					
+							var dataJson = {};
+
+							dataJson.cardconfid = batchInfo.cardconfid + "";
+							dataJson.cardname =  batchInfo.cardname + "";
+     						dataJson.cardnumber = batchInfo.cardnumber + "";
+							dataJson.theatername = batchInfo.theatername + "";
+//							dataJson.value = batchInfo.value + "";
+							if(batchInfo.value == undefined){dataJson.value = 0 + "";}else{dataJson.value = batchInfo.value + "";}
+//							dataJson.count = batchInfo.count + "";
+							if(batchInfo.count == undefined){dataJson.count = 0 + "";}else{dataJson.count = batchInfo.count + "";}
+//							dataJson.settleprice = batchInfo.settleprice + "";	
+							if(batchInfo.settleprice == undefined){dataJson.settleprice = 0 + "";}else{dataJson.settleprice = batchInfo.settleprice + "";}
+							if(batchInfo.status==0){dataJson.status="正常"+ ""}else{dataJson.status="已退款"+ ""} ;
+							dataJson.createtime=batchInfo.createtime + "";
+							dataJson.modifytime=batchInfo.modifytime + "";
+
+							dataArr.push(dataJson);
+						}
+					}
+					
+					$(".data-tab tr").not(":first").remove();
+					pushJsonData(".data-tab table", dataArr);
+					
+					
+					// 分页
+					var pagingstr = loadPaging(totalpage, page, pagingsize, "find_qb");
+					$(".data-tab-ul").html(pagingstr);
+					$(".data-tab-ul2-sum").html("已消费总金额 ： " + data.v + "," + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +   "已消费总次数 ：" + data.c  + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + "已结算总价 ：" + data.s );
+					$(".data-tab-ul2-sum").show();
+					break;
+				default : 
+					errorTip("错误提示",data.msg);
+					break;
+			}
+		}, null,
+		function(){ 
+			loading();
+			
+			var table_head = '<tr><th>批次编号</th><th>批次名</th><th>卡号</th><th>影院名称</th><th>消费金额</th><th>次卡消费次数</th><th>结算价</th><th>状态</th><th>创建时间</th><th>退款时间</th>';
+//			table_head += refund_privilege == 1 ? '<th class="w80">操作</th>' : "";
+			table_head += '</tr>';
+			$(".data-tab table").html(table_head);
+		}, 
+		function(){
+			if(complete_fn != null){
+				complete_fn();
+			}
+			loadover();
+		}
+	);
+	$(".headLine").html("消费记录");
+	
+	//点击下拉列表加载批次数据
+	$("#batch_btn").on("click",function(){ batchnameList(null,null); });
+	//点击下拉列表加载影院数据
+	$("#cinema_btn").on("click",function(){ cinemanameList(null,null); });
+	//点击下拉列表里面的放大镜搜索
+	$("#batchname_search_icon").on("click", function(){ batchnameList($("#batchname_search").val()); });
+	//点击下拉列表里面的放大镜搜索
+	$("#cinemaname_search_icon").on("click", function(){ cinemanameList($("#cinemaname_search").val()); });
+}
+
+
+
+/**
+ * 批次列表
+ */
+function batchnameList( batchname, complete_fn ){
+
+	var param = {};
+	if( batchname !=null && batchname != "" ){
+		param.cardname = batchname;
+	}
+	
+	ajaxRequest("manageData/findBatchByName", "GET", true, param, 
+		function(data) {
+			var result = data.result;
+			switch (result) {
+				case 1000:
+					var dataArr = [];
+					var batchList = data.data;
+					
+					var batchHtml = '';
+					if(batchList != null && batchList.length > 0){
+						batchHtml += '<ul class="list-unstyled">';
+						batchHtml += '<li class="filter-item items" batchid="0">所有批次</li>';
+						for(var i=0; i<batchList.length; i++){
+							batchHtml += '<li class="filter-item items ellipsis" title="'+ batchList[i].cardname +'" batchid="'+ batchList[i].cardconfid +'">'+ batchList[i].cardname +'</li>';
+						}
+						batchHtml += '</ul>';
+					}else{
+						batchHtml += '<div class="no-search-results">';
+						batchHtml += '<div class="alert alert-warning" role="alert"><i class="fa fa-warning margin-right-sm"></i>No entry for <strong>"<span></span>"</strong> was found.</div>';
+						batchHtml += '</div>';
+					}
+					$(".batchname_list_filter").html(batchHtml);
+					
+					$(".batchname_list_filter li").on("click", function(){
+						$(this).parents(".selectpicker").removeClass("open");
+						$("#batchname").attr("batchid", $(this).attr("batchid"));
+						$("#batchname").text($(this).text());
+						find_qb(1);
+					});
+					break;
+				default : errorTip( "提示", "查询批次错误" ); break;
+			}
+		}
+		, null, null,
+		function(){ if(complete_fn != null){new complete_fn();}}
+	);
+}
+
+
+/**
+ * 影院列表
+ */
+function cinemanameList( cinemaname, complete_fn ){
+
+	var param = {};
+	if( cinemaname !=null && cinemaname != "" ){
+		param.theatername = cinemaname;
+	}
+	
+	ajaxRequest("manageData/findCinema", "GET", true, param, 
+		function(data) {
+			var result = data.result;
+			switch (result) {
+				case 1000:
+					var dataArr = [];
+					var cinemaList = data.data;
+					
+					var cinemaHtml = '';
+					if(cinemaList != null && cinemaList.length > 0){
+						cinemaHtml += '<ul class="list-unstyled">';
+						cinemaHtml += '<li class="filter-item items" cinemaid="0">所有影院</li>';
+						for(var i=0; i<cinemaList.length; i++){
+							cinemaHtml += '<li class="filter-item items ellipsis" title="'+ cinemaList[i].theatername +'" cinemaid="'+ cinemaList[i].cinemaid +'">'+ cinemaList[i].theatername +'</li>';
+						}
+						cinemaHtml += '</ul>';
+					}else{
+						cinemaHtml += '<div class="no-search-results">';
+						cinemaHtml += '<div class="alert alert-warning" role="alert"><i class="fa fa-warning margin-right-sm"></i>No entry for <strong>"<span></span>"</strong> was found.</div>';
+						cinemaHtml += '</div>';
+					}
+					$(".cinemaname_list_filter").html(cinemaHtml);
+					
+					$(".cinemaname_list_filter li").on("click", function(){
+						$(this).parents(".selectpicker").removeClass("open");
+						$("#cinemaname").attr("cinemaid", $(this).attr("cinemaid"));
+						$("#cinemaname").text($(this).text());
+						find_qb(1);
+					});
+					break;
+				default : errorTip( "提示", "查询影院错误" ); break;
+			}
+		}
+		, null, null,
+		function(){ if(complete_fn != null){new complete_fn();}}
+	);
+}

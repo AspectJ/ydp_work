@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="card">
+	
+	<!-- 通卡（券）生成卡号信息查询 -->
+	<select id="getCardList" parameterType="java.util.Map" resultType="java.util.Map">
+		select card.cardid,card.cardconfid,card.cardnumber,card.cardcipher,card.restcount,card.restvalue,card.modifytime,card.status as cardstatus,
+		conf.cardname,conf.cardtype,conf.count,conf.value,conf.starttime,conf.endtime,conf.quantity,conf.status,user.username from t_card card 
+		join t_card_conf conf on card.cardconfid = conf.cardconfid 
+		join t_userinfo user on card.operatorid = user.userid 
+		where 1=1 
+		<if test="cardconfid != null">
+			and card.cardconfid = #{cardconfid}
+		</if>
+		<if test="cardnumber != null">
+			and card.cardnumber like #{cardnumber}
+		</if>
+		order by card.cardid desc   
+		<if test="pageSize != null and offsetNum != null">
+			limit ${pageSize} offset ${offsetNum}
+		</if>
+	</select>
+	
+	
+	<!-- 通卡（券）生成卡号信息数量查询 -->
+	<select id="getCardCount" parameterType="java.util.Map" resultType="java.util.Map">
+		select count(*) as count from t_card card 
+		join t_card_conf conf on card.cardconfid = conf.cardconfid 
+		join t_userinfo user on card.operatorid = user.userid 
+		where 1=1 
+		<if test="cardconfid != null">
+			and card.cardconfid = #{cardconfid}
+		</if>
+		<if test="cardnumber != null">
+			and card.cardnumber like #{cardnumber}
+		</if>
+	</select>
+	
+	
+	<!-- 新增通卡(券)生成卡号 
+	(#{cardconfid},#{cardnumber},#{cardcipher},#{restcount},#{restvalue},#{createtime},#{operatorid},#{modifytime})
+	-->	
+	<insert id="insertCard" useGeneratedKeys="true" parameterType="java.util.List">
+		insert into t_card(cardconfid,cardnumber,cardcipher,restcount,restvalue,createtime,operatorid,modifytime)
+			values 
+		<foreach collection="list" item= "item" index ="index" separator=",">
+	     (#{item.cardconfid}, #{item.cardnumber}, #{item.cardcipher}, #{item.restcount}, #{item.restvalue}, #{item.createtime},#{item.operatorid}, #{item.modifytime})
+   		</foreach >
+		
+	</insert>
+	
+	
+	<!-- 修改通卡（券）卡号信息 -->	
+	<update id="updateCard" parameterType="map">
+		update t_card set modifytime = #{modifytime}
+		<if test="restcount != null">
+			, restcount = #{restcount}
+		</if>
+		<if test="restvalue != null">
+			, restvalue = #{restvalue}
+		</if>
+		<if test="operatorid != null">
+			, operatorid = #{operatorid}
+		</if>
+		<if test="status != null">
+			, status = #{status}
+		</if>
+		where 1=1 
+		<if test="cardid != null">
+			and cardid = #{cardid}
+		</if>
+		<if test="cardconfid != null">
+			and cardconfid = #{cardconfid}
+		</if>
+		<if test="cardnumber != null">
+			and cardnumber = #{cardnumber}
+		</if>
+		<if test="cardcipher != null">
+			and cardcipher = #{cardcipher}
+		</if>
+	</update>
+	
+	
+	<!-- 删除通卡（券）卡号信息 -->
+	<delete id="deleteCard" parameterType="map">
+		delete from t_card where cardconfid = #{cardconfid} 
+	</delete>
+	
+	
+	<!-- 判断是否存在相同的通卡（券）卡号 -->
+	<select id="checkRepeatCardNumber" parameterType="java.util.Map" resultType="java.util.Map">
+		select cardid,cardnumber,cardcipher from t_card  
+		where 1=1 
+		<if test="cardnumber != null">
+			and cardnumber = #{cardnumber}
+		</if>
+		<if test="cardcipher != null">
+			and cardcipher != #{cardcipher}
+		</if>
+	</select>
+	
+	
+	<!-- 新增消费记录 -->	
+	<insert id="insertCardRecord" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="recordid">
+		insert into t_card_record(cardid,cardconfid,cinemaid,ext_userid,value,count,settleprice,status,createtime,operatorid)
+			values 
+		(#{cardid},#{cardconfid},#{cinemaid},#{ext_userid},#{value},#{count},#{settleprice},#{status},#{createtime},#{operatorid})
+	</insert>
+	
+	<!-- 修改通卡（券）消费记录（退款）信息 -->	
+	<update id="updateCardReord" parameterType="map">
+		update t_card_record set modifytime = #{modifytime}
+		<if test="status != null">
+			, status = #{status}
+		</if>
+		<if test="operatorid != null">
+			, operatorid = #{operatorid}
+		</if>
+		where 
+		recordid = #{recordid}
+		<if test="cardid != null">
+			and cardid = #{cardid}
+		</if>
+	</update>
+	
+	
+	<!-- 根据密码查询卡券信息 -->
+	<select id="getCardInfo" parameterType="java.util.Map" resultType="java.util.Map">
+		select card.cardid,card.cardconfid,card.cardnumber,card.cardcipher,card.restcount,card.restvalue,card.createtime,card.modifytime,card.status as cardstatus,
+		conf.cardname,conf.cardtype,conf.count,conf.value,conf.starttime,conf.endtime,conf.quantity,conf.note,conf.status from t_card card 
+		join t_card_conf conf on card.cardconfid = conf.cardconfid 
+		where 1=1 
+		<if test="cardconfid != null">
+			and card.cardconfid = #{cardconfid}
+		</if>
+		<if test="cardid != null">
+			and card.cardid = #{cardid}
+		</if>
+		<if test="cardnumber != null">
+			and card.cardnumber = #{cardnumber}
+		</if>
+		<if test="cardcipher != null">
+			and card.cardcipher = #{cardcipher}
+		</if>
+	</select>
+	
+	
+	<!-- 根据批次、卡号查询消费记录 -->
+	<select id="getCardRecordInfo" parameterType="java.util.Map" resultType="java.util.Map">
+		select record.recordid,record.cinemaid,record.ext_userid,record.value,record.count,record.status,
+		card.cardnumber,card.restcount,card.restvalue from t_card_record record
+		join t_card card on record.cardid=card.cardid
+		where 1=1 
+		<if test="cardconfid != null">
+			and record.cardconfid = #{cardconfid}
+		</if>
+		<if test="cardid != null">
+			and record.cardid = #{cardid}
+		</if>
+		<if test="cardnumber != null">
+			and card.cardnumber = #{cardnumber}
+		</if>
+	</select>
+	
+	
+	<!-- 查询单条消费记录 -->
+	<select id="getRecordByRecordid" parameterType="java.util.Map" resultType="java.util.Map">
+		select recordid,cinemaid,ext_userid,value,count,status from t_card_record 
+		where 1=1 
+		<if test="recordid != null">
+			and recordid = #{recordid}
+		</if>
+		<if test="cardconfid != null">
+			and cardconfid = #{cardconfid}
+		</if>
+		<if test="cardid != null">
+			and cardid = #{cardid}
+		</if>
+	</select>
+	
+	
+	<!-- 查询配置的影院信息 -->
+	<select id="getJoinCinema" parameterType="java.util.Map" resultType="java.util.Map">
+		select conf.cardconfid,conf.cardname,conf.cardtype,conf.count,conf.value,conf.starttime,conf.endtime,
+		conf.quantity,conf.note,cinema.consumetype,cinema.settlerate,cinema.settlevalue,theater.theatername from t_card_conf conf
+		join t_userinfo user on conf.operatorid = user.userid
+		join t_conf_cinema cinema on conf.cardconfid = cinema.cardconfid 
+		join t_theater theater on cinema.cinemaid = theater.theaterid
+		where 1=1 and conf.cardconfid = #{cardconfid} 
+	</select>
+	
+	
+	<!-- 查询卡已消费信息 -->
+	<select id="getRecordByCardid" parameterType="java.util.Map" resultType="java.util.Map">
+		select sum(count) as sumcount,sum(value) as sumvalue,sum(settleprice) as sumsettleprice from t_card_record where status='0' and cardid=#{cardid} 
+	</select>
+	
+	<!-- 查询已核销记录信息 -->
+	<select id="getChargeOffCardList" parameterType="java.util.Map" resultType="java.util.Map">
+		select record.recordid,record.cardid,record.cardconfid,record.value,record.count,record.status,record.cinemaid,
+		record.createtime,record.modifytime,card.cardnumber,card.restcount,card.restvalue,
+		conf.cardname,conf.cardtype,conf.count as confcount,conf.value as confvalue,
+		conf.starttime,conf.endtime,user.username,theater.theatername from t_card_record record
+		join t_card card on record.cardid = card.cardid
+		join t_card_conf conf on record.cardconfid = conf.cardconfid
+		join t_userinfo user on record.operatorid = user.userid
+		join t_theater theater on theater.theaterid = record.cinemaid 
+		where record.ext_userid = '0' 
+		<if test="cinemaid != null">
+			and record.cinemaid=#{cinemaid} 
+		</if>
+		<if test="userid != null">
+			and record.operatorid = #{userid} 
+		</if>
+		<if test="status != null">
+			and record.status = #{status} 
+		</if>
+		<if test="cardtype != null and cardtype != '' ">
+			and conf.cardtype = #{cardtype} 
+		</if>
+		<if test="cardnumber != null">
+			and card.cardnumber like #{cardnumber} 
+		</if>
+		<if test="starttime != null and starttime != '' and endtime != null and endtime != '' ">
+			and record.createtime between #{starttime} and #{endtime}
+		</if>
+		order by record.createtime desc  
+		<if test="pageSize != null and offsetNum != null">
+			limit ${pageSize} offset ${offsetNum}
+		</if>
+		
+	</select>
+	
+	
+	<!-- 查询已核销记录信息 -->
+	<select id="getChargeOffCardCount" parameterType="java.util.Map" resultType="java.util.Map">
+		select count(*) as count from t_card_record record
+		join t_card card on record.cardid = card.cardid
+		join t_card_conf conf on record.cardconfid = conf.cardconfid
+		join t_userinfo user on record.operatorid = user.userid
+		join t_theater theater on theater.theaterid = record.cinemaid 
+		where record.ext_userid = '0' 
+		<if test="cinemaid != null">
+			and record.cinemaid=#{cinemaid} 
+		</if>
+		<if test="userid != null">
+			and record.operatorid = #{userid} 
+		</if>
+		<if test="status != null">
+			and record.status = #{status} 
+		</if>
+		<if test="cardtype != null and cardtype != '' ">
+			and conf.cardtype = #{cardtype} 
+		</if>
+		<if test="cardnumber != null">
+			and card.cardnumber like #{cardnumber} 
+		</if>
+		<if test="starttime != null and starttime != '' and endtime != null and endtime != '' ">
+			and record.createtime between #{starttime} and #{endtime}
+		</if>
+		
+	</select>
+	
+</mapper>

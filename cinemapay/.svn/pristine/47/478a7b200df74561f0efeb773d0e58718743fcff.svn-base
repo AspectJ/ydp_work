@@ -1,0 +1,614 @@
+package com.cp.rest.card;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+
+import org.jboss.resteasy.annotations.cache.NoCache;
+import org.springframework.stereotype.Service;
+
+import com.cp.bean.Convert;
+import com.cp.bean.ResMessage;
+import com.cp.filter.BaseServlet;
+import com.cp.rest.card.dao.CardConfDaoImpl;
+import com.cp.rest.card.dao.CardDaoImpl;
+import com.cp.rest.card.dao.ConfCinemaDaoImpl;
+import com.cp.rest.userinfo.LogInfoAdd;
+import com.cp.rest.userinfo.dao.RoleInfoDaoImpl;
+import com.cp.rest.userinfo.redis.UserRedisImpl;
+import com.cp.util.CodeUtil;
+import com.cp.util.Permission;
+import com.mongo.MyMongo;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+@Path("rest/cardConf")
+@NoCache
+@Service()
+public class CardConfRest extends BaseServlet
+{
+	@Resource
+	private CardConfDaoImpl cardConfDao;
+	@Resource
+	private ConfCinemaDaoImpl confCinemaDao;
+	@Resource
+	private CardDaoImpl cardDao;
+	@Resource
+	private RoleInfoDaoImpl roleInfoDao;
+	@Resource
+	private LogInfoAdd logInfo;
+	@Resource
+	private UserRedisImpl userRedis;
+	
+	
+	/**
+	 * 查看发行通卡（券）列表
+	 */
+	@GET
+	@POST
+	@Path("/getCardConfList")
+	@Produces("text/html;charset=UTF-8")
+	public String getRoleList(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		String userid = String.valueOf(request.getAttribute("userid"));
+		List<String> userFeilds = userRedis.getUserField(userid, "roletype".getBytes(), "theaternum".getBytes(),"username".getBytes());
+		if(userFeilds != null){
+			if(!privilegeCheck(request, Permission.cardConfInfo, userRedis)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Privilege.code);
+				return this.returnError(resultJson, ResMessage.Lack_Privilege.code, request);
+			}
+			//分页参数、条件查询参数
+			String pagesize = request.getParameter("pagesize");//每页多少条数据
+			String page = request.getParameter("page");//page＝（当前页数－1）*pagesize
+			String cardtype = request.getParameter("cardtype");//卡类型
+			try{
+				String search = URLDecoder.decode(request.getParameter("search"), "UTF-8");
+				Map<String, Object> searchInfo = new HashMap<String, Object>();
+				searchInfo.put("pageSize", Integer.parseInt(pagesize));
+				searchInfo.put("offsetNum", Integer.parseInt(pagesize) * (Integer.parseInt(page) - 1));
+				searchInfo.put("cardtype", cardtype);
+				if(!CodeUtil.checkParam(search)){
+					searchInfo.put("search", "%" + search + "%");
+				}
+				Map<String, Object> countMap = cardConfDao.getCardConfCount(searchInfo);
+				String count = countMap.get("count").toString();
+				List<Map<String, Object>> resultList = cardConfDao.getCardConfList(searchInfo);
+				JSONArray jsonArray = new JSONArray();
+				if(resultList != null && resultList.size() > 0){
+					for(int i=0;i<resultList.size();i++){
+						Map<String, Object> resultMap = resultList.get(i);
+						JSONObject data = new JSONObject();
+						data.put("cardconfid", resultMap.get("cardconfid"));
+						data.put("cardname", resultMap.get("cardname"));
+						data.put("cardtype", resultMap.get("cardtype"));
+						data.put("cardtype_name", Convert.convertCardConfType(resultMap.get("cardtype").toString()));
+						data.put("count", resultMap.get("count"));
+						data.put("value", resultMap.get("value"));
+						data.put("starttime", new SimpleDateFormat("yyyy-MM-dd").format(resultMap.get("starttime")));
+						data.put("endtime", new SimpleDateFormat("yyyy-MM-dd").format(resultMap.get("endtime")));
+						data.put("quantity", resultMap.get("quantity"));
+						data.put("note", resultMap.get("note"));
+						data.put("status", resultMap.get("status"));
+						data.put("status_name", Convert.convertCardConfStatus(resultMap.get("status").toString()));
+						data.put("createtime", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("createtime")));
+						data.put("operatorid", resultMap.get("username"));
+						data.put("modifytime", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("modifytime")));
+						jsonArray.add(data);
+					}
+					resultJson.put("total", count);
+					resultJson.put("data", jsonArray);
+				}else{
+					MyMongo.mRequestFail(request, "查询发行卡类信息列表不存在");
+					return this.returnError(resultJson, ResMessage.Select_Info_NotExist.code, request);
+				}
+			} catch (Exception e){
+				MyMongo.mErrorLog("查询发行卡类信息列表失败", request, e);
+				return this.returnError(resultJson, ResMessage.Select_Info_Fail.code, request);
+			}
+			long etime = System.currentTimeMillis();
+			MyMongo.mRequestLog("查询发行卡类信息列表成功",  etime - stime, request, resultJson);
+			return this.response(resultJson, request);
+		}else{
+			MyMongo.mRequestFail(request, "登录超时");
+			return this.returnError(resultJson, ResMessage.User_Login_TimeOut.code, request);
+		}
+	}
+	
+	
+	
+	/**
+	 * 新建通卡（券）信息
+	 * @throws UnsupportedEncodingException 
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@GET
+	@POST
+	@Path("/addCardConf")
+	@Produces("text/html;charset=UTF-8")
+	public String addCardConf(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		String userid = String.valueOf(request.getAttribute("userid"));
+		List<String> userFeilds = userRedis.getUserField(userid, "theaternum".getBytes(),"username".getBytes());
+		if(userFeilds != null){
+			if(!privilegeCheck(request, Permission.addCardConf, userRedis)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Privilege.code);
+				return this.returnError(resultJson, ResMessage.Lack_Privilege.code, request);
+			}
+			
+			String cardname = request.getParameter("cardname");
+			String cardtype = request.getParameter("cardtype");
+			String count = request.getParameter("count");
+			String value = request.getParameter("value");
+			String quantity = request.getParameter("quantity");
+			String starttime = request.getParameter("starttime");
+			String endtime = request.getParameter("endtime");
+			String note = request.getParameter("note");
+		
+			String cinema_data = request.getParameter("cinema_data");  
+			JSONArray array = JSONArray.fromObject(cinema_data);
+			List<Map<String,Object>> cinemaList = (List)array;  
+			if(cinemaList.size() == 0){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			
+			try{
+				if (CodeUtil.checkParam(cardname)){
+					MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+					return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+				}
+				Map<String,Object> paramMap = new HashMap<String, Object>();
+				paramMap.put("cardname", cardname);
+				paramMap.put("cardtype", cardtype);
+				paramMap.put("count", count);
+				paramMap.put("value", value);
+				paramMap.put("quantity", quantity);
+				paramMap.put("starttime", starttime+" 00:00:00");
+				paramMap.put("endtime", endtime+" 23:59:59");
+				paramMap.put("note", note);
+				paramMap.put("status", 0);//默认 未生成
+				paramMap.put("createtime", new Date());
+				paramMap.put("modifytime", new Date());
+				paramMap.put("operatorid", userid);
+				
+				List<Map<String, Object>> resultList = cardConfDao.checkRepeatCardName(paramMap);//查找是否有重复的卡券信息
+				if(resultList.size()>0){
+					MyMongo.mRequestFail(request,"不能重复创建通卡（券）信息");
+					return this.returnError(resultJson, ResMessage.Commit_Repeat_Fail.code, request);
+				}else{
+					paramMap.put("cardconfid", "");
+					Map<String, Object> resultMap = cardConfDao.insertCardConf(paramMap);
+					String cardconfid = resultMap.get("cardconfid").toString();
+					Map<String, Object> cinemaMap = new HashMap<String, Object>();
+					cinemaMap.put("cardconfid", cardconfid);
+					cinemaMap.put("confcinemaid", "");
+					for (int i = 0; i < cinemaList.size(); i++) {  
+			            Map<String,Object> obj=cinemaList.get(i);  
+			            String cinemaid = obj.get("cinemaid").toString();
+			            String cinemanum = obj.get("cinemanum").toString();
+			            String cinemaname = obj.get("cinemaname").toString();
+			            String consumetype = Convert.convertConsumetype(obj.get("consumetype").toString());
+			            String settlevalue = obj.get("settlevalue").toString();
+			            String settlerate = obj.get("settlerate").toString();
+			            System.out.println("cinemaid:"+cinemaid+"   cinemanum:"+cinemanum+"   cinemaname:"+cinemaname+"   consumetype:"+consumetype+"   settlevalue:"+settlevalue+"   settlerate:"+settlerate);
+			            saveConfCinema(cinemaMap, cinemaid, consumetype, settlevalue, settlerate, cinemanum, cinemaname, cardtype,"insert");
+			        }  
+				}
+			} catch (Exception e){
+				MyMongo.mErrorLog("创建通卡（券）信息失败", request, e);
+				return this.returnError(resultJson, ResMessage.Add_Info_Fail.code, request);
+			}
+			long etime = System.currentTimeMillis();
+			MyMongo.mRequestLog("创建通卡（券）信息成功",  etime - stime, request, resultJson);
+			String logContent = "创建通卡（券）["+cardname+"]";
+			logInfo.addLogInfo(request, "0", logContent);
+			return this.response(resultJson, request);
+		}else{
+			MyMongo.mRequestFail(request, "登录超时");
+			return this.returnError(resultJson, ResMessage.User_Login_TimeOut.code, request);
+		}
+	}
+	
+	
+	/**
+	 * 查看发行通卡（券）列表
+	 */
+	@GET
+	@POST
+	@Path("/getCardConf")
+	@Produces("text/html;charset=UTF-8")
+	public String getCardConf(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		String userid = String.valueOf(request.getAttribute("userid"));
+		List<String> userFeilds = userRedis.getUserField(userid, "roletype".getBytes(), "theaternum".getBytes(),"username".getBytes());
+		if(userFeilds != null){
+			String cardconfid = request.getParameter("cardconfid");
+			try{
+				Map<String, Object> searchInfo = new HashMap<String, Object>();
+				searchInfo.put("cardconfid", cardconfid);
+				List<Map<String, Object>> resultList = cardConfDao.getCardConf(searchInfo);
+				JSONArray jsonArray = new JSONArray();
+				if(resultList != null && resultList.size() > 0){
+					Map<String, Object> resultMap = resultList.get(0);
+					JSONObject data = new JSONObject();
+					data.put("cardconfid", resultMap.get("cardconfid"));
+					data.put("cardname", resultMap.get("cardname"));
+					data.put("cardtype", resultMap.get("cardtype"));
+					data.put("cardtype_name", Convert.convertCardConfType(resultMap.get("cardtype").toString()));
+					data.put("count", resultMap.get("count"));
+					data.put("value", resultMap.get("value"));
+					data.put("starttime", new SimpleDateFormat("yyyy-MM-dd").format(resultMap.get("starttime")));
+					data.put("endtime", new SimpleDateFormat("yyyy-MM-dd").format(resultMap.get("endtime")));
+					data.put("quantity", resultMap.get("quantity"));
+					data.put("note", resultMap.get("note"));
+					data.put("status", resultMap.get("status"));
+					data.put("status_name", Convert.convertCardConfStatus(resultMap.get("status").toString()));
+					data.put("createtime", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("createtime")));
+					data.put("operatorid", resultMap.get("username"));
+					data.put("modifytime", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("modifytime")));
+					for(int i=0;i<resultList.size();i++){
+						Map<String, Object> cinemaMap = resultList.get(i);
+						JSONObject cinemaData = new JSONObject();
+						cinemaData.put("cinemaid", cinemaMap.get("cinemaid"));
+						cinemaData.put("cinemaname", cinemaMap.get("theatername"));
+						cinemaData.put("cinemanum", cinemaMap.get("theaternum"));
+						cinemaData.put("confcinemaid", cinemaMap.get("confcinemaid"));
+						cinemaData.put("consumetype", Convert.convertConsumetype1(cinemaMap.get("consumetype").toString()));
+						cinemaData.put("consumetype_name", Convert.convertCinemaConsume(cinemaMap.get("consumetype").toString()));
+						cinemaData.put("settlerate", Convert.saveDecimalOne(cinemaMap.get("settlerate")));
+						cinemaData.put("settlevalue", Convert.saveDecimalOne(cinemaMap.get("settlevalue")));
+						jsonArray.add(cinemaData);
+					}
+					data.put("cinemainfo", jsonArray);
+					resultJson.put("data", data);
+				}else{
+					MyMongo.mRequestFail(request, "查询发行卡类信息不存在");
+					return this.returnError(resultJson, ResMessage.Select_Info_NotExist.code, request);
+				}
+			} catch (Exception e){
+				MyMongo.mErrorLog("查询发行卡类信息失败", request, e);
+				return this.returnError(resultJson, ResMessage.Select_Info_Fail.code, request);
+			}
+			long etime = System.currentTimeMillis();
+			MyMongo.mRequestLog("查询发行卡类信息成功",  etime - stime, request, resultJson);
+			return this.response(resultJson, request);
+		}else{
+			MyMongo.mRequestFail(request, "登录超时");
+			return this.returnError(resultJson, ResMessage.User_Login_TimeOut.code, request);
+		}
+	}
+	
+	
+	/**
+	 * 查询用户账号是否重复
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/checkCardConfRepeat")
+	@Produces("text/html;charset=UTF-8")
+	public String checkCardConfRepeat(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		String cardconfid = request.getParameter("cardconfid")==null || request.getParameter("cardconfid").equals("") ? "0" : request.getParameter("cardconfid");
+		String cardname = URLDecoder.decode(request.getParameter("cardname"), "UTF-8");
+		try{
+			Map<String, Object> searchInfo = new HashMap<String, Object>();
+			searchInfo.put("cardconfid", cardconfid);
+			searchInfo.put("cardname", cardname);
+			List<Map<String, Object>> resultList = cardConfDao.checkRepeatCardName(searchInfo);
+			resultJson.put("total", resultList.size());
+			JSONArray jsonArray = new JSONArray();
+			if(resultList != null && resultList.size() > 0){
+				for(int i=0;i<resultList.size();i++){
+					Map<String, Object> resultMap = resultList.get(i);
+					JSONObject data = new JSONObject();
+					data.put("cardconfid", resultMap.get("cardconfid"));
+					data.put("cardname", resultMap.get("cardname"));
+					jsonArray.add(data);
+				}
+				resultJson.put("data", jsonArray);
+			}
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("查询通卡(券)名称是否重复失败", request, e);
+			return this.returnError(resultJson, ResMessage.Select_Info_Fail.code, request);
+		}
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询通卡(券)名称是否重复成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 删除通卡(券)信息
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/deleteCardConf")
+	@Produces("text/html;charset=UTF-8")
+	public String deleteUser(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		String userid = String.valueOf(request.getAttribute("userid"));
+		List<String> userFeilds = userRedis.getUserField(userid, "theaternum".getBytes(),"username".getBytes());
+		if(userFeilds != null){
+			if(!privilegeCheck(request, Permission.deleteCardConf, userRedis)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Privilege.code);
+				return this.returnError(resultJson, ResMessage.Lack_Privilege.code, request);
+			}
+			
+			String cardconfid = request.getParameter("cardconfid");//ID
+			String cardname = request.getParameter("cardname");
+			try{
+				if (CodeUtil.checkParam(cardconfid)){
+					MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+					return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+				}
+				Map<String, Object> paramMap = new HashMap<String, Object>();
+				paramMap.put("cardconfid", Integer.parseInt(cardconfid));
+				Map<String, Object> basicMap = cardConfDao.getCardConfBasic(paramMap);
+				cardname = basicMap.get("cardname").toString();
+				if("1".equals(basicMap.get("status").toString())){
+					return this.returnError(resultJson, ResMessage.Commit_Operator_Fail.code, request);
+				}else{
+					cardConfDao.deleteCardConf(paramMap);
+					confCinemaDao.deleteConfCinema(paramMap);
+					JSONObject data = new JSONObject();
+					data.put("cardconfid", cardconfid);
+					resultJson.put("data", data);
+				}
+			} catch (Exception e){
+				MyMongo.mErrorLog("删除通卡(券)信息失败", request, e);
+				return this.returnError(resultJson, ResMessage.Delete_Info_Fail.code, request);
+			}
+			long etime = System.currentTimeMillis();
+			MyMongo.mRequestLog("删除通卡(券)信息成功",  etime - stime, request, resultJson);
+			String logContent = "删除通卡(券)["+cardname+"]信息";
+			logInfo.addLogInfo(request, "0", logContent);
+			return this.response(resultJson, request);
+		}else{
+			MyMongo.mRequestFail(request, "登录超时");
+			return this.returnError(resultJson, ResMessage.User_Login_TimeOut.code, request);
+		}
+	}
+	
+	
+	
+	/**
+	 * 修改状态
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/changeConfStatus")
+	@Produces("text/html;charset=UTF-8")
+	public String changeConfStatus(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		String userid = String.valueOf(request.getAttribute("userid"));
+		List<String> userFeilds = userRedis.getUserField(userid, "theaternum".getBytes(),"username".getBytes());
+		if(userFeilds != null){
+			if(!privilegeCheck(request, Permission.cardConfStatus, userRedis)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Privilege.code);
+				return this.returnError(resultJson, ResMessage.Lack_Privilege.code, request);
+			}
+			String cardconfid = request.getParameter("cardconfid");//ID
+			String status = request.getParameter("status");
+			String cardname = "";
+			String statusName = "";
+			if("1".equals(status)){statusName = "启用";}else{statusName = "禁用";}
+			try{
+				if (CodeUtil.checkParam(cardconfid)){
+					MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+					return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+				}
+				Map<String, Object> paramMap = new HashMap<String, Object>();
+				paramMap.put("cardconfid", Integer.parseInt(cardconfid));
+				paramMap.put("status", status);
+				paramMap.put("operatorid", userid);
+				Map<String, Object> basicMap = cardConfDao.getCardConfBasic(paramMap);
+				cardname = basicMap.get("cardname").toString();
+				cardConfDao.updateCardConf(paramMap);
+				cardDao.updateCard(paramMap);
+				JSONObject data = new JSONObject();
+				data.put("cardconfid", cardconfid);
+				resultJson.put("data", data);
+			} catch (Exception e){
+				MyMongo.mErrorLog("修改通卡(券)状态为"+statusName+"失败", request, e);
+				return this.returnError(resultJson, ResMessage.Update_Info_Fail.code, request);
+			}
+			long etime = System.currentTimeMillis();
+			MyMongo.mRequestLog("修改通卡(券)["+cardname+"]状态为"+statusName+"成功",  etime - stime, request, resultJson);
+			String logContent = "修改通卡(券)["+cardname+"]状态为"+statusName;
+			logInfo.addLogInfo(request, "0", logContent);
+			return this.response(resultJson, request);
+		}else{
+			MyMongo.mRequestFail(request, "登录超时");
+			return this.returnError(resultJson, ResMessage.User_Login_TimeOut.code, request);
+		}
+	}
+	
+	
+	
+	
+	/**
+	 * 修改通卡（券）信息
+	 * @throws UnsupportedEncodingException 
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@GET
+	@POST
+	@Path("/updateCardConf")
+	@Produces("text/html;charset=UTF-8")
+	public String updateCardConf(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		String userid = String.valueOf(request.getAttribute("userid"));
+		List<String> userFeilds = userRedis.getUserField(userid, "theaternum".getBytes(),"username".getBytes());
+		if(userFeilds != null){
+			if(!privilegeCheck(request, Permission.updateCardConf, userRedis)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Privilege.code);
+				return this.returnError(resultJson, ResMessage.Lack_Privilege.code, request);
+			}
+			
+			String cardconfid = request.getParameter("cardconfid");
+			String cardname = URLDecoder.decode(request.getParameter("cardname"), "UTF-8");
+			String cardtype = request.getParameter("cardtype");
+			String count = request.getParameter("count");
+			String value = request.getParameter("value");
+			String quantity = request.getParameter("quantity");
+			String starttime = request.getParameter("starttime");
+			String endtime = request.getParameter("endtime");
+			String note = URLDecoder.decode(request.getParameter("note"), "UTF-8");
+			
+			String cinema_data = request.getParameter("cinema_data");  
+			JSONArray array = JSONArray.fromObject(cinema_data);
+			List<Map<String,Object>> cinemaList = (List)array;  
+			if(cinemaList.size() == 0){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			
+			try{
+				if (CodeUtil.checkParam(cardname)){
+					MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+					return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+				}
+				Map<String,Object> paramMap = new HashMap<String, Object>();
+				paramMap.put("cardconfid", cardconfid);
+				paramMap.put("cardname", cardname);
+				paramMap.put("count", count);
+				paramMap.put("value", value);
+				paramMap.put("quantity", quantity);
+				paramMap.put("starttime", starttime+" 00:00:00");
+				paramMap.put("endtime", endtime+" 23:59:59");
+				paramMap.put("note", note);
+				paramMap.put("createtime", new Date());
+				paramMap.put("modifytime", new Date());
+				paramMap.put("operatorid", userid);
+				
+				List<Map<String, Object>> resultList = cardConfDao.checkRepeatCardName(paramMap);//查找是否有重复的卡券信息
+				if(resultList.size()>0){
+					MyMongo.mRequestFail(request,"卡券名称不能重复");
+					return this.returnError(resultJson, ResMessage.Commit_Repeat_Fail.code, request);
+				}else{
+					cardConfDao.updateCardConf(paramMap);
+					Map<String, Object> cinemaMap = new HashMap<String, Object>();
+					cinemaMap.put("cardconfid", cardconfid);
+					cinemaMap.put("confcinemaid", "");
+					//删除不存在于此次的影院
+					List<Integer> list = new ArrayList<Integer>();
+					for(int i=0;i<cinemaList.size();i++){
+						Map<String,Object> obj=cinemaList.get(i);  
+			            String cinemaid = obj.get("cinemaid").toString();
+						list.add(Integer.parseInt(cinemaid));
+					}
+					cinemaMap.put("cinemaid", JSONArray.fromObject(list).toArray());
+					confCinemaDao.delConfCinema(cinemaMap);
+					//查找已存在的影院配置
+					List<Map<String, Object>> cinemahaveList = confCinemaDao.getConfCinemaList(cinemaMap);
+					if(cinemaList.size()>0){
+						for(int i=0;i<cinemaList.size();i++){
+							Map<String,Object> obj=cinemaList.get(i);  
+				            String id = obj.get("cinemaid").toString();
+				            String cinemanum = obj.get("cinemanum").toString();
+				            String cinemaname = obj.get("cinemaname").toString();
+				            String consumetype = Convert.convertConsumetype(obj.get("consumetype").toString());
+				            String settlevalue = obj.get("settlevalue").toString();
+				            String settlerate = obj.get("settlerate").toString();
+				            System.out.println("cinemaid:"+id+"   cinemanum:"+cinemanum+"   cinemaname:"+cinemaname+"   consumetype:"+consumetype+"   settlevalue:"+settlevalue+"   settlerate:"+settlerate);
+				            boolean flag = false;
+							for(int j=0;j<cinemahaveList.size();j++){
+								Map<String,Object> resultMap = cinemaList.get(j);
+								String p_cinemaid = resultMap.get("cinemaid").toString();
+								String confcinemaid = resultMap.get("confcinemaid").toString();
+								cinemaMap.put("confcinemaid", confcinemaid);
+								if(id.equals(p_cinemaid)){//作出修改
+									saveConfCinema(cinemaMap, id, consumetype, settlevalue, settlerate, cinemanum, cinemaname, cardtype,"update");
+									flag = true;
+									break;
+								}
+							}
+							if(flag == false){//添加新的影院配置
+								saveConfCinema(cinemaMap, id, consumetype, settlevalue, settlerate, cinemanum, cinemaname, cardtype,"insert");
+							}
+						}
+					}else{
+						for(int i=0;i<cinemaList.size();i++){
+							Map<String,Object> obj=cinemaList.get(i); 
+							saveConfCinema(cinemaMap, obj.get("cinemaid").toString(), Convert.convertConsumetype(obj.get("consumetype").toString()), obj.get("settlevalue").toString(), obj.get("settlerate").toString(), obj.get("cinemanum").toString(), obj.get("cinemaname").toString(), cardtype,"insert");
+						}
+					}
+				}
+				
+			} catch (Exception e){
+				MyMongo.mErrorLog("修改通卡（券）信息失败", request, e);
+				return this.returnError(resultJson, ResMessage.Add_Info_Fail.code, request);
+			}
+			long etime = System.currentTimeMillis();
+			MyMongo.mRequestLog("修改通卡（券）信息成功",  etime - stime, request, resultJson);
+			String logContent = "修改通卡（券）["+cardname+"]";
+			logInfo.addLogInfo(request, "0", logContent);
+			return this.response(resultJson, request);
+		}else{
+			MyMongo.mRequestFail(request, "登录超时");
+			return this.returnError(resultJson, ResMessage.User_Login_TimeOut.code, request);
+		}
+	}
+	
+	//保存影院配置、并查询影院是否存在、不存在则添加
+	public String saveConfCinema(Map<String, Object> cinemaMap,String cinemaid ,String  consumetype ,String settlevalue,String settlerate,String cinemanum,String cinemaname,String cardtype,String type){
+		cinemaMap.put("cinemaid", cinemaid);
+		cinemaMap.put("consumetype", consumetype);
+		if("0".equals(cardtype)){//次卡
+			cinemaMap.put("settlerate", "0");
+			cinemaMap.put("settlevalue", settlevalue);
+		}else if("1".equals(cardtype)){//储值卡
+			cinemaMap.put("settlerate", settlerate);
+			cinemaMap.put("settlevalue", "0");
+		}
+		setTheater(cinemaid, cinemanum, cinemaname);
+		if(type.equals("insert")){
+			confCinemaDao.insertConfCinema(cinemaMap);
+		}else{
+			confCinemaDao.updateConfCinema(cinemaMap);
+		}
+		return null;
+	}
+	
+	public String setTheater(String cinemaid,String cinemanum,String cinemaname){
+		//判断该影院信息是否存在、不存在则在t_theater中写入数据
+		Map<String, Object> searchInfo = new HashMap<String, Object>();
+		searchInfo.put("theaterid", cinemaid);
+		List<Map<String, Object>> resultList = roleInfoDao.getTheater(searchInfo);
+		if(resultList.size()==0){//添加
+			searchInfo.put("theaternum", cinemanum);
+			searchInfo.put("theatername", cinemaname);
+			roleInfoDao.insertTheater(searchInfo);
+		}
+		return null;
+	}
+	
+	
+	
+}

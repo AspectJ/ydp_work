@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="order">
+
+	<!-- 获取订单列表 -->
+	<sql id="getOrderListFilter">
+		where 
+		<choose>
+			<when test="status == 0">
+				o.status in( -2, 2, 6 )
+			</when>
+			<otherwise>
+				o.status = #{status}
+			</otherwise>
+		</choose>
+		<if test="theaterid != null">
+			and p.theaterid = #{theaterid}
+		</if>
+		<if test="filter != null">
+			and ( o.ordernumber like #{filter} or p.productname like #{filter} )
+		</if>
+		<if test="beginTime != null and endTime != null">
+			and (o.createtime between #{beginTime} and #{endTime}) 
+		</if>
+		<if test="productid != null">
+			and o.productid = #{productid}
+		</if>
+		<if test="operatorid != null">
+			and o.operatorid = #{operatorid}
+		</if>
+	</sql>
+	<select id="orderListTotal" parameterType="java.util.Map" resultType="java.lang.Integer">
+		select count(*) from t_order o join t_product p on o.productid = p.productid
+		<include refid="getOrderListFilter"></include>
+	</select>
+	<select id="totalPrice" parameterType="java.util.Map" resultType="java.lang.Float">
+		select sum(o.amount) totalPrice from t_order o join t_product p on o.productid = p.productid
+		<include refid="getOrderListFilter"></include>
+	</select>
+	<select id="orderList" parameterType="java.util.Map" resultType="java.util.Map">
+		select o.orderid, o.ordernumber, o.productid, p.productname, o.createtime, o.quantity, o.status, 
+			   o.openid, o.amount, o.paymentmethod, o.transaction_number 
+		  from t_order o
+		  join t_product p on o.productid = p.productid
+		<include refid="getOrderListFilter"></include>
+	  order by o.orderid desc
+		<if test="start != null and pagesize != null">
+		 	limit #{pagesize} offset #{start}
+		</if>
+	</select>
+
+
+	<!-- 用户订单列表 -->
+	<select id="userOrderList" parameterType="java.lang.String" resultType="java.util.Map">
+		select o.orderid, p.productname, o.createtime, o.quantity, o.amount, t.theatername, o.status
+		  from t_order o
+		  join t_product p on o.productid = p.productid
+		  join t_theater t on t.theaterid = p.theaterid
+		where o.status in( 2, 6 ) and o.openid = #{openid} order by o.status, o.orderid desc
+	</select>
+
+
+	<!-- 订单详情 -->
+	<select id="orderMess" parameterType="java.util.Map" resultType="java.util.Map">
+		select o.orderid, o.ordernumber, o.quantity, o.status, o.amount, p.productname, p.price, o.createtime
+		  from t_order o
+		  join t_product p on o.productid = p.productid
+		 where o.card_code = #{cardCode} 
+	</select>
+	
+	
+	<!-- 生成订单 -->
+	<insert id="createOrder" parameterType="java.util.Map">
+		insert into t_order(productid, openid, amount, status, ordernumber, createtime, paymentmethod, quantity) 
+		values(#{productid}, #{openid}, #{amount}, 1, #{ordernumber}, #{createtime}, #{paymentmethod}, #{quantity})
+<!--         <selectKey resultType="java.lang.Integer" keyProperty="orderid">   -->
+<!--         	SELECT currval('t_order_orderid_seq') as orderid;   -->
+<!--         </selectKey>   -->
+		<selectKey resultType="java.lang.Integer" keyProperty="orderid" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+
+	<!-- 获取订单状态 -->
+	<select id="getOrderStatus" parameterType="java.lang.String" resultType="java.lang.Integer">
+		select status from t_order where ordernumber = #{ordernumber}	
+	</select>
+	
+	<!-- 订单支付 -->
+	<update id="payOrder" parameterType="java.util.Map">
+		update t_order set transaction_number = #{transaction_number}, status = #{status} where ordernumber = #{ordernumber}
+	</update>
+
+	<!-- 取消订单 -->
+<!-- 	<update id="cancelOrder" parameterType="java.lang.Integer"> -->
+<!-- 		update t_order set status = 0 where orderid = #{orderid} -->
+<!-- 	</update> -->
+	
+	<!-- 核销订单 -->
+<!-- 	<update id="chargeoff" parameterType="java.lang.Integer"> -->
+<!-- 		update t_order set status = 4 where orderid = #{orderid} -->
+<!-- 	</update> -->
+	
+	<!-- 订单退款 -->
+<!-- 	<update id="refundOrder" parameterType="java.lang.Integer"> -->
+<!-- 		update t_order set status = -2 where orderid = #{orderid} -->
+<!-- 	</update> -->
+
+	<!-- 修改订单状态 -->
+	<update id="updateOrderStatus" parameterType="java.util.Map">
+		update t_order set status = #{status}, modifytime = #{modifytime},
+		<if test="operatorid != null">
+			operatorid = #{operatorid}
+		</if>
+		where orderid = #{orderid}
+	</update>
+	
+	<!-- +++++++++++++++++++++订单状态记录+++++++++++++++++++++ -->
+	<!-- 插入订单状态记录表 -->
+	<insert id="saveOrderStatus" parameterType="java.util.Map">
+		insert into t_orderstatus(orderid ,status ,createtime) 
+		<choose>
+			<when test="ordernumber != null">
+				select orderid, #{status}, #{createtime} from t_order where ordernumber = #{ordernumber}
+			</when>
+			<otherwise>
+				values( #{orderid}, #{status}, #{createtime})
+			</otherwise>
+		</choose>
+	</insert>
+
+	<!-- 根据订单，获取订单商品的卡劵ID -->
+	<select id="getProductCardid" parameterType="java.lang.String" resultType="java.lang.String">
+		select cardid from t_product p join t_order o on o.productid = p.productid where o.ordernumber = #{ordernumber}
+	</select>
+
+	<!-- 校验订单信息 -->
+	<select id="checkCardCode" parameterType="java.lang.String" resultType="java.util.Map">
+		select o.orderid, p.cardid, o.status, o.ordernumber
+		  from t_order o join t_product p on p.productid = o.productid 
+		 where o.card_code = #{cardCode} 
+	</select>
+	<select id="checkOrder" parameterType="java.lang.String" resultType="java.util.Map">
+		select o.orderid, o.status, amount from t_order o where o.ordernumber = #{ordernumber} 
+	</select>
+
+	<!-- 我的核销订单 -->
+	<sql id="myChargeOffCondition">
+		where o.operatorid = #{userid} and o.status = 6 and theaterid = #{theaterid}
+	</sql>
+	<select id="myChargeOffTotal" parameterType="java.util.Map" resultType="java.lang.Integer">
+		select count(*) from t_order o join t_product p on o.productid = p.productid
+		<include refid="myChargeOffCondition"></include>
+	</select>
+	<select id="myChargeOff" parameterType="java.util.Map" resultType="java.util.Map">
+		select o.orderid, o.ordernumber, o.quantity, o.status, o.amount, p.productname, p.price, o.modifytime
+		  from t_order o
+		  join t_product p on o.productid = p.productid
+		 <include refid="myChargeOffCondition"></include> 
+		 order by o.modifytime desc
+		 <if test="start != null and pagesize != null">
+		 	limit #{pagesize} offset #{start}
+		</if>
+	</select>
+	
+	<select id="myChargeOffOnlineTotal" parameterType="java.util.Map" resultType="java.lang.Integer">
+		select count(*) from t_online_order o
+		<include refid="myChargeOffCondition"></include>
+	</select>
+	<select id="myChargeOffOnline" parameterType="java.util.Map" resultType="java.util.Map">
+		select o.ordernumber, o.quantity, o.status, o.productname, o.price, o.chargetime modifytime
+		  from t_online_order o
+		 <include refid="myChargeOffCondition"></include> 
+		 order by o.chargetime desc
+		 <if test="start != null and pagesize != null">
+		 	limit #{pagesize} offset #{start}
+		</if>
+	</select>
+
+	<!-- 订单与卡劵绑定 -->
+	<update id="bindCard" parameterType="java.util.Map">
+		update t_order set card_code = #{cardCode} where 
+		<choose>
+			<when test="ordernumber != null">
+				ordernumber = #{ordernumber}
+			</when>
+			<when test="orderid != null">
+				orderid = #{orderid}
+			</when>
+		</choose>
+	</update>
+
+	<!-- 获取订单卡劵号 -->
+	<select id="getOrderCard" parameterType="java.lang.Integer" resultType="java.lang.String">
+		select card_code from t_order where orderid = #{orderid}
+	</select>
+
+
+	<!-- 保存核销的线上订单 -->
+	<insert id="saveOnlineOrder" parameterType="java.util.Map">
+		insert into t_online_order(ordernumber, productname, theaterid, price, quantity, card_code, 
+			createtime, status, operatorid, chargetime)
+		values (#{ordernumber}, #{productname}, #{theaterid}, #{price}, #{quantity}, #{card_code}, 
+			#{createtime}, #{status}, #{operatorid}, #{chargetime})
+	</insert>
+</mapper>

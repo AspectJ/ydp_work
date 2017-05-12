@@ -1,0 +1,119 @@
+.filter .placeholder_condition{display: none;}
+
+/*操作按钮*/
+.data-tab .dataoperator i{margin: 0 3px; padding:2px 5px;display: inline-block;font-size: 13px;font-weight: bold;border-radius: 3px;}
+.data-tab .dataoperator .refund{cursor: pointer;background-color: #2B2A3C;   color: #ECECEC;font-weight: 100;}
+
+.statistics{float: right;
+	margin-top: 20px;
+    right: 100px;
+	font-weight: bold;
+	color: #AAAAAA;
+	font-size: 15px;
+}
+    
+.statistics span{
+	border: 2px solid #D3D3D3; padding: 2px 12px;margin: 5px;
+	color: #515254;
+	
+}
+.main-box .filter .time .rangetime{
+	margin:1px auto 0 auto;
+}
+
+/* .search_settle_detail button{
+	font-weight: bold;
+    color: #fff;
+    background-color: #249B6A;
+    height: 30px;
+    border-radius: 3px;
+    line-height: 30px;
+    width: 90px;
+    text-align: center;
+    border: none;
+    font-size: 18px;
+    margin: 6px 0 0 32px;
+}
+
+.search_settle_detail .no_occur {
+	margin-left:25px;
+}
+.search_settle_detail .no_occur:hover {
+	cursor: pointer;
+}
+
+.search_settle_detail .cur{
+	margin-left:25px;
+	color:#0000ff;
+} */
+
+.search_settle_detail .querybn{
+	margin: 6px 0 0 35px!important;
+}
+
+
+.bill_soldout{
+	cursor: pointer;
+	background-color: #2B2A3C; 
+	color: #ECECEC;
+	font-weight: 100;
+}
+
+.showMess .message {
+    line-height: 35px !important;
+    margin-top:5px;
+}
+
+.showMess .message span{
+	color: #6666ff;
+}
+
+
+.alias .showMess{
+	height: 400px!important;
+}
+.alias .showMess span{
+	color: #383b43;
+	float: left!important;
+	margin-left:15px!important;
+}
+
+.alias .showMess .remarks{
+	text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: #383b43;
+}
+
+.alias .showMess .message {
+    line-height: 100px !important;
+    margin-top:5px;
+}
+
+.alias .showMess .remarks textarea{
+	margin-top: 10px;
+}
+
+.alias .showMess .message input{
+	height:35px;width:235px;text-align:center;border:2px solid black
+}
+
+.alias .showMess .btn-p button{
+	float: none!important;
+	margin: 20px 0 0 105px
+}
+
+.no_data {
+	text-align: center;
+	color: blue;
+	margin-top: 50px;
+}
+
+.sum_table .theaterName, .sum_table .beginTime, .sum_table .endTime{
+	font-weight: 500;
+    color: #515254!important;
+}
+
+.sum_table .SUM{
+    color: #515254!important;
+}

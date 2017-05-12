@@ -1,0 +1,387 @@
+var CINEMA_DATA = []; //影院总数据
+
+function getArea(){
+	var url= service_url + "rest/cinema/areaList";
+	$.post( url,{},function(data) {
+		var retjson = data;
+		var result = parseInt(retjson.result);
+        if(result == 1000){
+        	var resultData = retjson.data;
+			if(resultData != null && resultData.length > 0){
+				$("#city").empty();
+				for (var i=0; i<resultData.length; i++) {
+					var citycode = resultData[i].citycode;
+					var name = resultData[i].name;
+					if( i === 0 ){
+						$("#city").append("<li value='" + citycode + "' class='selected'>"+name+"</li>");
+					}else{
+						$("#city").append("<li value='" + citycode + "'>"+name+"</li>");
+					}
+				}
+				$('#city li').hover(
+					function(){
+						if(!$(this).hasClass('selected')){
+							$(this).css('color', '#249b6a');
+						}
+					},
+					function(){
+						if(!$(this).hasClass('selected')){
+							$(this).css('color', '#505052');
+						}
+					}
+				);
+				
+				$('#city li').on('click', function(){
+					if(!$(this).hasClass('selected')){
+						$('#city li').removeClass('selected').attr('style', '');
+						$(this).addClass('selected');
+						
+						getTheater($(this).attr('value'));
+					}
+				});
+				
+				getTheater();
+			} else {
+				$("#city").empty();
+				$("#cinema").hide();
+				$("#areaid").append("<option selected>暂无地区信息</option>");
+			}
+        }else{
+        	$("#city").empty();
+        	$("#cinema").hide();
+			$("#areaid").append("<option selected>暂无地区信息</option>");
+        }
+	});
+}
+
+function getTheater(areaid){
+	var url= service_url + "rest/cinema/cinemaList";
+	var areaid = areaid | $('#city .selected').attr('value');
+	$.post( url,{areaid:areaid},function(data) {
+		var retjson=data;
+		var result = parseInt(retjson.result);
+        if(result == 1000){					
+        	var resultData = retjson.data;
+			if(resultData != null && resultData.length > 0){
+				var cinemainfo = $("#cinema").empty();
+				for (var i=0; i<resultData.length; i++) {
+					var theaterid = resultData[i].theaterid;
+					var theaternum = resultData[i].theaternum;
+					var theatername = resultData[i].theatername;
+					var content = "";
+					$('#cinema').append(
+						'<li>' +
+							'<input class="checkbox" id="' + theaterid + '" type="checkbox" ' + (isCinemaExist(theaterid) ? 'checked' : '') + '>' +
+							'<label class="cinema-name" data-cinemanum="' + theaternum + '" for="' + theaterid + '">' + theatername + '</label>' +
+						'</li>');
+				}
+				
+				$('#cinema li').find('input').on('ifChecked', function(e){
+					chooseCinema($(this).attr('id'), $(this).parent().siblings('label').attr('data-cinemanum'), $(this).parent().siblings('label').text(),e.type);
+					$('.radiobox').iCheck({
+						radioClass: 'iradio_minimal-green',
+					    increaseArea: '20%'
+					});
+				});
+				$('#cinema li').find('input').on('ifUnchecked', function(e){
+					chooseCinema($(this).attr('id'), $(this).parent().siblings('label').attr('data-cinemanum'), $(this).parent().siblings('label').text(), e.type);
+					$('.radiobox').iCheck({
+						radioClass: 'iradio_minimal-green',
+					    increaseArea: '20%'
+					});
+				});
+				
+				$('.checkbox').iCheck({
+					checkboxClass: 'icheckbox_minimal-green',
+				    increaseArea: '20%'
+				});
+			} else {
+				console.log('cinema info is empty');
+				$("#cinema").empty().append('<li>该地区暂无影院信息</li>');
+			}
+        }else{
+        	return;
+        }
+	});
+}
+
+function isCinemaExist(cinemaid){
+	if(CINEMA_DATA != ''){
+		for(var i = 0;i<CINEMA_DATA.length;i++){
+			if(CINEMA_DATA[i].cinemaid == cinemaid) return true;
+		}
+		
+		return false;
+	}
+	
+	return false;
+}
+
+// 添加cinema数据至CINEMA_DATA
+function saveCinemaData(cinemaobj, type){
+	// type: {push, pop};
+	if( type == 'push'){
+		CINEMA_DATA.push(cinemaobj);
+	} else if( type == 'pop' ) {
+		for(i in CINEMA_DATA){
+			if(CINEMA_DATA[i].cinemaid == cinemaobj.cinemaid){
+				CINEMA_DATA.splice(i, 1);
+			}
+		}
+	}
+	
+	console.log(CINEMA_DATA);
+}
+
+// 点击勾选影院
+function chooseCinema(cinemaid, cinemanum, cinemaname, event_type){
+	var settleprice;
+	if($("#cardtype").val() == "0"){
+		settleprice = $("#value").val() | '0';
+	}else if($("#cardtype").val() == "1"){
+		settleprice = $("#value_store").val() | '0';
+	}
+	
+	var obj = {
+		cinemaid: cinemaid,
+		cinemanum: cinemanum,
+		cinemaname: cinemaname,
+		consumetype: 'all',
+		settlerate: settleprice,
+	    settlevalue: settleprice
+	};
+	
+	var type = 'pop';
+	if( event_type == 'ifChecked' ){
+		type = 'push';
+		
+		if( !isCinemaExist(cinemaid) ){
+			saveCinemaData(obj, type);
+			
+			$('#cinema-table tbody').append(
+				'<tr id="' + cinemaid + '">' + 
+					'<td>' + cinemaname + '</td>' +
+					'<td>' +
+						'<label class="cinema-name"><input class="radiobox" data-type="offline" name="' + cinemaid + '" type="radio"> 线下销售</label><label class="cinema-name"><input class="radiobox" data-type="online" name="' + cinemaid + '" type="radio"> 线上销售</label><label class="cinema-name"><input class="radiobox" data-type="all" name="' + cinemaid + '" type="radio" checked> 全部</label>' +
+					'</td>' +
+					'<td><input type="text" class="settle" value="' + settleprice + '" maxlength="6" oninput="checkPrice(this);" /></td>' +
+					'<td><i class="del">删除</i></td>' +
+				'</tr>');
+			$('#cinema-table tbody tr:last').find('input.settle').focus();
+			
+			$('#cinema-table #'+ cinemaid).on('ifChecked', 'input', function(){
+				changeCinemaProp($(this).parent().parent().parent().parent('tr').attr('id'), 'consumetype', $(this).attr('data-type'));
+			});
+			
+			$('#cinema-table #'+ cinemaid).on('click', '.del', function(){
+				var cinema_id = $(this).parent().parent('tr').attr('id');
+				changeCinemaProp(cinema_id, 'del', '');
+				
+				$('#cinema-table').find('#' + cinema_id).remove();
+				$('#cinema-table tbody tr:last').find('input.settle').focus();
+			});
+			
+			$('#cinema-table #'+ cinemaid).on('input', 'input.settle', function(){
+				changeCinemaProp($(this).parent().parent('tr').attr('id'), 'settle', $(this).val());
+			});
+		}
+	} else {
+		saveCinemaData(obj, type);
+		
+		$('#cinema-table tr').each(function(){
+			if($(this).attr('id') == cinemaid){
+				$(this).remove();
+			}
+		});
+	}
+}
+
+// 更改CINEMA_DATA的属性
+function changeCinemaProp(cinemaid, prop, value){
+	for(i in CINEMA_DATA){
+		if(CINEMA_DATA[i].cinemaid == cinemaid){
+			switch(prop){
+				case 'consumetype':
+					CINEMA_DATA[i].consumetype = value;
+					break;
+				case 'del':
+					refreshCinemaList(cinemaid);
+					CINEMA_DATA.splice(i, 1);
+					break;
+				case 'settle':
+					CINEMA_DATA[i].settlevalue = value;
+					CINEMA_DATA[i].settlerate = value;
+					break;
+				default:
+			}
+		}
+	}
+	
+	console.log(CINEMA_DATA);
+}
+
+function refreshCinemaList(cinemaid){
+	$('#cinema li').map(function(){
+		var ipt = $(this).children('div').children('input');
+		if( ipt.attr('id') == cinemaid){
+			ipt.iCheck('uncheck');
+		}
+	});
+}
+
+function checkCardName(){
+	var cardconfid = $("#cardconfid").val();
+	var cardname = $("#cardname").val();
+	var url = service_url + "rest/cardConf/checkCardConfRepeat";
+	$.post( url,{cardname : encodeURIComponent(cardname),cardconfid : cardconfid },function(data) {
+		var retjson=$.parseJSON(data);
+		var result = parseInt(retjson.result);
+        if(result == 1000){
+        	var count = retjson.total;
+    		if(count > 0){
+    			errorTip("提示","通卡(券)名称重复");
+    			$("#cardname").val("");
+    			return false;
+    		}else{
+    			return true;
+    		}
+        }else{
+        	return true;
+        }
+	});
+}
+
+function saveCardConf(type){
+	var cardconfid = $("#cardconfid").val();
+	var cardname = $("#cardname").val();
+	var cardtype = $("#cardtype").val();
+	var count = $("#count").val();
+	var value = $("#value").val();
+	var quantity = $("#quantity").val();
+	if(cardtype == "1"){
+		value = $("#value_store").val();
+		quantity = $("#quantity_store").val();
+	}
+	var starttime = $("#starttime").val();
+	var endtime = $("#endtime").val();
+	if(cardname == ""){
+		errorTip("提示","请填写通卡(券)名称");
+		return;
+	}
+	if(cardtype == "0" && count == ""){
+		errorTip("提示","请填写次卡使用次数");
+		return;
+	}
+	if(cardtype == "1"){
+		count = 0;
+	}
+	if(value == "" || quantity == "" || starttime == "" || endtime == ""){
+		errorTip("提示","请填写有效信息");
+		return;
+	}
+	
+	if(checkCardName() == false){
+		return;
+	}
+	
+	for(var i = 0,len = $('.settle').length; i < len; i++){
+		if(!$('.settle').eq(i).val()){
+			errorTip("提示","请填写影城结算价");
+			$('.settle').eq(i).focus();
+			return false;
+		}
+	}
+	
+//	var cinemainfo = $("#cinemainfo").html();
+//	var cinemaids = "";
+//	var consumetypes = "";
+//	var settlerates = "";
+//	var settlevalues = "";
+//	var cinemanums = "";
+//	var cinemanames = "";
+//	var cinemacount = 0;
+//	var pricestatus = 0;
+	
+	if(!CINEMA_DATA.length){
+		errorTip("提示","请选择影院配置对应信息");
+		return;
+	}else{
+		//设置保存按钮不可多次点击
+		$("#"+type).attr("class","submitBn-temp");
+		var url= "";
+		if(type == "add"){
+			url = service_url + "rest/cardConf/addCardConf";
+		}else if(type == "edit"){
+			url = service_url + "rest/cardConf/updateCardConf";
+		}
+		
+		$.ajax({
+            url : url,
+            data : {
+            	cardconfid : cardconfid,cardname : cardname,
+   			 	cardtype : cardtype,count : count,value : value,quantity : quantity,
+   			 	starttime : starttime,endtime : endtime,note : $("#note").val(),
+   			 	cinema_data : JSON.stringify(CINEMA_DATA)
+            },
+            dataType : 'json',
+            type : "post",
+            traditional: true,
+            success : function(data) {   
+    			var result = data.result;
+    			$("#add").attr("class","submitBn");
+    	        if(result == 1000){
+    				var page = "card/cardConfList.html?status="+cardtype;
+    				window.parent.$("#mainFrame").attr("src",page);
+    	        }else if(result == 1201){
+    	        	if(type == "add"){
+    	        		errorTip("提示","通卡(券)添加失败，请稍后重试");
+    	        	}else if(type == "edit"){
+    	        		errorTip("提示","通卡(券)修改失败，请稍后重试");
+    	        	}
+    	        	return;
+    	        }else if(result == 1207){
+    				var page = "card/cardConfList.html?status="+cardtype;
+    				window.parent.$("#mainFrame").attr("src",page);
+    	        }else if(result == 9998){
+    	        	errorTip("提示","缺少参数");
+    	        	return;
+    	        }else{
+    	        	errorTip("提示","请求超时，请稍后重试");
+    	        	return;
+    	        }
+            },
+            waitMsg : '正在处理数据....'
+        });
+//		$("#cinemainfo tr:gt(0)").each(function(){
+//			var checkCinema = $(this).attr("id");
+//			var cinema = checkCinema.replace("cinema_","");
+//			var cinemanum = $("#cinemanum_"+cinema).val();
+//			var cinemaname = $("#cinemaname_"+cinema).val();
+//			var price = $("#settle_"+cinema).val();
+//			if(price == ""){
+//				price =0;
+//			}
+//			var types = document.getElementsByName("type_"+cinema);
+//			for(var i=0;i<types.length;i++){
+//				if(types[i].checked){
+//					consumetypes += types[i].value+",";
+//				}  
+//			}
+//			cinemaids += cinema + ",";
+//			cinemanums += cinemanum + ",";
+//			cinemanames += cinemaname + ",";
+//			settlerates += price + ",";
+//			settlevalues += price + ",";
+//			if(price == "" || price == 0){
+//				pricestatus = 1;
+//			}
+//			cinemacount++;
+//		});
+	}
+	
+//	if(cinemacount == 0 || pricestatus == 1){
+//		errorTip("提示","请填写影院配置的完整信息");
+//		return;
+//	}
+}
+

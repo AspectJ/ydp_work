@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="menu">
+
+	<!-- 新增菜单信息 -->	
+	<insert id="insertMenu" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="menuid">
+		insert into t_menu( menuname,partentid,requesturl,sortno,menutype) 
+			values 
+		(#{menuname}, #{partentid}, #{requesturl}, #{sortno},#{menutype})
+	</insert>
+	
+	<!-- 修改菜单信息 -->	
+	<update id="updateMenu" parameterType="map">
+		update t_menu set menuname = #{menuname} 
+		<if test="partentid != null">
+			,partentid = #{partentid}
+		</if>
+		<if test="requesturl != null">
+			,requesturl = #{requesturl}
+		</if>
+		<if test="sortno != null">
+			,sortno = #{sortno}
+		</if>
+		where menuid = #{menuid}
+	</update>
+	
+	<!-- 删除菜单信息 -->
+	<delete id="deleteMenu" parameterType="map">
+		delete from t_menu 
+		where menuid = #{menuid} 
+	</delete>
+	
+	<!-- 删除菜单信息子菜单 -->
+	<delete id="deleteMenuSon" parameterType="map">
+		delete from t_menu 
+		where partentid = #{menuid} 
+	</delete>
+	
+	
+	<!-- 查询菜单信息 -->
+	<select id="getMenu" parameterType="java.util.Map" resultType="java.util.Map">
+		select menuid,menuname,partentid,requesturl,sortno,menutype from t_menu
+			where 1=1
+				and menuid = #{menuid} 
+				<if test="menuname != null">
+				and menuname = #{menuname}
+				</if>
+				<if test="partentid != null">
+				and partentid = #{partentid}
+				</if>
+				<if test="requesturl != null">
+				and requesturl = #{requesturl}
+				</if>
+				<if test="sortno != null">
+				and sortno = #{sortno}
+				</if>
+	</select>
+	
+	<!-- 查询菜单信息下的子菜单 -->
+	<select id="getMenuSon" parameterType="java.util.Map" resultType="java.util.Map">
+		select menuid,menuname,partentid,requesturl,sortno,menutype from t_menu
+			where 1=1
+				and partentid = #{menuid} 
+				<if test="search != null">
+				and menuname like #{search}
+				</if>
+				<if test="url != null">
+				and requesturl not like #{url}
+				</if>
+				order by sortno,menuid 
+	</select>
+	
+	
+	<!-- 查询主菜单 -->
+	<select id="getMenuListForMain" parameterType="java.util.Map" resultType="java.util.Map">
+		select menuid,menuname,partentid,requesturl,sortno,menutype from t_menu where partentid='0'
+		order by menuid
+	</select>
+	
+	<!-- 查询主菜单下的菜单和功能 -->
+	<select id="getMenuListByMain" parameterType="java.util.Map" resultType="java.util.Map">
+		select menuid,menuname,partentid,requesturl,sortno,menutype from t_menu where partentid=${partentid}
+		order by menuid
+	</select>
+	
+	
+	<!-- 菜单信息查询 -->
+	<select id="getMenuList" parameterType="java.util.Map" resultType="java.util.Map">
+		select menuid,menuname,partentid,requesturl,sortno,menutype from t_menu  
+		where 1=1 
+		<if test="menutype != null">
+			and menutype = #{menutype}
+		</if>
+		<if test="search != null">
+			and menuname like #{search}
+		</if>
+		order by sortno,menuid 
+		<if test="pageSize != null and offsetNum != null">
+			limit ${pageSize} offset ${offsetNum} 
+		</if>
+	</select>
+	
+	<!-- 菜单信息查询 -->
+	<select id="getMenuListCount" parameterType="java.util.Map" resultType="java.util.Map">
+		select count(*) as count from t_menu 
+		where 1=1 
+		<if test="menutype != null">
+			and menutype = #{menutype}
+		</if>
+		<if test="search != null">
+			and menuname like #{search}
+		</if>
+	</select>
+	
+	<!-- 菜单信息查询 -->
+	<select id="getMenuInfo" parameterType="java.util.Map" resultType="java.util.Map">
+		select menuid,menuname,partentid,requesturl,sortno from t_menu  
+		where 1=1  
+		<if test="menutype != null">
+			and menutype = #{menutype}
+		</if>
+		<if test="search != null">
+			and menuname like #{search}
+		</if>
+		order by menuid asc
+	</select>
+	
+	<!-- 新增权限 -->	
+	<insert id="insertRolePer" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="pid">
+		insert into t_role_permission( roleid,menuid) 
+			values 
+		(#{roleid},#{menuid})
+	</insert>
+	
+	<!-- 修改权限信息 -->	
+	<update id="updateRolePer" parameterType="map">
+		update t_role_permission set roleid = #{roleid} 
+		<if test="menuid != null">
+			,menuid = #{menuid} 
+		</if>
+		where pid = #{pid}
+	</update>
+	
+	<!-- 删除权限信息 -->
+	<delete id="deleteRolePer" parameterType="map">
+		delete from t_role_permission 
+		where 1=1 
+		<if test="pid != null">
+			and pid = #{pid} 
+		</if>
+		<if test="menuid != null">
+			and menuid = #{menuid} 
+		</if>
+		<if test="roleid != null">
+			and roleid = #{roleid} 
+		</if>
+	</delete>
+	
+	<!-- 权限信息查询 -->
+	<select id="getRolePerList" parameterType="java.util.Map" resultType="java.util.Map">
+		select p.pid,p.roleid,p.menuid,m.menuname,m.requesturl,m.partentid from t_role_permission  p 
+		join t_menu m on p.menuid=m.menuid
+		where 1=1
+		 <if test="partentid != null">
+			and m.partentid = #{partentid}
+		</if>
+		<if test="roleid != null">
+			and p.roleid = #{roleid}
+		</if>
+		order by p.pid
+	</select>
+	
+	<!-- 删除不需要保存的权限信息 -->
+	<delete id="deleteRoleMenu" parameterType="Map">
+		delete from t_role_permission 
+		where 1=1 and roleid = #{roleid} 
+		and menuid not in 
+		<foreach item="item" index="index" collection="menuid" open="(" separator="," close=")">
+             #{item}
+        </foreach>
+	</delete>
+	
+	
+	<!-- 判断权限名称是否存在 -->
+	<select id="checkRepeatMenuName" parameterType="java.util.Map" resultType="java.util.Map">
+		select menuid,menuname from t_menu  
+		where 1=1 
+		<if test="menuname != null">
+			and menuname = #{menuname}
+		</if>
+		<if test="menutype != null">
+			and menutype = #{menutype}
+		</if>
+		<if test="menuid != null">
+			and menuid != #{menuid}
+		</if>
+	</select>
+	
+	
+</mapper>

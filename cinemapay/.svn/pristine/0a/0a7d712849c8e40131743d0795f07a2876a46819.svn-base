@@ -1,0 +1,706 @@
+package com.cp.rest.order;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+
+import org.jboss.resteasy.annotations.cache.NoCache;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cp.bean.ResMessage;
+import com.cp.filter.BaseServlet;
+import com.cp.filter.ReVerifyFilter;
+import com.cp.rest.order.dao.OrderDaoImpl;
+import com.cp.rest.product.dao.ProductDaoImpl;
+import com.cp.rest.userinfo.LogInfoAdd;
+import com.cp.rest.userinfo.redis.UserRedisImpl;
+import com.cp.rest.weix.redis.WeixRedisImpl;
+import com.cp.rest.weix.tools.WxCouponsUtil;
+import com.cp.rest.weix.tools.WxPayUtil;
+import com.cp.util.CodeUtil;
+import com.cp.util.DateFormatUtil;
+import com.mongo.MyMongo;
+import com.tools.wxpay.tencent.common.Configure;
+import com.tools.wxpay.tencent.common.Signature;
+import com.ydp.servier.bean.DataMessage;
+import com.ydp.servier.facade.IserviceMerchan;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+/**
+ * 订单
+ */
+@Path("rest/order")
+@NoCache
+@Service()
+public class OrderRest extends BaseServlet
+{
+	@Resource
+	private OrderDaoImpl orderDao;
+	
+	@Resource
+	private UserRedisImpl userRedis;
+	
+	@Autowired
+	private WeixRedisImpl weixRedis;
+	
+	@Resource
+	private ProductDaoImpl productDao;
+	
+	@Resource 
+	private IserviceMerchan serviceMerchan;
+	
+	@Resource
+	private LogInfoAdd logInfo;
+	
+	
+	/**
+	 * 微信支付
+	 */
+	@GET
+	@POST
+	@Path("/wxPay")
+	@Consumes("application/json;charset=UTF-8")
+	@Produces("application/json;charset=UTF-8")
+	public String wxPay(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		
+		String productid = request.getParameter("productid");
+		
+		try
+		{
+			if (CodeUtil.checkParam(productid))
+			{
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+		
+			String openid = ReVerifyFilter.getCookieByName(request, "openid").getValue();
+			
+			// 验证是否可以支付（是否有卡劵, 是否已上架）
+			Map<String, Object> checkPayProduct = productDao.checkPayProduct(Integer.parseInt(productid));
+			if ("1".equals(checkPayProduct.get("status")))
+			{
+				MyMongo.mRequestFail(request, ResMessage.Pay_Wx_Product_UNPutaway.code);
+				return this.returnError(resultJson, ResMessage.Pay_Wx_Product_UNPutaway.code, request);
+			}
+			if(!checkPayProduct.containsKey("cardid") 
+				|| CodeUtil.checkParam(String.valueOf(checkPayProduct.containsKey("cardid")))){
+				MyMongo.mRequestFail(request, ResMessage.Pay_Wx_Product_NoCard.code);
+				return this.returnError(resultJson, ResMessage.Pay_Wx_Product_NoCard.code, request);
+			}
+			
+			// 生成订单
+			String ordernumber = "1819"+ checkPayProduct.get("theaternum") + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + CodeUtil.randomNum(1000, 9999);
+			Date now = new Date();
+			String time_start = DateFormatUtil.to_YYYYMMddHHmmss_str(now);
+			String time_expire = DateFormatUtil.to_YYYYMMddHHmmss_str(DateFormatUtil.addMinute(now, 10));
+			// 获取商品信息
+			Map<String, Object> product = productDao.findProductMess(Integer.parseInt(productid));
+			String body = String.valueOf(product.get("productname"));
+			float price = Float.parseFloat(String.valueOf(product.get("price")));
+			String total_fee = String.valueOf((int)(price * 100));
+			
+			// 获取预付单信息
+			Map<String, Object> wxPayMap = WxPayUtil.getPrepayID("JSAPI", body, ordernumber, total_fee, productid, openid, time_start, time_expire);
+			// 保存订单
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("productid", Integer.parseInt(productid));
+			map.put("openid", openid);
+			map.put("amount", price);
+			map.put("ordernumber", ordernumber);
+			map.put("createtime", new Date());
+			map.put("paymentmethod", "WXPAY");
+			map.put("quantity", 1);
+			orderDao.createOrder(map);
+			
+			if(wxPayMap == null){
+				return returnError(resultJson, ResMessage.Pay_Wx_Pre_Fail.code, request);
+			}else if (wxPayMap.containsKey("prepay_id"))
+			{
+				Map<String, Object> signMap = new HashMap<String, Object>();
+				signMap.put("appId", Configure.getAppid());
+				signMap.put("timeStamp", String.valueOf(System.currentTimeMillis() / 1000)); // 当前的时间
+				signMap.put("nonceStr", CodeUtil.getRandomUUID(32)); // 随机字符串，不长于32位
+				signMap.put("package", "prepay_id=" + wxPayMap.get("prepay_id")); // 订单详情扩展字符串
+				signMap.put("signType", "MD5"); // 签名算法，暂支持MD5
+				
+				if(wxPayMap.containsKey("code_url")){
+					signMap.put("code_url", wxPayMap.get("code_url").toString());
+				}
+				
+				// 计算前面
+				String sign = Signature.getSign(signMap);
+				
+				JSONObject json = JSONObject.fromObject(signMap);				
+				json.put("paySign", sign); // 签名
+				json.put("package_", signMap.get("package"));
+				json.put("ordernumber", ordernumber);
+				resultJson.put("data", json);
+			}
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("微信支付", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("微信支付",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 订单列表
+	 */
+	@GET
+	@POST
+	@Path("/orderList")
+	@Consumes("application/json;charset=UTF-8")
+	@Produces("application/json;charset=UTF-8")
+	public String orderList(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		
+		String page = request.getParameter("page");
+		String pagesize = request.getParameter("pagesize");
+		String filter = request.getParameter("filter");
+		String status = request.getParameter("status");
+		String beginTime = request.getParameter("beginTime");
+		String endTime = request.getParameter("endTime");
+		String productid = request.getParameter("productid");
+		String operatorid = request.getParameter("operatorid");
+		
+		try
+		{
+			String userid = String.valueOf(request.getAttribute("userid"));
+			List<String> userFeilds = userRedis.getUserField(userid, "theaterid".getBytes(), "theaternum".getBytes());
+
+			if (CodeUtil.checkParam(page, pagesize, status))
+			{
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("start", Integer.parseInt(pagesize) * (Integer.parseInt(page) - 1));
+			map.put("pagesize", Integer.parseInt(pagesize));
+			map.put("status", Integer.parseInt(status));
+			map.put("userid", Integer.parseInt(userid));
+			if (!"0".equals(userFeilds.get(1)))
+			{
+				map.put("theaterid", Integer.parseInt(userFeilds.get(0)));
+			}
+			if(!CodeUtil.checkParam(filter)){ map.put("filter", "%" + filter + "%"); }
+			if(!CodeUtil.checkParam(beginTime)){ map.put("beginTime", new SimpleDateFormat("yyyy-MM-dd").parse(beginTime)); }
+			if(!CodeUtil.checkParam(endTime)){ map.put("endTime", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endTime + " 23:59:59")); }
+			if(!CodeUtil.checkParam(productid)){ map.put("productid", Integer.parseInt(productid)); }
+			if(!CodeUtil.checkParam(operatorid)){ map.put("operatorid", Integer.parseInt(operatorid)); }
+			
+			int total = orderDao.orderListTotal(map);
+			if (total > 0)
+			{
+				List<Map<String, Object>> orderList = orderDao.orderList(map);
+				for (Map<String, Object> order : orderList)
+				{
+					order.put("createtime", DateFormatUtil.to_yyyy_MM_dd_HH_mm_ss_str((Date) order.get("createtime")));
+				}
+				resultJson.put("data", orderList);
+				resultJson.put("total", total);
+				resultJson.put("current", page);
+				// resultJson.put("totalPrice", String.valueOf(orderDao.totalPrice(map)));
+			}
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("订单列表", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("订单列表",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 订单列表(线上支付)
+	 */
+	@GET
+	@POST
+	@Path("/onlineOrderList")
+	@Consumes("application/json;charset=UTF-8")
+	@Produces("application/json;charset=UTF-8")
+	public String onlineOrderList(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		
+		String page = request.getParameter("page");
+		String pagesize = request.getParameter("pagesize");
+		String filter = request.getParameter("filter");
+		String status = request.getParameter("status");
+		String beginTime = request.getParameter("beginTime");
+		String endTime = request.getParameter("endTime");
+		
+		try
+		{
+			String userid = String.valueOf(request.getAttribute("userid"));
+			String theaterid = userRedis.getUserField(userid, "theaterid");
+			
+			if (CodeUtil.checkParam(page, pagesize, status))
+			{
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			
+			DataMessage dataMessage = serviceMerchan.onlineOrderList(theaterid, page, pagesize, status, filter, beginTime, endTime);
+			if(dataMessage.isSuccess()){
+				int total = dataMessage.getTotal();
+				@SuppressWarnings("unchecked")
+				List<Map<String, Object>> onlineOrderList = (List<Map<String, Object>>) dataMessage.getData();
+				if(total > 0){
+					for (Map<String, Object> order : onlineOrderList)
+					{
+						if(order.containsKey("createtime")){
+							order.put("createtime", DateFormatUtil.to_yyyy_MM_dd_HH_mm_ss_str((Date)order.get("createtime")));
+						}
+						order.put("price", Float.parseFloat(String.valueOf(order.get("amount"))) / Float.parseFloat(String.valueOf(order.get("quantity"))));
+					}
+					resultJson.put("data", onlineOrderList);
+					resultJson.put("total", total);
+					resultJson.put("current", page);
+				}
+			}
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("订单列表(线上支付)", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("订单列表(线上支付)",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 用户订单列表
+	 */
+	@GET
+	@POST
+	@Path("/userOrderList")
+	@Consumes("application/json;charset=UTF-8")
+	@Produces("application/json;charset=UTF-8")
+	public String userOrderList(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		
+		try
+		{
+			String openid = ReVerifyFilter.getCookieByName(request, "openid").getValue();
+			
+			List<Map<String, Object>> userOrderList = orderDao.userOrderList( openid );
+			
+			if(userOrderList != null && userOrderList.size() > 0){
+				for (Map<String, Object> map : userOrderList)
+				{
+					map.put( "createtime", DateFormatUtil.to_yyyy_MM_dd_HH_mm_str((Date)map.get("createtime")));
+				}
+			}
+			resultJson.put("data", userOrderList);
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("用户订单列表", request, e);
+		}
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("用户订单列表",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 卡劵获取订单详情
+	 */
+	@GET
+	@POST
+	@Path("/orderMess")
+	@Consumes("application/json;charset=UTF-8")
+	@Produces("application/json;charset=UTF-8")
+	public String orderMess(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		
+		String cardCode = request.getParameter("cardCode");
+		
+		try
+		{
+			if (CodeUtil.checkParam( cardCode ))
+			{
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			
+			if (cardCode.length() == 16)
+			{
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("cardCode", cardCode);
+				
+				Map<String, Object> orderMess = orderDao.orderMess(map);
+				if (orderMess != null)
+				{
+					orderMess.put("createtime", DateFormatUtil.to_yyyy_MM_dd_HH_mm_str((Date) orderMess.get("createtime")));
+					resultJson.put("data", orderMess);
+				}
+			} else if (cardCode.length() == 12)
+			{
+				// 易得票卖品订单详情
+				String userid = String.valueOf(request.getAttribute("userid"));
+				String theaterid = userRedis.getUserField(userid, "theaterid");
+
+				DataMessage dataMessage = serviceMerchan.orderMess(theaterid, cardCode);
+				if (dataMessage.isSuccess())
+				{
+					@SuppressWarnings("unchecked")
+					List<Map<String, Object>> merchantList = (List<Map<String, Object>>) dataMessage.getData();
+					JSONArray jsonArray = new JSONArray();
+					for(Map<String, Object> merchantdise : merchantList){
+						JSONObject jsonObject = new JSONObject();
+						jsonObject.put("productname", merchantdise.get("merchandise_name"));
+						jsonObject.put("quantity", merchantdise.get("quantity"));
+						jsonObject.put("amount", merchantdise.get("org_amount"));
+						jsonObject.put("price", Float.parseFloat(String.valueOf(merchantdise.get("org_amount"))) / Float.parseFloat(String.valueOf(merchantdise.get("quantity"))));
+						jsonObject.put("ordernumber", merchantdise.get("ordernumber"));
+						jsonObject.put("createtime", DateFormatUtil.to_yyyy_MM_dd_HH_mm_str((Date) merchantdise.get("createtime")));
+						jsonObject.put("status", merchantdise.get("status"));
+						jsonArray.add(jsonObject);
+					}
+					resultJson.put("data", jsonArray);
+				} else
+				{
+					int errCode = dataMessage.getErrorCode();
+					switch (errCode) {
+					case 5001:
+						return this.returnError(resultJson, ResMessage.Order_ChargeOff_NotExist_YDP.code, request);
+					default:
+						return this.returnError(resultJson, ResMessage.Order_ChargeOff_Fail_YDP.code, request);
+					}
+				}
+			}
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("订单详情", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("订单详情",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 我的核销订单
+	 */
+	@GET
+	@POST
+	@Path("/myChargeOff")
+	@Consumes("application/json;charset=UTF-8")
+	@Produces("application/json;charset=UTF-8")
+	public String myChargeOff(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		
+		String page = request.getParameter("page");
+		String pagesize = request.getParameter("pagesize");
+		String online = request.getParameter("online");
+		try
+		{
+			String userid = String.valueOf(request.getAttribute("userid"));
+			String theaterid = userRedis.getUserField(userid, "theaterid");
+
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("start", Integer.parseInt(pagesize) * (Integer.parseInt(page) - 1));
+			map.put("pagesize", Integer.parseInt(pagesize));
+			map.put("userid", Integer.parseInt(String.valueOf(request.getAttribute("userid"))));
+			map.put("theaterid", Integer.parseInt(theaterid));
+			
+			if(CodeUtil.checkParam(online)){
+				int total = orderDao.myChargeOffTotal(map);
+				if(total > 0){
+					List<Map<String, Object>> orderList = orderDao.myChargeOff(map);
+					for (Map<String, Object> order : orderList)
+					{
+						if(order.containsKey("modifytime")){
+							order.put("modifytime", DateFormatUtil.to_yyyy_MM_dd_HH_mm_str((Date) order.get("modifytime")));	
+						}
+					}
+					resultJson.put("data", orderList);
+					resultJson.put("total", total);
+					resultJson.put("current", page);
+				}
+			}else{
+				int total = orderDao.myChargeOffOnlineTotal(map);
+				if(total > 0){
+					List<Map<String, Object>> orderList = orderDao.myChargeOffOnline(map);
+					for (Map<String, Object> order : orderList)
+					{
+						if(order.containsKey("modifytime")){
+							order.put("modifytime", DateFormatUtil.to_yyyy_MM_dd_HH_mm_str((Date) order.get("modifytime")));	
+						}
+						order.put("amount", Integer.parseInt(String.valueOf(order.get("quantity"))) * Float.parseFloat(String.valueOf(order.get("price"))));	
+					}
+					resultJson.put("data", orderList);
+					resultJson.put("total", total);
+					resultJson.put("current", page);
+				}
+			}
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("我的核销订单", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("我的核销订单",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 订单卡劵号
+	 */
+	@GET
+	@POST
+	@Path("/getOrderCard")
+	@Consumes("application/json;charset=UTF-8")
+	@Produces("application/json;charset=UTF-8")
+	public String getOrderCard(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		
+		String orderid = request.getParameter("orderid");
+		
+		try
+		{
+			if (CodeUtil.checkParam(orderid))
+			{
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			
+			// 获取订单卡劵号
+			String cardCode = orderDao.getOrderCard(Integer.parseInt(orderid));
+			if( cardCode == null ){
+				cardCode = CodeUtil.getRandomUUID(16);
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("orderid", Integer.parseInt(orderid));
+				map.put("cardCode", cardCode);
+				 orderDao.bindCard(map);
+			}
+			resultJson.put("data", cardCode);
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("核销订单", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("核销订单",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 核销订单
+	 */
+	@GET
+	@POST
+	@Path("/chargeOff")
+	@Consumes("application/json;charset=UTF-8")
+	@Produces("application/json;charset=UTF-8")
+	public String chargeOff(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		
+		String cardCode = request.getParameter("cardCode");
+		String userid = String.valueOf(request.getAttribute("userid"));
+		
+		try
+		{
+			if (CodeUtil.checkParam(cardCode))
+			{
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			
+			
+			if (cardCode.length() == 16)
+			{
+				// 校验订单信息
+				Map<String, Object> checkOrder = orderDao.checkCardCode(cardCode);
+				if ("2".equals(String.valueOf(checkOrder.get("status"))))
+				{
+					// 核销订单
+					Map<String, Object> map = new HashMap<String, Object>();
+					map.put("orderid", checkOrder.get("orderid"));
+					map.put("status", 6);
+					map.put("operatorid", Integer.parseInt(userid));
+					orderDao.updateOrderStatus(map);
+					orderDao.saveOrderStatus(map);
+
+					// 核销卡劵
+					WxCouponsUtil.chargeOff(weixRedis.getAccessToken(), checkOrder.get("cardid"), cardCode);
+					
+					logInfo.addLogInfo(request, "0", "核销订单[" + map.get("ordernumber") +"]成功");
+				} else
+				{
+					MyMongo.mRequestFail(request, ResMessage.Order_Status_False.code);
+					return this.returnError(resultJson, ResMessage.Order_Status_False.code, request);
+				}
+			} else if (cardCode.length() == 12)
+			{
+				// 易得票订单核销
+				userid = String.valueOf(request.getAttribute("userid"));
+				String theaterid = userRedis.getUserField(userid, "theaterid");
+
+				DataMessage dataMessage = serviceMerchan.merchanChargeOff(theaterid, cardCode);
+				if (dataMessage.isSuccess())
+				{
+					@SuppressWarnings("unchecked")
+					List<Map<String, Object>> merchantList = (List<Map<String, Object>>) dataMessage.getData();
+					for(Map<String, Object> merchantdise : merchantList){
+						Map<String, Object> order = new HashMap<String, Object>();
+						order.put("productname", merchantdise.get("merchandise_name"));
+						order.put("quantity", merchantdise.get("quantity"));
+						order.put("price", Float.parseFloat(String.valueOf(merchantdise.get("org_amount"))) / Float.parseFloat(String.valueOf(merchantdise.get("quantity"))));
+						order.put("ordernumber", merchantdise.get("ordernumber"));
+						order.put("createtime", merchantdise.get("createtime"));
+						order.put("status", 6);
+						order.put("card_code", cardCode);
+						order.put("chargetime", new Date());
+						order.put("operatorid", Integer.parseInt(userid));
+						order.put("theaterid", Integer.parseInt(theaterid));
+						
+						// 保存核销的线上订单
+						orderDao.saveOnlineOrder(order);
+						logInfo.addLogInfo(request, "0", "核销订单[" + merchantdise.get("ordernumber") +"]成功");
+					}
+				} else
+				{
+					int errCode = dataMessage.getErrorCode();
+					switch (errCode) {
+					case 5001:
+						return this.returnError(resultJson, ResMessage.Order_ChargeOff_NotExist_YDP.code, request);
+					case 5002:
+						return this.returnError(resultJson, ResMessage.Order_ChargeOff_Already_YDP.code, request);
+					default:
+						return this.returnError(resultJson, ResMessage.Order_ChargeOff_Fail_YDP.code, request);
+					}
+				}
+			}
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("核销订单", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("核销订单",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 退款
+	 */
+	@GET
+	@POST
+	@Path("/refund")
+	@Consumes("application/json;charset=UTF-8")
+	@Produces("application/json;charset=UTF-8")
+	public String refund(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		
+		String ordernumber = request.getParameter("ordernumber");
+		
+		try
+		{
+			if (CodeUtil.checkParam(ordernumber))
+			{
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			
+			// 校验订单信息
+			Map<String, Object> checkOrder = orderDao.checkOrder(ordernumber);
+			if( "2".equals(String.valueOf(checkOrder.get("status"))) ){
+				// 微信接口退款
+				boolean refundResult = WxPayUtil.refund( ordernumber, String.valueOf(checkOrder.get("amount")) );
+				if (refundResult)
+				{
+					// 修改订单状态
+					Map<String, Object> map = new HashMap<String, Object>();
+					map.put("orderid", checkOrder.get("orderid"));
+					map.put("status", -2);
+					orderDao.updateOrderStatus(map);
+					orderDao.saveOrderStatus(map);
+				}else{
+					MyMongo.mRequestFail(request, ResMessage.Pay_Wx_Refund_False.code);
+					return this.returnError(resultJson, ResMessage.Pay_Wx_Refund_False.code, request);
+				}
+			}else{
+				MyMongo.mRequestFail(request, ResMessage.Order_Status_False.code);
+				return this.returnError(resultJson, ResMessage.Order_Status_False.code, request);
+			}
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("核销订单", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("核销订单",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+}

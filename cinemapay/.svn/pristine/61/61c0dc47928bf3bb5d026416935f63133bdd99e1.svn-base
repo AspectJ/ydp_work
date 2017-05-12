@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="confCinema">
+	
+	<!-- 发行卡类配置影院信息查询 -->
+	<select id="getConfCinemaList" parameterType="java.util.Map" resultType="java.util.Map">
+		select cinema.confcinemaid,cinema.cardconfid,cinema.cinemaid,cinema.consumetype,cinema.settlerate,
+		cinema.settlevalue,theater.theatername,theater.theaternum from t_conf_cinema cinema 
+		join t_theater theater on cinema.cinemaid = theater.theaterid
+		where 1=1 and cinema.cardconfid = #{cardconfid}
+		order by cinema.confcinemaid desc
+	</select>
+	
+	<!-- 新增通卡(券)影院配置 -->	
+	<insert id="insertConfCinema" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="confcinemaid">
+		insert into t_conf_cinema(cardconfid,cinemaid,consumetype,settlerate,settlevalue)
+			values 
+		(#{cardconfid},#{cinemaid},#{consumetype},#{settlerate},#{settlevalue})
+	</insert>
+	
+	<!-- 修改通卡（券）信息、影院配置 -->	
+	<update id="updateConfCinema" parameterType="map">
+		update t_conf_cinema set cardconfid = #{cardconfid}
+		<if test="cinemaid != null">
+			, cinemaid = #{cinemaid}
+		</if>
+		<if test="consumetype != null">
+			, consumetype = #{consumetype}
+		</if>
+		<if test="settlerate != null">
+			, settlerate = #{settlerate}
+		</if>
+		<if test="settlevalue != null">
+			, settlevalue = #{settlevalue}
+		</if>
+		where confcinemaid = #{confcinemaid} and cardconfid = #{cardconfid}
+	</update>
+	
+	<!-- 删除通卡（券）信息影院配置 -->
+	<delete id="deleteConfCinema" parameterType="map">
+		delete from t_conf_cinema where 1=1 
+		<if test="cardconfid != null">
+			and cardconfid = #{cardconfid}
+		</if>
+		<if test="confcinemaid != null">
+			and confcinemaid = #{confcinemaid} 
+		</if>
+		<if test="cinemaid != null">
+			and cinemaid = #{cinemaid}
+		</if>
+	</delete>
+	
+	
+	<!-- 删除不需要保存的权限信息 -->
+	<delete id="delConfCinema" parameterType="Map">
+		delete from t_conf_cinema 
+		where 1=1 and cardconfid = #{cardconfid} 
+		and cinemaid not in 
+		<foreach item="item" index="index" collection="cinemaid" open="(" separator="," close=")">
+             #{item}
+        </foreach>
+	</delete>
+	
+	
+	
+</mapper>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>影院总部管理系统</title>
+		<link rel="stylesheet" href="css/base.css" />
+		<link rel="stylesheet" href="css/nav.css" />	
+		<script type="text/javascript" src="js/jquery-1.11.2.min.js" ></script>
+		<script type="text/javascript" src="js/public.js"></script>
+		<script type="text/javascript" src="js/config.js"></script>
+	</head>
+	<body>
+		<div class="nav">
+			<p class="logo">卖品系统</p>
+			<div class="main_menu">
+				<div class="menu_wrapper">
+					<div class="menu_header open">
+						<i class="usersmanage" style="background:url(img/icon_usersmanage_open.png)"></i>用户管理
+					</div>
+					<ul class="menu_list">
+						<li id="addUser">添加用户</li>
+						<li id="userInfo">用户信息</li>
+						<li id="roleInfo">角色信息</li>
+						<li id="menuInfo">权限信息</li>
+					</ul>
+				</div>
+				<div class="menu_wrapper">
+					<div class="menu_header">
+						<i class="goodsmanage"></i>商品管理
+					</div>
+					<ul class="menu_list">
+						<li id="upload">商品添加</li>
+						<li id="putaway">已上架商品</li>
+						<li id="stayon">待上架商品</li>
+						<li id="soldout">已下架商品</li>
+					</ul>
+				</div>
+				<div class="menu_wrapper">
+					<div class="menu_header">
+						<i class="ordersmanage"></i>订单管理
+					</div>
+					<ul class="menu_list">
+						<li id="allOrder">全部订单</li>
+						<li id="paysuccess">已支付订单</li>
+						<li id="chargeoff">已核销订单</li>
+						<li id="orderChecked">已验证订单</li>
+						<li id="refund">已退款订单</li>
+					</ul>
+				</div>
+				<div class="menu_wrapper">
+					<div class="menu_header">
+						<i class="cardsmanage"></i>影院卡通(券)
+					</div>
+					<ul class="menu_list">
+						<li id="addconf">发行卡通(券)</li>
+						<li id="secconf">次卡</li>
+						<li id="preconf">储值卡</li>
+					</ul>
+				</div>
+				<div class="menu_wrapper">
+					<div class="menu_header">
+						<i class="cardsmanage"></i>通卡(券)核销
+					</div>
+					<ul class="menu_list">
+						<li id="cardchargeoff">核销</li>
+						<li id="cardrecord">核销记录</li>
+					</ul>
+				</div>
+				<div class="menu_wrapper">
+					<div class="menu_header">
+						<i class="writeoff"></i>核销
+					</div>
+					<ul class="menu_list">
+						<li id="offline">线下订单</li>
+						<li id="online">线上订单</li>
+					</ul>
+				</div>
+				<div class="menu_wrapper">
+					<div class="menu_header">
+						<i class="billsmanage"></i>账单管理
+					</div>
+					<ul class="menu_list">
+						<li id="settle">消费明细</li>
+						<li id="bills">账单操作</li>
+					</ul>
+				</div>
+				<div class="menu_wrapper">
+					<div class="menu_header">
+						<i class="billsmanage"></i>经营管理
+					</div>
+					<ul class="menu_list">
+						<li id="batch">批次信息</li>
+						<li id="cardnum">卡号查询</li>
+						<li id="records">消费记录</li>
+					</ul>
+				</div>
+				<!--
+				<div class="menu usermanage" href="manager/userInfoList.html" style="display:none;">
+					<div class="icon check"></div><p>用户管理</p>
+				</div>
+				<div class="menu productmanage" href="manager/ProductList.html" style="display:none;">
+					<div class="icon"></div><p>商品管理</p>
+				</div>	
+				<div class="menu ordermanage" href="manager/OrderList.html" style="display:none;">
+					<div class="icon"></div><p>订单管理</p>
+				</div>
+				<div class="menu managedata" href="manager/ManageData.html" style="display:none;">
+					<div class="icon"></div><p>经营管理</p>
+				</div>	
+				<div class="menu ordermanage" href="manager/settleDetails.html">
+					<div class="icon"></div><p>结算管理</p>
+				</div>
+				<div class="menu changeoff" href="manager/OrderChargeOff.html" style="display:none;">
+					<div class="icon"></div><p>核销</p>
+				</div> 
+				-->
+			</div>
+			<script type="text/javascript">
+				$('.menu_header').click(function(){
+					$(this).siblings('.menu_list').slideToggle();
+				
+					/* // 控制跳转
+					var link_href = $(this).attr('href');
+					$(parent.document).find("iframe#mainFrame").attr("src", link_href); */
+				});
+				
+				/* $('.menu_list li').hover(function(){
+					$(this).toggleClass('select');
+				}); */
+				
+				$('.menu_list li').click(function(){
+					var menu_header = $(this).parent('.menu_list').siblings('.menu_header');
+					if(!menu_header.hasClass('open')){
+						var iconName = menu_header.children('i');
+						$('.menu_header')
+						    .removeClass('open')
+						    .children('i').attr('style', '');
+						menu_header.addClass('open');
+						
+						iconName.css('background', 'url(img/icon_' + iconName.attr('class') + '_open.png)');
+					}
+					$('.menu_list li')
+					    .removeClass('select');
+					$(this).addClass('select');
+					
+					var link_href = '';
+					switch($(this).attr('id')){
+						case 'addUser':
+							link_href = 'userInfoAdd.html';
+							break;
+						case 'userInfo':
+							link_href = 'userInfoList.html';
+							break;	
+						case 'roleInfo':
+							link_href = 'roleInfoList.html';
+							break;
+						case 'menuInfo':
+							link_href = 'menuInfoList.html';
+							break;
+						case 'upload':
+							link_href = 'ProductUpload.html';
+							break;
+						case 'putaway':
+							link_href = 'ProductList.html?status=1';
+							break;
+						case 'stayon':
+							link_href = 'ProductList.html?status=-1';
+							break;
+						case 'soldout':
+							link_href = 'ProductList.html?status=0';
+							break;
+						case 'allOrder':
+							link_href = 'OrderList.html?status=0';
+							break;
+						case 'paysuccess':
+							link_href = 'OrderList.html?status=2';
+							break;
+						case 'chargeoff':
+							link_href = 'OrderList.html?status=6';
+							break;
+						case 'orderChecked':
+							link_href = 'OrderList.html?status=4';
+							break;
+						case 'refund':
+							link_href = 'OrderList.html?status=-2';
+							break;
+						case 'offline':
+							link_href = 'OrderChargeOff.html?status=-1';
+							break;
+						case 'online':
+							link_href = 'OrderChargeOff.html?status=1';
+							break;
+						case 'settle':
+							link_href = 'settleDetails.html';
+							break;
+						case 'bills':
+							link_href = 'billList.html';
+							break;
+						case 'batch':
+							link_href = 'ManageData.html?status=1';
+							break;
+						case 'cardnum':
+							link_href = 'ManageData.html?status=2';
+							break;
+						case 'records':
+							link_href = 'ManageData.html?status=3';
+							break;
+						case 'addconf':
+							link_href = 'cardConfAdd.html';
+							break;
+						case 'secconf':
+							link_href = 'cardConfList.html?status=1';
+							break;
+						case 'preconf':
+							link_href = 'cardConfList.html?status=2';
+							break;
+						case 'cardchargeoff':
+							link_href = 'cardChargeOff.html';
+							break;
+						case 'cardrecord':
+							link_href = 'cardRecordList.html';
+							break;
+						default:
+					};
+					
+					$(parent.document).find("iframe#mainFrame").attr("src", "manager/" + link_href);
+				});
+			</script>
+		</div>
+	</body> 
+</html>

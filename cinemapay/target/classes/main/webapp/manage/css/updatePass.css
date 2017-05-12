@@ -1,0 +1,7 @@
+.title{font-weight: bold; font-size: 15px; color: #515254;}
+.passBox{ margin-top: 20px; border: 2px solid #e8e9ea; width: 100%; margin-left: auto; margin-right: auto; padding-top: 30px;}
+.passBox p{ margin-left: 20px; color: #505052; margin-bottom: 45px;}
+.passBox label{ font-weight: bold; font-size: 14px; width: 150px; display: inline-block; text-align: center;}
+.passBox input{outline:medium; background-color: #fafafa;border: 1px solid #e8e9ea; margin-left: 5px; line-height: 26px; height: 30px; width: 300px; font-size: 15px; padding-left: 10px; font-weight: bold; color: #505052;}
+.passBox label .must{ color: red; font-weight: bold; margin-left: 3px;}
+.passBox .submitBn{ border: 2px solid #e8e9ea; width: 150px; line-height: 45px;   font-size: 20px; font-weight: bold; letter-spacing: 16px;padding-left: 20px; cursor: pointer; background-color: #57B382;color: #fff;}

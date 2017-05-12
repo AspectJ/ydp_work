@@ -1,0 +1,35 @@
+.main-box .data_box .operator .query{margin-left: 20px; }
+.main-box .data_box .operator .batchPutaway{display: none;}
+.main-box .data_box .operator .upload{display:none; padding-left: 18px; width: 84px; background-image: url(../img/productupload.png); background-repeat: no-repeat; background-position: 18px 11px;}
+
+.data-tab .headimg{}
+.data-tab .headimg img{width: 80px; height: 80px;}
+.data-tab .downqrcode{cursor: pointer;}
+.data-tab .downqrcode:hover{text-decoration:underline;color:#FF4400}
+.data-tab .dataoperator i{margin: 0 3px; padding:2px 5px;display: inline-block;font-size: 13px;font-weight: bold;border-radius: 3px;}
+.data-tab .dataoperator .product_putaway,
+.data-tab .dataoperator .product_soldout,
+.data-tab .dataoperator .edit,
+.data-tab .dataoperator .del,
+.card{cursor: pointer;background-color: #2B2A3C;   color: #ECECEC;font-weight: 100;}
+.data-tab .dataoperator .unedit,
+.data-tab .dataoperator .undel,
+.data-tab .dataoperator .uncard,
+.data-tab .un_product_putaway {
+	cursor: auto;
+	border: 1px solid #E2E0E0;
+	background-color: #F3F3F3;
+	color: #7E7B7B;
+}
+
+.scan_mask{display:none;position:absolute;width:100%;height:100%;top:0;left:0;background:rgba(0,0,0,0.4)!important;background:#000;filter:Alpha(opacity=60); text-align:}
+.scanPay{border: 2px solid #e8e9ea; width: 500px; height: 650px;margin: 100px auto;background-color:#fff}
+.scanPay .title{margin-top: 40px; padding-left: 30px; font-weight: bold; color: #989899; font-size: 22px;}
+.scanPay .title .cancel{width: 32px; margin-left: 285px;}
+.scanPay #qrcode{width:300px; height:300px; margin: 40px auto;}
+.scanPay #qrcode canvas{width:300px; height:300px;}
+.scanPay .measure{text-align: center; margin: 50px 0px;}
+.scanPay label{font-size: 16px; color: lightgray; font-weight: bold;}
+.scanPay input{border: 2px solid lavender;width: 200px;line-height: 28px;margin-left: 10px; margin-right: 26px; padding-left: 10px;}
+.scanPay span{font-size: 14px; color: lightgray; font-weight: 600;}
+.scanPay .donwload{text-align: center; margin-top: 40px; border: 2px solid #e8e9ea; width: 150px; line-height: 50px; background-color: #57B382; color: #fff; font-size: 20px; font-weight: bold; letter-spacing: 16px;padding-left: 8px; margin-left: auto;margin-right: auto; cursor: pointer;}

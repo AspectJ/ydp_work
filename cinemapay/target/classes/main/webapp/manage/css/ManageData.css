@@ -1,0 +1,45 @@
+@CHARSET "UTF-8";.filter .placeholder_condition{display:none}
+.data-tab .dataoperator i{margin:0 3px;padding:2px 5px;display:inline-block;font-size:13px;font-weight:bold;border-radius:3px}
+.data-tab .dataoperator .refund{cursor:pointer;background-color:#2B2A3C;color:#ECECEC;font-weight:100}
+.data-tab tr{cursor: pointer;}
+.statistics{float:right;margin-top:10px;right:100px;font-weight:bold;color:#AAAAAA;font-size:15px}
+.statistics span{border:2px solid #D3D3D3;padding:2px 12px;margin:5px;color:#515254}
+lable{display:inline-block;width:80px;text-align:right}
+.cardDetail{border:2px solid #e2e0e0;padding:10px 0px;margin-bottom:10px}
+#check_record{background-color:#383b43;font-size:12px;color:#fff;display:inline-block;width:70px;height:27px;line-height:27px;text-align:center;cursor:pointer;border-radius:4px;margin-left:34px}
+.content-data a{text-decoration:none;color:#666666}
+.content-data a:hover{text-decoration:underline;color:#1386D2}
+
+.batchdetail{
+	width: 800px;
+    height: 380px;
+    top:-moz-calc(50%-180);top:-webkit-calc(50%-180);top:calc(50%-180);
+}
+.batchdetail .close{
+	display: inline-block;
+    width: 30px;
+    height: 30px;
+    opacity: initial;
+    background-image: url(../img/close2.png);
+    margin-top: 6px;
+    margin-right: 5px;
+    cursor: pointer;
+}
+table.dataTable {
+    text-align: center;
+    border: 2px solid #e2e0e0 !important;
+    border-collapse: collapse;
+    margin-top: 10px;
+    margin-left: 1%;
+    width: 98%;
+}
+table.dataTable th{border: 2px solid #e2e0e0; text-align: center; padding: 7px; color: #989899; background-color: #f5f5f5;font-size: 14px;}
+table.dataTable td {
+    border: 2px solid #e2e0e0;
+    text-align: center;
+    padding: 15px;
+    color: #515254;
+    font-size: 13px;
+}
+
+

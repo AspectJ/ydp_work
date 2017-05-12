@@ -1,0 +1,35 @@
+$(function() {
+	var menu = sessionStorage.getItem("menuinfo");
+	var menuinfo = JSON.parse(menu);
+	if(menuinfo != null){
+		var show = 0;
+		for(var i=0;i<menuinfo.length;i++){
+			var requesturl = menuinfo[i].requesturl;
+			var partentid = menuinfo[i].partentid;
+			$("div[href='"+requesturl+"']").show();
+			if(partentid == "0" && show == "0"){
+				show = "1";
+				var $iObj = $(parent.document).find("iframe#mainFrame");
+				$iObj.attr("src", requesturl);
+				$(".main_menu").find("div[href='"+requesturl+"']").addClass("checked");
+				$(".main_menu").find("div[href='"+requesturl+"']").find(".icon").addClass("check");
+				$(".main_menu").find("div[href='"+requesturl+"']").find("p").addClass("choise");
+			}
+		}
+		//$(".main_menu").find("div:first").addClass("checked");
+		//$(".main_menu").find("div:first").find("p").addClass("choise");
+	}
+	
+	$(".nav .main_menu .menu").click(function() {
+		$(".nav .main_menu .menu .icon").removeClass("check");
+		$(".nav .main_menu .menu").removeClass("checked");
+		$(".nav .main_menu .menu p").removeClass("choise");
+		$(this).find(".icon").addClass("check");
+		$(this).addClass("checked");
+		$(this).find("p").addClass("choise");
+		
+		var link = $(this).attr("href");
+		var $iObj = $(parent.document).find("iframe#mainFrame");
+		$iObj.attr("src", link);
+	});
+});

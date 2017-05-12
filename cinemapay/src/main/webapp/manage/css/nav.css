@@ -1,0 +1,122 @@
+@charset "UTF-8";body{overflow-x:hidden;background:#353644}
+.nav{
+	width: 180px;
+	padding-bottom:10px;
+}
+.nav .logo{
+	background:#2d2e3b;
+	margin-bottom: 20px;
+	padding: 28px 0 28px 40px;
+	color:#fff;
+	font-size:20px;
+}
+.nav .main_menu .menu {
+	margin-bottom: 50px;
+	height: 110px;
+	line-height: 110px;
+	text-align: center;
+	padding-top: 20px;
+}
+.nav .main_menu .checked {border-left: 5px solid #249b6a;background-color: #383B43;width: 170px;}
+.nav .main_menu .icon {width: 70px;height: 70px;background-repeat: no-repeat;cursor: pointer;margin-left: auto;margin-right: auto;}
+.nav .main_menu p{line-height:30px;color:#989899;font-weight:bold}
+.nav .main_menu p.choise{color:#fff;}
+
+.nav .main_menu .usermanage .icon{background-image:url(../img/nav_usermanage.png)}
+.nav .main_menu .usermanage .check{background-image:url(../img/nav_usermanage_check.png)}
+.nav .main_menu .productmanage .icon{background-image:url(../img/nav_productmanage.png)}
+.nav .main_menu .productmanage .check{background-image:url(../img/nav_productmanage_check.png)}
+.nav .main_menu .ordermanage .icon{background-image:url(../img/nav_order.png)}
+.nav .main_menu .ordermanage .check{background-image:url(../img/nav_order_check.png)}
+.nav .main_menu .managedata .icon{background-image:url(../img/nav_order.png)}
+.nav .main_menu .managedata .check{background-image:url(../img/nav_order_check.png)}
+.nav .main_menu .changeoff .icon{background-image:url(../img/nav_changeoff.png)}
+.nav .main_menu .changeoff .check{background-image:url(../img/nav_changeoff_check.png)}
+
+.menu_wrapper{
+	background: #2d2e3b;
+	color: #b8bcc9;
+	border-bottom:10px solid #353644;
+	display: none;
+}
+.menu_header{
+    position: relative;
+    height: 48px;
+    line-height: 48px;
+    padding-left: 45px;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+.menu_wrapper.check .menu_header.open:after{
+	background: url(../img/icon_open_checked.png) no-repeat;
+}
+.menu_wrapper.check .menu_header.close:after{
+	background: url(../img/icon_close_checked.png) no-repeat;
+}
+
+.menu_header.open:after{
+	background: url(../img/icon_open.png) no-repeat;
+}
+
+.menu_header.close:after{
+	background: url(../img/icon_close.png) no-repeat;
+}
+.menu_header:after{
+    content: '';
+    display: inline;
+    width: 8px;
+    height: 8px;
+    position: absolute;
+    top: 20px;
+    right: 14px;
+    background: url(../img/icon_open.png) no-repeat;
+}
+
+.menu_header .usersmanage{
+	background: url(../img/icon_usersmanage.png) no-repeat;
+}
+.menu_header .goodsmanage{
+	background: url(../img/icon_goodsmanage.png) no-repeat;
+}
+.menu_header .ordersmanage{
+	background: url(../img/icon_ordersmanage.png) no-repeat;
+}
+.menu_header .cardsmanage{
+	background: url(../img/icon_cardsmanage.png) no-repeat;
+}
+.menu_header .writeoff{
+	background: url(../img/icon_writeoff.png) no-repeat;
+}
+.menu_header .billsmanage{
+	background: url(../img/icon_billsmanage.png) no-repeat;
+}
+.menu_header .ranmanage{
+	background: url(../img/icon_ranmanage.png) no-repeat;
+}
+.menu_header .cardverify{
+	background: url(../img/icon_cardverify.png) no-repeat;
+}
+
+.menu_header i{
+	position: absolute;
+    top: 12px;
+    left: 10px;
+	width: 28px;
+	height: 28px;
+}
+
+.menu_list li{
+	height: 40px;
+	line-height: 40px;
+	border-top: 1px solid #404252;
+    padding-left: 40px;
+	cursor: pointer;
+}
+.menu_list li.check{
+	background: #249b6a;
+	color: #fff;
+}
+.menu_list li.select{
+	background: #404252;
+}

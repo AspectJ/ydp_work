@@ -1,0 +1,614 @@
+package com.cp.rest.userinfo;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+
+import org.jboss.resteasy.annotations.cache.NoCache;
+import org.springframework.stereotype.Service;
+
+import com.cp.bean.ResMessage;
+import com.cp.filter.BaseServlet;
+import com.cp.rest.userinfo.dao.MenuInfoDaoImpl;
+import com.cp.rest.userinfo.dao.RoleInfoDaoImpl;
+import com.cp.rest.userinfo.redis.UserRedisImpl;
+import com.cp.util.CodeUtil;
+import com.cp.util.Permission;
+import com.mongo.MyMongo;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+@Path("rest/role")
+@NoCache
+@Service()
+public class RoleInfoRest extends BaseServlet
+{
+	
+	@Resource
+	private RoleInfoDaoImpl roleInfoDao;
+	@Resource
+	private MenuInfoDaoImpl menuInfoDao;
+	@Resource
+	private LogInfoAdd logInfo;
+	@Resource
+	private UserRedisImpl userRedis;
+	/**
+	 * 新增角色信息
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/addRole")
+	@Produces("text/html;charset=UTF-8")
+	public String addRole(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		String userid = String.valueOf(request.getAttribute("userid"));
+		List<String> userFeilds = userRedis.getUserField(userid, "theaternum".getBytes(),"username".getBytes());
+		if(userFeilds != null){
+			
+			if(!privilegeCheck(request, Permission.addRole, userRedis)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Privilege.code);
+				return this.returnError(resultJson, ResMessage.Lack_Privilege.code, request);
+			}
+			
+			String theaternum = userFeilds.get(0);
+			String rolename = URLDecoder.decode(request.getParameter("rolename"), "UTF-8");
+			String roletype = URLDecoder.decode(request.getParameter("roletype"), "UTF-8");
+			if(theaternum.equals("0")){
+				if(roletype.equals("100")){//影投角色
+					theaternum = request.getParameter("theaternum");
+				}else{
+					theaternum = request.getParameter("theaternum")==null || request.getParameter("theaternum").equals("null") ? "0" : request.getParameter("theaternum");
+					String theatername = URLDecoder.decode(request.getParameter("theatername"), "UTF-8");
+					if(theaternum.indexOf("|")>-1){
+						String[] num = theaternum.split("\\|");
+						String theaterid = num[0];
+						theaternum = num[1];
+						//判断该影院信息是否存在、不存在则在t_theater中写入数据
+						Map<String, Object> searchInfo = new HashMap<String, Object>();
+						searchInfo.put("theaternum", theaternum);
+						List<Map<String, Object>> resultList = roleInfoDao.getTheater(searchInfo);
+						if(resultList.size()==0){//添加
+							searchInfo.put("theaterid", Integer.parseInt(theaterid));
+							searchInfo.put("theatername", theatername);
+							roleInfoDao.insertTheater(searchInfo);
+						}
+					}
+				}
+			}
+			
+			try{
+				if (CodeUtil.checkParam(rolename)){
+					MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+					return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+				}
+				Map<String,Object> paramMap = new HashMap<String, Object>();
+				paramMap.put("rolename", rolename);
+				paramMap.put("roletype", Integer.parseInt(roletype));
+				paramMap.put("theaternum", theaternum);
+				paramMap.put("status", Integer.parseInt("0"));//默认启用
+				List<Map<String, Object>> resultList = roleInfoDao.checkRepeatRoleName(paramMap);
+				if(resultList.size()>0){
+					MyMongo.mRequestFail(request,"不能重复添加角色信息");
+					return this.returnError(resultJson, ResMessage.Commit_Repeat_Fail.code, request);
+				}else{
+					paramMap.put("roleid", "");
+					Map<String, Object> resultMap = roleInfoDao.insertRole(paramMap);
+					JSONObject data = new JSONObject();
+					data.put("roleid", resultMap.get("roleid"));
+					resultJson.put("data", data);
+				}
+				
+			} catch (Exception e){
+				MyMongo.mErrorLog("新增角色信息失败", request, e);
+				return this.returnError(resultJson, ResMessage.Add_Info_Fail.code, request);
+			}
+			long etime = System.currentTimeMillis();
+			MyMongo.mRequestLog("新增角色信息成功",  etime - stime, request, resultJson);
+			String logContent = "添加角色信息["+rolename+"]";
+			logInfo.addLogInfo(request, "0", logContent);
+			return this.response(resultJson, request);
+		}else{
+			MyMongo.mRequestFail(request, "登录超时");
+			return this.returnError(resultJson, ResMessage.User_Login_TimeOut.code, request);
+		}
+	}
+	
+	/**
+	 * 查询当前登录用户的影院角色信息
+	 */
+	@GET
+	@POST
+	@Path("/getTheater_temp")
+	@Produces("text/html;charset=UTF-8")
+	public String getTheater_temp(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		try{
+			String theatertype = request.getParameter("theatertype");
+			Map<String, Object> searchInfo = new HashMap<String, Object>();
+			searchInfo.put("status", Integer.parseInt("0"));
+			searchInfo.put("theatertype", theatertype);
+			List<Map<String, Object>> resultList = roleInfoDao.getTheater(searchInfo);
+			JSONArray jsonArray = new JSONArray();
+			if(resultList != null && resultList.size() > 0){
+				for(int i=0;i<resultList.size();i++){
+					Map<String, Object> resultMap = resultList.get(i);
+					JSONObject data = new JSONObject();
+					data.put("theaterid", resultMap.get("theaterid"));
+					data.put("theaternum", resultMap.get("theaternum"));
+					data.put("theatername", resultMap.get("theatername"));
+					data.put("theatertype", resultMap.get("theatertype"));
+					jsonArray.add(data);
+				}
+				resultJson.put("data", jsonArray);
+			}else{
+				MyMongo.mRequestFail(request, "查询影院信息列表不存在");
+				return this.returnError(resultJson, ResMessage.Select_Info_NotExist.code, request);
+			}
+		} catch (Exception e){
+			MyMongo.mErrorLog("查询影院信息列表失败", request, e);
+			return this.returnError(resultJson, ResMessage.Select_Info_Fail.code, request);
+		}
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询影院信息列表成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 影院列表
+	 */
+	@GET
+	@POST
+	@Path("/getTheater")
+	@Produces("application/json;charset=UTF-8")
+	public String getTheater(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		try{
+			String theatertype = request.getParameter("theatertype");
+			Map<String, Object> searchInfo = new HashMap<String, Object>();
+			searchInfo.put("theatertype", theatertype);
+			List<Map<String, Object>> resultList = roleInfoDao.getTheater(searchInfo);
+
+			if(resultList != null && resultList.size() > 0){
+				JSONArray cinemaArr = new JSONArray();
+				for (Map<String, Object> map : resultList){
+					JSONObject cinemaObject = new JSONObject();
+					cinemaObject.put("theaterid", map.get("theaterid"));
+					cinemaObject.put("theaternum", map.get("theaternum"));
+					cinemaObject.put("theatername", map.get("theatername"));
+					cinemaObject.put("theatertype", map.get("theatertype"));
+					cinemaArr.add(cinemaObject);
+				}
+				resultJson.put("data", cinemaArr);
+			}else{
+				MyMongo.mRequestFail(request, "查询影院信息列表不存在");
+				return this.returnError(resultJson, ResMessage.Select_Info_NotExist.code, request);
+			}
+		} catch (Exception e){
+			MyMongo.mErrorLog("影院列表", e);
+			return this.returnError(resultJson, ResMessage.Select_Info_Fail.code, request);
+		}
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("影院列表", etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	
+	/**
+	 * 查询当前登录用户的影院角色信息
+	 */
+	@GET
+	@POST
+	@Path("/getRoleInfo")
+	@Produces("text/html;charset=UTF-8")
+	public String getRoleInfo(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		String userid = String.valueOf(request.getAttribute("userid"));
+		List<String> userFeilds = userRedis.getUserField(userid, "roletype".getBytes(), "theaternum".getBytes(),"username".getBytes());
+		if(userFeilds != null){
+			String roletype = userFeilds.get(0);
+			String theaternum = userFeilds.get(1);//从登录用户信息中获取
+			String theater = request.getParameter("theaternum");//页面获取
+			String roletypeyt = request.getParameter("roletype")==null || request.getParameter("roletype").equals("null") ? "0" : request.getParameter("roletype");
+			try{
+				Map<String, Object> searchInfo = new HashMap<String, Object>();
+				searchInfo.put("status", Integer.parseInt("0"));
+				List<Integer> list = new ArrayList<Integer>();
+				List<String> thList = new ArrayList<String>();
+				if(roletype.equals("3")){//系统内置角色
+					if(roletypeyt.equals("100")){//影投角色
+						list.add(100);
+					}else{
+						if(theater.equals("0")){//可选超级管理员
+							list.add(3);
+						}
+						list.add(2);
+						list.add(1);
+						thList.add("0");
+					}
+					thList.add(theater);
+					searchInfo.put("theaternum", JSONArray.fromObject(thList).toArray());
+				}else if(roletype.equals("2")){//影院管理角色
+					list.add(2);
+					list.add(1);
+					thList.add("0");
+					thList.add(theaternum);
+					searchInfo.put("theaternum", JSONArray.fromObject(thList).toArray());
+				}else if(roletype.equals("1")){//业务角色
+					list.add(1);
+					thList.add("0");
+					thList.add(theaternum);
+					searchInfo.put("theaternum", JSONArray.fromObject(thList).toArray());
+				}else if(roletype.equals("100")){//影投角色
+					list.add(100);
+					thList.add(theaternum);
+					searchInfo.put("theaternum", JSONArray.fromObject(thList).toArray());
+				}
+				searchInfo.put("roletype", JSONArray.fromObject(list).toArray());
+				List<Map<String, Object>> resultList = roleInfoDao.getRoleInfo(searchInfo);
+				JSONArray jsonArray = new JSONArray();
+				if(resultList != null && resultList.size() > 0){
+					for(int i=0;i<resultList.size();i++){
+						Map<String, Object> resultMap = resultList.get(i);
+						JSONObject data = new JSONObject();
+						data.put("roleid", resultMap.get("roleid"));
+						data.put("rolename", resultMap.get("rolename"));
+						data.put("roletype", resultMap.get("roletype"));
+						data.put("status", resultMap.get("status"));
+						data.put("theaternum", resultMap.get("theaternum"));
+						jsonArray.add(data);
+					}
+					resultJson.put("data", jsonArray);
+				}else{
+					MyMongo.mRequestFail(request, "查询当前登录用户的影院角色信息");
+					return this.returnError(resultJson, ResMessage.Select_Info_NotExist.code, request);
+				}
+			} catch (Exception e){
+				MyMongo.mErrorLog("查询当前登录用户的影院角色信息", request, e);
+				return this.returnError(resultJson, ResMessage.Select_Info_Fail.code, request);
+			}
+			long etime = System.currentTimeMillis();
+			MyMongo.mRequestLog("查询当前登录用户的影院角色信息",  etime - stime, request, resultJson);
+			return this.response(resultJson, request);
+		}else{
+			MyMongo.mRequestFail(request, "登录超时");
+			return this.returnError(resultJson, ResMessage.User_Login_TimeOut.code, request);
+		}
+	}
+	
+	
+	/**
+	 * 查询要删除的角色是否已有用户使用
+	 */
+	@GET
+	@POST
+	@Path("/checkRoleForUser")
+	@Produces("text/html;charset=UTF-8")
+	public String checkRoleForUser(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		String roleid = request.getParameter("roleid");
+		try{
+			Map<String, Object> searchInfo = new HashMap<String, Object>();
+			searchInfo.put("roleid", Integer.parseInt(roleid));
+			List<Map<String, Object>> resultList = roleInfoDao.checkRoleForUser(searchInfo);
+			resultJson.put("total", resultList.size());
+			JSONArray jsonArray = new JSONArray();
+			if(resultList != null && resultList.size() > 0){
+				for(int i=0;i<resultList.size();i++){
+					Map<String, Object> resultMap = resultList.get(i);
+					JSONObject data = new JSONObject();
+					data.put("userid", resultMap.get("userid"));
+					data.put("username", resultMap.get("username"));
+					jsonArray.add(data);
+				}
+				resultJson.put("data", jsonArray);
+			}
+		} catch (Exception e){
+			MyMongo.mErrorLog("查询角色对应的用户信息失败", request, e);
+			return this.returnError(resultJson, ResMessage.Select_Info_Fail.code, request);
+		}
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询角色对应的用户信息成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 查询角色名称是否重复
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/checkRepeat")
+	@Produces("text/html;charset=UTF-8")
+	public String checkRepeat(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		String roleid = request.getParameter("roleid")==null || request.getParameter("roleid").equals("null") ? "0" : request.getParameter("roleid");
+		String rolename = URLDecoder.decode(request.getParameter("rolename"), "UTF-8");
+		try{
+			Map<String, Object> searchInfo = new HashMap<String, Object>();
+			searchInfo.put("roleid", Integer.parseInt(roleid));
+			searchInfo.put("rolename", rolename);
+			List<Map<String, Object>> resultList = roleInfoDao.checkRepeatRoleName(searchInfo);
+			resultJson.put("total", resultList.size());
+			JSONArray jsonArray = new JSONArray();
+			if(resultList != null && resultList.size() > 0){
+				for(int i=0;i<resultList.size();i++){
+					Map<String, Object> resultMap = resultList.get(i);
+					JSONObject data = new JSONObject();
+					data.put("roleid", resultMap.get("roleid"));
+					data.put("rolename", resultMap.get("rolename"));
+					jsonArray.add(data);
+				}
+				resultJson.put("data", jsonArray);
+			}
+		} catch (Exception e){
+			MyMongo.mErrorLog("查询角色名称是否重复失败", request, e);
+			return this.returnError(resultJson, ResMessage.Select_Info_Fail.code, request);
+		}
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询角色名称是否重复成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 修改角色状态
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/updateRoleStatus")
+	@Produces("text/html;charset=UTF-8")
+	public String updateRoleStatus(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		String roleid = request.getParameter("roleid");
+		String status = request.getParameter("status");
+		String rolename = "";
+		try{
+			if(!privilegeCheck(request, Permission.roleStatus, userRedis)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Privilege.code);
+				return this.returnError(resultJson, ResMessage.Lack_Privilege.code, request);
+			}
+			
+			if (CodeUtil.checkParam(roleid)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			Map<String,Object> paramMap = new HashMap<String, Object>();
+			paramMap.put("roleid", Integer.parseInt(roleid));
+			paramMap.put("status", Integer.parseInt(status));
+			Map<String, Object> resultMap = roleInfoDao.updateRole(paramMap);
+			List<Map<String, Object>> resultList = roleInfoDao.getRoleInfo(paramMap);
+			if(resultList.size()>0){
+				rolename = resultList.get(0).get("rolename").toString();
+			}
+			JSONObject data = new JSONObject();
+			data.put("roleid", resultMap.get("roleid"));
+			resultJson.put("data", data);
+		} catch (Exception e){
+			MyMongo.mErrorLog("修改角色状态失败", request, e);
+			return this.returnError(resultJson, ResMessage.Update_Info_Fail.code, request);
+		}
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("修改角色状态成功",  etime - stime, request, resultJson);
+		String curStatus = CodeUtil.convertRoleStatus(status);
+		String logContent = "修改角色["+rolename+"("+roleid+")]状态为["+curStatus+"]";
+		logInfo.addLogInfo(request, "0", logContent);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 修改角色信息
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/updateRole")
+	@Produces("text/html;charset=UTF-8")
+	public String updateRole(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		String roleid = request.getParameter("roleid");
+		String rolename = URLDecoder.decode(request.getParameter("rolename"), "UTF-8");
+		try{
+			
+			if (CodeUtil.checkParam(roleid)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			Map<String,Object> paramMap = new HashMap<String, Object>();
+			paramMap.put("rolename", rolename);
+			paramMap.put("roleid", Integer.parseInt(roleid));
+			paramMap.put("roleid", Integer.parseInt(roleid));
+			List<Map<String, Object>> resultList = roleInfoDao.getRoleInfo(paramMap);
+			if(resultList.size()>0){//已修改
+				MyMongo.mRequestFail(request,"不能重复修改角色信息");
+				return this.returnError(resultJson, ResMessage.Commit_Repeat_Fail.code, request);
+			}else{
+				Map<String, Object> resultMap = roleInfoDao.updateRole(paramMap);
+				JSONObject data = new JSONObject();
+				data.put("roleid", resultMap.get("roleid"));
+				resultJson.put("data", data);
+			}
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("修改角色信息失败", request, e);
+			return this.returnError(resultJson, ResMessage.Update_Info_Fail.code, request);
+		}
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("修改角色信息成功",  etime - stime, request, resultJson);
+		String logContent = "修改角色["+rolename+"("+roleid+")]信息";
+		logInfo.addLogInfo(request, "0", logContent);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 删除角色信息
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/deleteRole")
+	@Produces("text/html;charset=UTF-8")
+	public String deleteRole(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		String roleid = request.getParameter("roleid");//角色ID
+		try{
+			if(!privilegeCheck(request, Permission.deleteRole, userRedis)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Privilege.code);
+				return this.returnError(resultJson, ResMessage.Lack_Privilege.code, request);
+			}
+			
+			if (CodeUtil.checkParam(roleid)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			Map<String, Object> paramMap = new HashMap<String, Object>();
+			paramMap.put("roleid", Integer.parseInt(roleid));
+			List<Map<String, Object>> resultList = roleInfoDao.getRoleInfo(paramMap);
+			if(resultList.size()>0){
+				roleInfoDao.deleteRole(paramMap);//删除角色
+				menuInfoDao.deleteRolePer(paramMap);//删除角色权限
+				JSONObject data = new JSONObject();
+				data.put("roleid", roleid);
+				resultJson.put("data", data);
+				long etime = System.currentTimeMillis();
+				MyMongo.mRequestLog("删除角色信息成功",  etime - stime, request, resultJson);
+				String logContent = "删除角色以及权限信息["+roleid+"]";
+				logInfo.addLogInfo(request, "0", logContent);
+				return this.response(resultJson, request);
+				
+			}else{
+				MyMongo.mRequestFail(request,"不能重复删除角色信息");
+				return this.returnError(resultJson, ResMessage.Commit_Repeat_Fail.code, request);
+			}
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("删除角色信息失败", request, e);
+			return this.returnError(resultJson, ResMessage.Delete_Info_Fail.code, request);
+		}
+		
+	}
+	
+	
+	/**
+	 * 查看角色信息列表
+	 */
+	@GET
+	@POST
+	@Path("/getRoleList")
+	@Produces("text/html;charset=UTF-8")
+	public String getRoleList(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		String userid = String.valueOf(request.getAttribute("userid"));
+		List<String> userFeilds = userRedis.getUserField(userid, "roletype".getBytes(), "theaternum".getBytes(),"username".getBytes());
+		if(userFeilds != null){
+			String roletype = userFeilds.get(0);
+			String theaternum = userFeilds.get(1);//从登录用户信息中获取
+			//分页参数、条件查询参数
+			String pagesize = request.getParameter("pagesize");//每页多少条数据
+			String page = request.getParameter("page");//page＝（当前页数－1）*pagesize
+			
+			if(!privilegeCheck(request, Permission.roleInfo, userRedis)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Privilege.code);
+				return this.returnError(resultJson, ResMessage.Lack_Privilege.code, request);
+			}
+			
+			try{
+				String search = URLDecoder.decode(request.getParameter("search"), "UTF-8");
+				Map<String, Object> searchInfo = new HashMap<String, Object>();
+				searchInfo.put("pageSize", Integer.parseInt(pagesize));
+				searchInfo.put("offsetNum", Integer.parseInt(pagesize) * (Integer.parseInt(page) - 1));
+				if(!CodeUtil.checkParam(search)){
+					searchInfo.put("search", "%" + search + "%");
+				}
+				List<Integer> list = new ArrayList<Integer>();
+				List<String> thList = new ArrayList<String>();
+				if(roletype.equals("3")){//系统内置角色
+					list.add(3);
+					list.add(2);
+					list.add(1);
+					list.add(100);
+				}else if(roletype.equals("2")){//影院管理角色
+					thList.add("0");
+					thList.add(theaternum);
+					searchInfo.put("theaternum", JSONArray.fromObject(thList).toArray());
+					list.add(2);
+					list.add(1);
+				}else if(roletype.equals("1")){//影院业务角色
+					thList.add("0");
+					thList.add(theaternum);
+					searchInfo.put("theaternum", JSONArray.fromObject(thList).toArray());
+					list.add(1);
+				}else if(roletype.equals("100")){//影投角色
+					list.add(100);
+					thList.add(theaternum);
+					searchInfo.put("theaternum", JSONArray.fromObject(thList).toArray());
+				}
+				searchInfo.put("roletype", JSONArray.fromObject(list).toArray());
+				Map<String, Object> countMap = roleInfoDao.getRoleListCount(searchInfo);
+				String count = countMap.get("count").toString();
+				List<Map<String, Object>> resultList = roleInfoDao.getRoleList(searchInfo);
+				JSONArray jsonArray = new JSONArray();
+				if(resultList != null && resultList.size() > 0){
+					for(int i=0;i<resultList.size();i++){
+						Map<String, Object> resultMap = resultList.get(i);
+						JSONObject data = new JSONObject();
+						data.put("roleid", resultMap.get("roleid"));
+						data.put("rolename", resultMap.get("rolename"));
+						data.put("roletype", resultMap.get("roletype"));
+						data.put("status", resultMap.get("status"));
+						data.put("theaternum", resultMap.get("theaternum"));
+						data.put("theatername", resultMap.get("theatername"));
+						data.put("roletype_name", CodeUtil.convertRoleType(resultMap.get("roletype").toString()));
+						data.put("status_name", CodeUtil.convertRoleStatus(resultMap.get("status").toString()));
+						jsonArray.add(data);
+					}
+					resultJson.put("total", count);
+					resultJson.put("current", page);
+					resultJson.put("data", jsonArray);
+				}else{
+					MyMongo.mRequestFail(request, "查看角色信息列表");
+					return this.returnError(resultJson, ResMessage.Select_Info_NotExist.code, request);
+				}
+			} catch (Exception e){
+				MyMongo.mErrorLog("查看角色信息列表", request, e);
+				return this.returnError(resultJson, ResMessage.Select_Info_Fail.code, request);
+			}
+			long etime = System.currentTimeMillis();
+			MyMongo.mRequestLog("查看角色信息列表",  etime - stime, request, resultJson);
+			return this.response(resultJson, request);
+		}else{
+			MyMongo.mRequestFail(request, "登录超时");
+			return this.returnError(resultJson, ResMessage.User_Login_TimeOut.code, request);
+		}
+	}
+	
+	
+}

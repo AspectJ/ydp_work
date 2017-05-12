@@ -1,0 +1,783 @@
+package com.cp.rest.managedata;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+
+import net.sf.json.JSONObject;
+
+import org.jboss.resteasy.annotations.cache.NoCache;
+import org.springframework.stereotype.Service;
+
+import com.cp.bean.ResMessage;
+import com.cp.filter.BaseServlet;
+import com.cp.rest.managedata.dao.ManageDataDaoImpl;
+import com.cp.rest.userinfo.dao.UserInfoDaoImpl;
+import com.cp.util.CodeUtil;
+import com.cp.util.DateFormatUtil;
+import com.mongo.MyMongo;
+
+/**
+ * 经营数据
+ */
+@Path("rest/manageData")
+@NoCache
+@Service()
+public class ManageDataRest extends BaseServlet
+{
+	@Resource
+	private ManageDataDaoImpl manageDataDao;
+	
+	@Resource
+	private UserInfoDaoImpl userInfoDao;
+	
+	
+	/**
+	 * 按批次卡名称查询批次信息
+	 * 查询条件：按批次名、按时间、按卡类型
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/findBatchByName")
+	@Consumes("application/json;charset=UTF-8")
+	@Produces("application/json;charset=UTF-8")
+	public String findBatchByName(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException {
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		
+		String page = request.getParameter("page");
+		String pagesize = request.getParameter("pagesize");
+		String filter = request.getParameter("filter");
+		
+//		String theatername = request.getParameter("theatername");
+		String cardconfid = request.getParameter("cardconfid");
+		String card_status = request.getParameter("card_status");
+		String cardname = request.getParameter("cardname");
+		String cardtype = request.getParameter("cardtype");
+//		String cardtype = request.getParameter(URLDecoder.decode("cardtype","UTF-8"));
+		String s_time = request.getParameter("s_time");  //必须是Timestamp类型 例如   Timestamp.valueOf("2016-08-30 00:00:00"));
+		String e_time = request.getParameter("e_time");//必须是Timestamp类型 例如   Timestamp.valueOf("2016-09-1 00:00:00"));
+		
+		System.out.println(  ": ====== : " + cardconfid);
+		
+		try
+		{
+			
+						
+			Map<String,Object> batchMap = new HashMap<String,Object>();
+	//		batchMap.put("cardname", cardname);
+	//		batchMap.put("cardtype", cardtype);
+	//		batchMap.put("s_time", s_time);
+	//		batchMap.put("e_time", e_time);
+	//	    batchMap.put("start", Integer.parseInt(pagesize) * (Integer.parseInt(page) - 1));	
+	//		batchMap.put("pagesize", Integer.parseInt(pagesize));
+			
+			if(!CodeUtil.checkParam(s_time)){ batchMap.put("s_time", s_time); }
+			if(!CodeUtil.checkParam(e_time)){ batchMap.put("e_time", e_time); }
+			if(!CodeUtil.checkParam(page) && !CodeUtil.checkParam(pagesize)){
+				batchMap.put("start", Integer.parseInt(pagesize) * (Integer.parseInt(page) - 1));
+				batchMap.put("pagesize", Integer.parseInt(pagesize));
+			}
+			
+			
+//			if(!CodeUtil.checkParam(theatername)){batchMap.put("theatername", theatername);}
+			if(!CodeUtil.checkParam(cardconfid)){ batchMap.put("cardconfid", Integer.parseInt(cardconfid)); }
+			if(!CodeUtil.checkParam(filter)){ batchMap.put("filter", "%" + filter + "%"); }
+			if(!CodeUtil.checkParam(cardtype)){ batchMap.put("cardtype", Integer.parseInt(cardtype)); }
+			if(!CodeUtil.checkParam(card_status)){batchMap.put("card_status", Integer.parseInt(card_status));}
+			if(!CodeUtil.checkParam(cardname)){batchMap.put("cardname", cardname);}
+	//		if(!CodeUtil.checkParam(s_time)){batchMap.put("s_time", Timestamp.valueOf("s_time"));}    不用转换了
+			
+			
+			 List <Map<String, Object>> batchInfo = manageDataDao.findBatchByName(batchMap);		
+			 int total = manageDataDao.findBatch_count(batchMap);
+			
+ 
+			 
+			 for (Map<String, Object> map : batchInfo) {
+				map.put("starttime", DateFormatUtil.to_yyyy_MM_dd_HH_mm_ss_str((Date)map.get("starttime")));
+				map.put("endtime", DateFormatUtil.to_yyyy_MM_dd_HH_mm_ss_str((Date)map.get("endtime")));
+				map.put("createtime", DateFormatUtil.to_yyyy_MM_dd_HH_mm_ss_str((Date)map.get("createtime")));
+				map.put("modifytime", DateFormatUtil.to_yyyy_MM_dd_HH_mm_ss_str((Date)map.get("modifytime")));
+			
+//				int ct = (int) map.get("cardtype");
+//				if(ct==0){
+//					map.put("cardtype", "次卡");
+//				}else{
+//					map.put("cardtype", "储值卡");
+//				}
+				
+			}
+		
+			
+			
+		    resultJson.put("data", batchInfo);
+		    resultJson.put("total", total);
+			
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("根据批次卡名(多条件)称查询批次信息", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("根据批次卡名(多条件)称查询批次信息",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 查找影院
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 */
+	
+	@GET
+	@POST
+	@Path("/findCinema")
+	@Consumes("application/json;charset=UTF-8")
+	@Produces("application/json;charset=UTF-8")
+	public String findCinema(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException {
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();	
+		String theatername = request.getParameter("theatername");
+		Map<String,Object> cinemaMap = new HashMap<String,Object>();
+		if(!CodeUtil.checkParam(theatername)){cinemaMap.put("theatername", theatername);}
+		try
+		{	
+			 List <Map<String, Object>> batchInfo = manageDataDao.findCinema(cinemaMap);		
+			
+			 resultJson.put("data", batchInfo);			
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("查询影院", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询影院",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 按批次id查询卡消费情况(按批次查询卡的消费情况)
+	 */
+	@GET
+	@POST
+	@Path("/findConsumptionById")
+	@Consumes("application/json;charset=UTF-8")
+	@Produces("application/json;charset=UTF-8")
+	public String findConsumptionById(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		
+		String cardconfid = request.getParameter("cardconfid");
+		
+		try
+		{
+			if (CodeUtil.checkParam(cardconfid))
+			{
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			
+			Map<String,Object> consumptionMap = new HashMap<String,Object>();
+			consumptionMap.put("cardconfid", Integer.parseInt(cardconfid));
+			
+			
+			List<Map<String,Object>> lists = manageDataDao.findConsumptionById(consumptionMap);		
+			
+			resultJson.put("data", lists);
+		    
+			
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("根据批次id查询消费情况", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("根据批次id查询消费情况",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 按消费记录ID查询消费记录
+	 */
+	@GET
+	@POST
+	@Path("/findRecordById")
+	@Consumes("application/json;charset=UTF-8")
+	@Produces("application/json;charset=UTF-8")
+	public String findRecordById(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		
+		String recordid = request.getParameter("recordid");
+		
+		try
+		{
+			if (CodeUtil.checkParam(recordid))
+			{
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			
+			Map<String,Object>recordMap = new HashMap<String,Object>();
+			recordMap.put("recordid", Integer.parseInt(recordid));
+			
+			List< Map<String, Object>> batchInfo = manageDataDao.findBatchByName(recordMap);	
+			
+			resultJson.put("data", batchInfo);
+			
+
+			
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("根据批次id查询批次信息", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("根据批次id查询批次信息",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+   
+	/**
+	 *查询全部批次信息
+	 */
+	@GET
+	@POST
+	@Path("/findAllBatch")
+	@Consumes("application/json;charset=UTF-8")
+	@Produces("application/json;charset=UTF-8")
+	public String findAllBatch(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+
+		try{
+
+			List<Map<String,Object>> batchInfo = manageDataDao.findAllBatch();			
+			
+			resultJson.put("data", batchInfo);
+		    
+			
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("查询全部批次信息", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询全部批次",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 查询批次信息详情（关联t_conf_cinema和t_card 表）
+	 * 查询条件：根据cardconfid  查询
+	 */
+	@GET
+	@POST
+	@Path("/findBatchDeatilById")
+	@Consumes("application/json;charset=UTF-8")
+	@Produces("application/json;charset=UTF-8")
+	public String findBatchDeatilById(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		
+		String page = request.getParameter("page");
+		String pagesize = request.getParameter("pagesize");
+		String cardconfid = request.getParameter("cardconfid");
+		String filter = request.getParameter("filter");
+		
+		System.out.println(page + pagesize + cardconfid); 
+		System.out.println(  ": ====== : " + filter);
+		
+		try
+		{
+						
+			Map<String,Object> batchDeatilMap = new HashMap<String,Object>();
+	
+			batchDeatilMap.put("start", Integer.parseInt(pagesize) * (Integer.parseInt(page) - 1));	
+			batchDeatilMap.put("pagesize", Integer.parseInt(pagesize));
+	//		batchDeatilMap.put("cardconfid", Integer.parseInt(cardconfid));
+			if(!CodeUtil.checkParam(cardconfid)){ batchDeatilMap.put("cardconfid", Integer.parseInt(cardconfid)); }
+			if(!CodeUtil.checkParam(filter)){ batchDeatilMap.put("filter", "%" + filter + "%"); }
+			
+			
+			 List <Map<String, Object>> batchDeatilInfo = manageDataDao.findBatchDeatilById(batchDeatilMap);		
+			 int total = manageDataDao.findBatchDeatil_count(batchDeatilMap);
+			 
+			
+			 
+			 for (Map<String, Object> map : batchDeatilInfo) {
+				map.put("createtime", DateFormatUtil.to_yyyy_MM_dd_HH_mm_ss_str((Date)map.get("createtime")));
+				map.put("modifytime", DateFormatUtil.to_yyyy_MM_dd_HH_mm_ss_str((Date)map.get("modifytime")));
+			}
+			
+			
+			
+			 
+		    resultJson.put("data", batchDeatilInfo);
+		    resultJson.put("total", total);
+			
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("根据批次ID查询批次详情信息（关联t_conf_cinema 和 t_card）", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("根据批次ID查询批次详情信息（关联t_conf_cinema 和 t_card）",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 查询可用影院
+	 * 查询条件：根据cardconfid  查询
+	 */
+	@GET
+	@POST
+	@Path("/findUsableCinema")
+	@Consumes("application/json;charset=UTF-8")
+	@Produces("application/json;charset=UTF-8")
+	public String findUsableCinema(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		
+		String page = request.getParameter("page");
+		String pagesize = request.getParameter("pagesize");
+		String cardconfid = request.getParameter("cardconfid");
+		String filter = request.getParameter("filter");
+		
+	
+		if(CodeUtil.isNumeric(filter)){
+			filter = null ;
+		}
+		System.out.println("filter :" + filter + CodeUtil.isNumeric(filter));
+		
+		try
+		{
+						
+			Map<String,Object> UsableCinemaMap = new HashMap<String,Object>();
+	
+			UsableCinemaMap.put("start", Integer.parseInt(pagesize) * (Integer.parseInt(page) - 1));	
+			UsableCinemaMap.put("pagesize", Integer.parseInt(pagesize));
+	//		UsableCinemaMap.put("cardconfid", Integer.parseInt(cardconfid));
+			if(!CodeUtil.checkParam(cardconfid)){ UsableCinemaMap.put("cardconfid", Integer.parseInt(cardconfid)); }
+			if(!CodeUtil.checkParam(filter)){ UsableCinemaMap.put("filter", "%" + filter + "%"); }
+			
+			
+			 List <Map<String, Object>> UsableCinemaInfo = manageDataDao.findUsableCinema(UsableCinemaMap);		
+			 int total = manageDataDao.findUsableCinema_Count(UsableCinemaMap);
+			 
+			
+			 
+	//		 for (Map<String, Object> map : UsableCinemaInfo) {
+		//		map.put("createtime", DateFormatUtil.to_yyyy_MM_dd_HH_mm_ss_str((Date)map.get("createtime")));
+		//		map.put("modifytime", DateFormatUtil.to_yyyy_MM_dd_HH_mm_ss_str((Date)map.get("modifytime")));
+	//		}
+			
+			
+		    resultJson.put("data", UsableCinemaInfo);
+		    resultJson.put("total", total);
+			
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("根据批次ID查询可用影院", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("根据批次ID查询可用影院",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 查询可用影院
+	 * 查询条件：根据卡号cardnumber 查询
+	 */
+	@GET
+	@POST
+	@Path("/findUsableCinema_cardnumber")
+	@Consumes("application/json;charset=UTF-8")
+	@Produces("application/json;charset=UTF-8")
+	public String findUsableCinema_cardnumber(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		
+		String page = request.getParameter("page");
+		String pagesize = request.getParameter("pagesize");
+		String filter = request.getParameter("filter");
+		
+	
+		
+		try
+		{
+						
+			Map<String,Object> UsableCinemaMap = new HashMap<String,Object>();
+	
+			UsableCinemaMap.put("start", Integer.parseInt(pagesize) * (Integer.parseInt(page) - 1));	
+			UsableCinemaMap.put("pagesize", Integer.parseInt(pagesize));		
+			if(!CodeUtil.checkParam(filter)){ UsableCinemaMap.put("filter", filter); }
+			
+			
+			 List <Map<String, Object>> UsableCinemaInfo = manageDataDao.findUsableCinema_cardnumber(UsableCinemaMap);		
+			 int total = manageDataDao.findUsableCinema_cardnumber_Count(UsableCinemaMap);
+			 
+			
+			 
+	//		 for (Map<String, Object> map : UsableCinemaInfo) {
+		//		map.put("createtime", DateFormatUtil.to_yyyy_MM_dd_HH_mm_ss_str((Date)map.get("createtime")));
+		//		map.put("modifytime", DateFormatUtil.to_yyyy_MM_dd_HH_mm_ss_str((Date)map.get("modifytime")));
+	//		}
+			
+			
+		    resultJson.put("data", UsableCinemaInfo);
+		    resultJson.put("total", total);
+			
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("根据卡号查询可用影院", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("根据卡号查询可用影院",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 查询批次（详情）
+	 * 查询条件：根据cardconfid  查询
+	 */
+	@GET
+	@POST
+	@Path("/findBatchDeatil")
+	@Consumes("application/json;charset=UTF-8")
+	@Produces("application/json;charset=UTF-8")
+	public String findBatchDeatil(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		
+		String page = request.getParameter("page");
+		String pagesize = request.getParameter("pagesize");
+		String cardconfid = request.getParameter("cardconfid");
+		String filter = request.getParameter("filter");
+		
+//		String count = request.getParameter("count");
+//		String restcount = request.getParameter("restcount");
+
+		if(!CodeUtil.isNumeric(filter)){
+			filter = null ;
+		}
+
+		System.out.println("filter_deatil :" + filter + CodeUtil.isNumeric(filter));
+		try
+		{
+						
+			Map<String,Object> batchDeatilMap = new HashMap<String,Object>();
+	
+			batchDeatilMap.put("start", Integer.parseInt(pagesize) * (Integer.parseInt(page) - 1));	
+			batchDeatilMap.put("pagesize", Integer.parseInt(pagesize));
+	//		batchDeatilMap.put("cardconfid", Integer.parseInt(cardconfid));
+			if(!CodeUtil.checkParam(cardconfid)){ batchDeatilMap.put("cardconfid", Integer.parseInt(cardconfid)); }
+			if(!CodeUtil.checkParam(filter)){ batchDeatilMap.put("filter", filter ); }
+	//		if(!CodeUtil.checkParam(count) && !CodeUtil.checkParam(restcount)){ batchDeatilMap.put("count", Integer.parseInt(count)); batchDeatilMap.put("restcount", Integer.parseInt(restcount));}
+	//		if(!CodeUtil.checkParam(count) && !CodeUtil.checkParam(restcount)){ batchDeatilMap.put("value", Double.parseDouble(value)); batchDeatilMap.put("restvalue", Double.parseDouble(restcount));}
+			if(!CodeUtil.checkParam(cardconfid)){ batchDeatilMap.put("cardconfid", Integer.parseInt(cardconfid)); }
+			
+			
+			 List <Map<String, Object>> batchDeatilInfo = manageDataDao.findBatchDeatil(batchDeatilMap);		
+			 Map<String,Object> total = manageDataDao.findBatchDeatil_Count(batchDeatilMap);
+			 
+			
+			 
+			 for (Map<String, Object> map : batchDeatilInfo) {
+				//map.put("createtime", DateFormatUtil.to_yyyy_MM_dd_HH_mm_ss_str((Date)map.get("createtime")));
+				map.put("modifytime", DateFormatUtil.to_yyyy_MM_dd_HH_mm_ss_str((Date)map.get("modifytime")));
+			}
+			
+			
+		    resultJson.put("c", total.get("c")); 
+			resultJson.put("v", total.get("v")); 
+			resultJson.put("rc", total.get("rc")); 
+			resultJson.put("rv", total.get("rv")); 
+			 
+		    resultJson.put("data", batchDeatilInfo);
+		    resultJson.put("total", total.get("count"));
+			
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("根据批次ID查询批次（详情）", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("根据批次ID查询批次（详情）",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 查询批次（详情）
+	 * 查询条件：根据卡号cardnumber  查询
+	 */
+	@GET
+	@POST
+	@Path("/findBatchDeatil_cardnumber")
+	@Consumes("application/json;charset=UTF-8")
+	@Produces("application/json;charset=UTF-8")
+	public String findBatchDeatil_cardnumber(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		
+		String page = request.getParameter("page");
+		String pagesize = request.getParameter("pagesize");
+		String filter = request.getParameter("filter");
+		
+		
+		try
+		{
+						
+			Map<String,Object> batchDeatilMap = new HashMap<String,Object>();
+	
+			batchDeatilMap.put("start", Integer.parseInt(pagesize) * (Integer.parseInt(page) - 1));	
+			batchDeatilMap.put("pagesize", Integer.parseInt(pagesize));
+			if(!CodeUtil.checkParam(filter)){ batchDeatilMap.put("filter", filter ); }			
+			 List <Map<String, Object>> batchDeatilInfo = manageDataDao.findBatchDeatil_cardnumber(batchDeatilMap);		
+			 Map<String,Object> total = manageDataDao.findBatchDeatil_cardnumber_Count(batchDeatilMap);
+			 
+			
+			 
+			 for (Map<String, Object> map : batchDeatilInfo) {
+				map.put("modifytime", DateFormatUtil.to_yyyy_MM_dd_HH_mm_ss_str((Date)map.get("modifytime")));
+			}
+			
+			resultJson.put("c", total.get("c")); 
+			resultJson.put("v", total.get("v")); 
+			resultJson.put("rc", total.get("rc")); 
+			resultJson.put("rv", total.get("rv")); 
+			 
+			 
+		    resultJson.put("data", batchDeatilInfo);
+		    resultJson.put("total", total.get("count"));
+			
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("根据卡号查询批次（详情）", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("根据卡号查询批次（详情）",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 查询消费记录
+	 * 查询条件：根据cardnumber  查询
+	 */
+	@GET
+	@POST
+	@Path("/findCardRecord")
+	@Consumes("application/json;charset=UTF-8")
+	@Produces("application/json;charset=UTF-8")
+	public String findCardRecord(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		
+		String page = request.getParameter("page");
+		String pagesize = request.getParameter("pagesize");
+		String status = request.getParameter("status");
+		String cardnumber = request.getParameter("cardnumber");
+		String s_time = request.getParameter("s_time");  //必须是Timestamp类型 例如   Timestamp.valueOf("2016-08-30 00:00:00"));
+		String e_time = request.getParameter("e_time");//必须是Timestamp类型 例如   Timestamp.valueOf("2016-09-1 00:00:00"));
+		
+		System.out.println("page : " + page + " , " + "pagesize : " + pagesize + " , " + "cardnumber : " + cardnumber + " , " + "s_time : " + s_time + "," + "e_time : " + e_time) ;
+	
+		
+		try
+		{
+						
+			Map<String,Object> CardRecordMap = new HashMap<String,Object>();
+			CardRecordMap.put("s_time", s_time);
+			CardRecordMap.put("e_time", e_time);
+			CardRecordMap.put("start", Integer.parseInt(pagesize) * (Integer.parseInt(page) - 1));	
+			CardRecordMap.put("pagesize", Integer.parseInt(pagesize));
+			if(!CodeUtil.checkParam(cardnumber)){ CardRecordMap.put("cardnumber", cardnumber.trim()); }
+			if(!CodeUtil.checkParam(status)){ CardRecordMap.put("status",Integer.parseInt(status) ); }
+//			if(!CodeUtil.checkParam(filter)){ batchDeatilMap.put("filter", "%" + filter + "%"); }
+
+	
+			
+			
+			 List <Map<String, Object>>CardRecordInfo = manageDataDao.findCardRecord(CardRecordMap);		
+			 Map<String,Object> total = manageDataDao.findCardRecord_Count(CardRecordMap);
+			 
+			
+			 
+			 for (Map<String, Object> map : CardRecordInfo) {
+				map.put("createtime", DateFormatUtil.to_yyyy_MM_dd_HH_mm_ss_str((Date)map.get("createtime")));
+				if(map.get("modifytime") != null && !map.get("modifytime").equals("")){
+					map.put("modifytime", DateFormatUtil.to_yyyy_MM_dd_HH_mm_ss_str((Date)map.get("modifytime")));
+				}else{
+					map.put("modifytime", "无");
+				}
+			}
+			
+		    resultJson.put("v", total.get("v"));
+			resultJson.put("c", total.get("c"));
+			resultJson.put("s", total.get("s"));
+			
+		    resultJson.put("data", CardRecordInfo);
+		    resultJson.put("total", total.get("count"));
+			
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("根据卡号查询消费记录", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("根据卡号查询消费记录",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 查询消费记录(全部)
+	 * 查询条件：根据很多条件  查询
+	 */
+	@GET
+	@POST
+	@Path("/findCardRecord_qb")
+	@Consumes("application/json;charset=UTF-8")
+	@Produces("application/json;charset=UTF-8")
+	public String findCardRecord_qb(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		
+		String page = request.getParameter("page");
+		String pagesize = request.getParameter("pagesize");
+		String status = request.getParameter("status");
+		String cinemaid = request.getParameter("cinemaid");
+		String cardname = request.getParameter("cardname");
+		String theatername = request.getParameter("theatername");
+		String cardconfid = request.getParameter("cardconfid");
+		String s_time = request.getParameter("s_time");  //必须是Timestamp类型 例如   Timestamp.valueOf("2016-08-30 00:00:00"));
+		String e_time = request.getParameter("e_time");//必须是Timestamp类型 例如   Timestamp.valueOf("2016-09-1 00:00:00"));
+		
+		System.out.println("page : " + page + " , " + "pagesize : " + pagesize + " , " + "status  :" + status + " , " + "cardname : " + cardname + " , "+ "theatername : " + theatername + "，" + "s_time : " + s_time + "," + "e_time : " + e_time) ;
+	    System.out.println("cinemaid   :" + cinemaid);
+		
+		try
+		{
+						
+			Map<String,Object> CardRecordMap = new HashMap<String,Object>();
+	//		CardRecordMap.put("s_time", s_time);
+	//		CardRecordMap.put("e_time", e_time);
+	//		CardRecordMap.put("start", Integer.parseInt(pagesize) * (Integer.parseInt(page) - 1));	
+	//		CardRecordMap.put("pagesize", Integer.parseInt(pagesize));
+			
+			if(!CodeUtil.checkParam(s_time)){CardRecordMap.put("s_time", s_time);}
+			if(!CodeUtil.checkParam(e_time)){CardRecordMap.put("e_time", e_time);}
+			if(!CodeUtil.checkParam(page)){CardRecordMap.put("start",  Integer.parseInt(pagesize) * (Integer.parseInt(page) - 1));}
+			if(!CodeUtil.checkParam(pagesize)){CardRecordMap.put("pagesize",  Integer.parseInt(pagesize));}
+			
+			if(!CodeUtil.checkParam(cinemaid)){CardRecordMap.put("cinemaid", Integer.parseInt(cinemaid.trim()));}
+			if(!CodeUtil.checkParam(cardconfid)){CardRecordMap.put("cardconfid", cardconfid);}
+			if(!CodeUtil.checkParam(cardname)){ CardRecordMap.put("cardname", cardname.trim()); }
+			if(!CodeUtil.checkParam(theatername)){ CardRecordMap.put("theatername", theatername.trim()); }
+			if(!CodeUtil.checkParam(status)){ CardRecordMap.put("status",Integer.parseInt(status) ); }
+//			if(!CodeUtil.checkParam(filter)){ batchDeatilMap.put("filter", "%" + filter + "%"); }
+
+//			for(Entry<String, Object> entry:CardRecordMap.entrySet()){    
+//		     System.out.println(entry.getKey()+"--->"+entry.getValue());    
+//		}   
+		
+			
+			
+			 List <Map<String, Object>>CardRecordInfo = manageDataDao.findCardRecord_qb(CardRecordMap);		
+			 Map<String,Object> total = manageDataDao.findCardRecord_qb_Count(CardRecordMap);
+			 
+			
+			 
+			 for (Map<String, Object> map : CardRecordInfo) {
+				map.put("createtime", DateFormatUtil.to_yyyy_MM_dd_HH_mm_ss_str((Date)map.get("createtime")));
+				if(map.get("modifytime") != null && !map.get("modifytime").equals("")){
+					map.put("modifytime", DateFormatUtil.to_yyyy_MM_dd_HH_mm_ss_str((Date)map.get("modifytime")));
+				}else{
+					map.put("modifytime", "无");
+				}
+			}
+			
+			resultJson.put("v", total.get("v"));
+			resultJson.put("c", total.get("c"));
+			resultJson.put("s", total.get("s"));
+			
+		    resultJson.put("data", CardRecordInfo);
+		    resultJson.put("total", total.get("count"));
+			
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("查询消费记录（全部）", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询消费记录（全部）",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+}

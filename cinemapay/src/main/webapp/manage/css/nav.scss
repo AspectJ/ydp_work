@@ -1,0 +1,128 @@
+
+$font: "微软雅黑";
+$sumWidth: 1200px;
+$width: 180px;
+$backimg: url(../img/icon.png)  no-repeat;
+$redcolor: #FF4400;
+
+body{overflow-x: hidden; background:#272636;}
+/* 导航 */
+.nav{
+	width:$width;
+    float:left;
+	background:#272636;
+//	height:700px;
+	font-family: $font;
+	.logo{
+        background:#2B2A3C;
+        padding:20px 0; color:#fff;
+        font-size:18px; text-align: center;
+    }
+    .head{
+        width:180px; 
+        margin:30px auto;text-align: center; color:#fff;
+        i{ display: block;font-family: $font; font-style:normal;
+            background:$backimg;cursor: pointer;
+        }
+        .img{
+            margin:0 auto;
+            width: 120px;
+            height: 133px;
+            background-position: 0 -76px;            
+        }
+        p{height:40px; padding:10px 0;}
+        .edit{
+            float:left;
+            width:30px; height:30px;
+            background-position:-233px -43px;
+        }
+        .quanxian{
+            float:right;
+            width:80px; height:30px;
+            background-position:0 -211px;
+        }
+        
+        button{
+            width:120px;
+            height:30px; line-height: 30px;
+            border:none;cursor: pointer;
+            border-radius:5px;
+            background:$redcolor; color:#fff;
+            font-family: $font;
+            font-size:16px;
+        }
+    }
+}
+/* 菜单 */
+.menu{
+	width:$width; font-family: $font;
+	div{ 
+        overflow: hidden; 
+        background-repeat: no-repeat;
+    }
+    .menu-box{
+        background:#333247; 
+    }
+    ul{
+        display:none;
+        background:#fff; 
+        width:$width - 40px;
+        float:right;
+    }
+    li{
+        padding:15px 0 15px 33px;
+        color:#fff; font-size:14px;
+        border-bottom:1px solid #777;
+        background:#333247;
+        transition: all .3s;
+        position:relative;cursor: pointer;
+    }
+    li:hover{background:$redcolor !important;}
+    li:before{
+        content:'';
+        position:absolute;
+        width:5px; height:5px; background:#fff;
+        border-radius:50%;
+        left:0; top:50%; margin-top:-3px;
+    }
+    li:last-child{ border:none;}
+    /*标题*/
+    .menu-title{
+        width:$width - 20px;
+        margin:0;padding:15px 0 15px 20px;
+        color:#000; cursor:pointer;
+        font-size:16px;
+        color:#fff;
+        font-weight:normal;
+        span{
+            float:left;
+            margin-top:-3px;margin-right:20px;
+            width:33px;height:33px;
+            background:$backimg;
+            background-position-y:-46px;
+        }
+        .yingyuan{background-position-x:0;}
+        .huiyuan{background-position-x:-34px;}
+        .paiqi{background-position-x:-73px;}
+        .qudao{background-position-x:-111px;}
+        .yingxiao{background-position-x:-149px;}
+        .fenxi{background-position-x:-186px;}
+    }
+    .more{
+          float: right;
+          width: 28px;
+          height: 18px;
+          margin-right: 15px;
+          background: $backimg;
+          background-position: -270px -58px;
+    }
+}
+.menu-show{
+    ul{display:block;}
+    .menu-title{background-color:$redcolor;}
+    .more{ background-position: -270px -41px;}
+}
+
+
+
+

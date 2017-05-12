@@ -1,0 +1,64 @@
+package com.cp.rest.card.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+
+import com.cp.filter.BaseDao;
+
+@Service("confCinemaDao")
+public class ConfCinemaDaoImpl extends BaseDao{
+
+	/**
+	 * 发行卡类、影院配置信息查询 
+	 * @param paramMap
+	 * @return
+	 */
+	public List<Map<String, Object>> getConfCinemaList(Map<String, Object> paramMap){
+		List<Map<String, Object>> infoList = getSqlSession().selectList("confCinema.getConfCinemaList", paramMap);
+		return infoList;
+	}
+	
+	/**
+	 * 新增通卡(券)、影院配置
+	 * 
+	 * @param insertMap
+	 */
+	public Map<String, Object> insertConfCinema(Map<String, Object> insertMap){
+		getSqlSession().insert("confCinema.insertConfCinema", insertMap);
+		return insertMap;
+	}
+	
+	/**
+	 * 修改通卡（券）、影院配置信息
+	 * 
+	 * @param updateMap
+	 */
+	public Map<String, Object> updateConfCinema(Map<String, Object> updateMap){
+		getSqlSession().update("confCinema.updateConfCinema", updateMap);
+		return updateMap;
+	}
+	
+	
+	/**
+	 * 删除通卡（券）、影院配置信息
+	 * 
+	 * @param deleteMap
+	 */
+	public Map<String, Object> deleteConfCinema(Map<String, Object> paramMap){
+		getSqlSession().delete("confCinema.deleteConfCinema", paramMap);
+		return paramMap;
+	}
+	
+	/**
+	 * 删除通卡（券）、不需要保存的影院配置信息
+	 * 
+	 * @param deleteMap
+	 */
+	public Map<String, Object> delConfCinema(Map<String, Object> paramMap){
+		getSqlSession().delete("confCinema.delConfCinema", paramMap);
+		return paramMap;
+	}
+	
+}

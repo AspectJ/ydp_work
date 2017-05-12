@@ -1,0 +1,548 @@
+package com.cp.rest.product;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+
+import org.jboss.resteasy.annotations.cache.NoCache;
+import org.springframework.stereotype.Service;
+
+import com.cp.bean.ResMessage;
+import com.cp.filter.BaseServlet;
+import com.cp.rest.product.dao.ProductDaoImpl;
+import com.cp.rest.userinfo.LogInfoAdd;
+import com.cp.rest.userinfo.redis.UserRedisImpl;
+import com.cp.util.CodeUtil;
+import com.cp.util.Config;
+import com.cp.util.DateFormatUtil;
+import com.mongo.MyMongo;
+import com.ydp.servier.bean.DataMessage;
+import com.ydp.servier.facade.IserviceMerchan;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+/**
+ * 商品
+ */
+@Path("rest/product")
+@NoCache
+@Service()
+public class ProductRest extends BaseServlet
+{
+	@Resource
+	private ProductDaoImpl productDao;
+
+	@Resource
+	private UserRedisImpl userRedis;
+	
+	@Resource
+	private IserviceMerchan merchanService;
+
+	@Resource
+	private LogInfoAdd logInfo;
+
+	/**
+	 * 查找商品
+	 */
+	@GET
+	@POST
+	@Path("/productList")
+	@Consumes("application/json;charset=UTF-8")
+	@Produces("application/json;charset=UTF-8")
+	public String productList(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String userid = String.valueOf(request.getAttribute("userid"));
+		List<String> userFeilds = userRedis.getUserField(userid, "theaterid".getBytes(), "theaternum".getBytes());
+
+		String page = request.getParameter("page");
+		String pagesize = request.getParameter("pagesize");
+		String filter = request.getParameter("filter");
+		String status = request.getParameter("status");
+
+		try
+		{
+			if (CodeUtil.checkParam(page, pagesize, status))
+			{
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("start", Integer.parseInt(pagesize) * (Integer.parseInt(page) - 1));
+			map.put("pagesize", Integer.parseInt(pagesize));
+			map.put("status", Integer.parseInt(status));
+			map.put("userid", Integer.parseInt(userid));
+			if (!"0".equals(userFeilds.get(1)))
+			{
+				map.put("theaterid", Integer.parseInt(userFeilds.get(0)));
+			}
+			if (!CodeUtil.checkParam(filter))
+			{
+				map.put("filter", "%" + filter + "%");
+			}
+
+			int total = productDao.productListTotal(map);
+			if (total > 0)
+			{
+				List<Map<String, Object>> productList = productDao.productList(map);
+				for (Map<String, Object> product : productList)
+				{
+					product.put("createtime", DateFormatUtil.to_yyyy_MM_dd_HH_mm_ss_str((Date) product.get("createtime")));
+					product.put("headimg", Config.QN_PREFIX + product.get("headimg"));
+				}
+				resultJson.put("data", productList);
+				resultJson.put("total", total);
+				resultJson.put("current", page);
+			}
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("查找商品", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查找商品", etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+
+	/**
+	 * 查找商品名称列表
+	 */
+	@GET
+	@POST
+	@Path("/productNameList")
+	@Consumes("application/json;charset=UTF-8")
+	@Produces("application/json;charset=UTF-8")
+	public String productNameList(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+
+		String filter = request.getParameter("filter");
+		String userid = String.valueOf(request.getAttribute("userid"));
+		List<String> userFeilds = userRedis.getUserField(userid, "theaterid".getBytes(), "theaternum".getBytes());
+
+		try
+		{
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("userid", Integer.parseInt(userid));
+			if (!"0".equals(userFeilds.get(1)))
+			{
+				map.put("theaterid", Integer.parseInt(userFeilds.get(0)));
+			}
+			if (!CodeUtil.checkParam(filter))
+			{
+				map.put("filter", "%" + filter + "%");
+			}
+			List<Map<String, Object>> productNameList = productDao.productNameList(map);
+			if (productNameList != null && productNameList.size() > 0)
+			{
+				resultJson.put("data", productNameList);
+			}
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("查找商品名称列表", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查找商品名称列表", etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+
+	/**
+	 * 查找商品详情
+	 */
+	@GET
+	@POST
+	@Path("/findProductMess")
+	@Consumes("application/json;charset=UTF-8")
+	@Produces("application/json;charset=UTF-8")
+	public String findProductMess(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+
+		String productid = request.getParameter("productid");
+
+		try
+		{
+			if (CodeUtil.checkParam(productid))
+			{
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+
+			Map<String, Object> productMessage = productDao.findProductMess(Integer.parseInt(productid));
+			productMessage.put("showImg", Config.QN_PREFIX + productMessage.get("headimg"));
+			resultJson.put("data", productMessage);
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("查找商品详情", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查找商品详情", etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+
+	/**
+	 * 微信支付，商品信息
+	 */
+	@GET
+	@POST
+	@Path("/payProductMess")
+	@Consumes("application/json;charset=UTF-8")
+	@Produces("application/json;charset=UTF-8")
+	public String payProductMess(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+
+		String productid = request.getParameter("productid");
+
+		try
+		{
+			if (CodeUtil.checkParam(productid))
+			{
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+
+			Map<String, Object> productMessage = productDao.findProductMess(Integer.parseInt(productid));
+			resultJson.put("data", productMessage);
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("微信支付，商品信息", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查找商品详情", etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+
+	/**
+	 * 提交商品
+	 */
+	@GET
+	@POST
+	@Path("/subProduct")
+	@Produces("application/json;charset=UTF-8")
+	@Consumes("application/json;charset=UTF-8")
+	public String subProduct(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+
+		String productname = request.getParameter("productname");
+		String headimg = request.getParameter("headimg");
+		String intro = request.getParameter("intro");
+		String price = request.getParameter("price");
+		// String status = request.getParameter("status");
+		String productid = request.getParameter("productid");
+		String online = request.getParameter("online"); // 是否推到线上(0：否，1：是)
+		String rule1 = request.getParameter("rule1"); // 规则：1-1座1票
+
+		try
+		{
+			if (CodeUtil.checkParam(productname, intro, price, online))
+			{
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+
+			String userid = String.valueOf(request.getAttribute("userid"));
+
+			int theaterid = Integer.parseInt(userRedis.getUserField(userid, "theaterid"));
+			float fprice = Float.parseFloat(price);
+
+			if (CodeUtil.checkParam(productname, intro, price, userid))
+			{
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("productname", productname);
+			map.put("headimg", headimg);
+			map.put("intro", intro);
+			map.put("price", fprice);
+			map.put("operator", Integer.parseInt(userid));
+			map.put("online", Integer.parseInt(online));
+			map.put("theaterid", theaterid);
+			// if (!CodeUtil.checkParam(status)){
+			// map.put("status", Integer.parseInt(status));
+			// } else{
+			map.put("status", -1);
+			map.put("rule1", rule1);
+			// }
+
+			if (!CodeUtil.checkParam(productid))
+			{
+				map.put("productid", Integer.parseInt(productid));
+				productDao.updateProduct(map);
+				logInfo.addLogInfo(request, "0", "修改商品[" + productname + "]的信息成功");
+			} else
+			{
+				productDao.addProduct(map);
+				logInfo.addLogInfo(request, "0", "添加商品[" + productname + "]成功");
+				productid = String.valueOf(map.get("productid"));
+			}
+			
+			if("1".equals(online)){
+				JSONObject rule = new JSONObject();
+				rule.put("rule1", rule1);
+				DataMessage dataMessage = merchanService.subMerchandies(productid, productname, theaterid, fprice, headimg, rule);
+				if (!dataMessage.isSuccess())
+				{
+					MyMongo.mRequestFail(request, ResMessage.Product_To_Online_Fail.code);
+					return this.returnError(resultJson, ResMessage.Product_To_Online_Fail.code, request);
+				}
+			}
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("提交商品", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("提交商品", etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+
+	
+	/**
+	 * 删除商品
+	 */
+	@GET
+	@POST
+	@Path("/delProduct")
+	@Produces("application/json;charset=UTF-8")
+	@Consumes("application/json;charset=UTF-8")
+	public String delProduct(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+
+		String productid = request.getParameter("productid");
+		String products = request.getParameter("products"); // 批量删除
+
+		try
+		{
+			if (CodeUtil.checkParam(productid) && CodeUtil.checkParam(products))
+			{
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			
+			// 查询同步状态
+			int online = productDao.getOnline(Integer.parseInt(productid));
+			
+			Map<String, Object> map = new HashMap<String, Object>();
+			if (!CodeUtil.checkParam(products))
+			{
+				map.put("products", JSONArray.fromObject(products).toArray());
+			}
+			if (!CodeUtil.checkParam(productid))
+			{
+				map.put("productid", Integer.parseInt(productid));
+			}
+
+			String productname = productDao.getProductName(Integer.parseInt(productid));
+			productDao.delProduct(map);
+			logInfo.addLogInfo(request, "0", "删除商品[" + productname + "]成功");
+			
+			if(online == 1){
+				DataMessage dataMessage = merchanService.delMerchandies(productid);
+				if (!dataMessage.isSuccess())
+				{
+					MyMongo.mRequestFail(request, ResMessage.Product_To_Online_Fail.code);
+					return this.returnError(resultJson, ResMessage.Product_To_Online_Fail.code, request);
+				}
+			}
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("删除商品", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("删除商品", etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+
+	// /**
+	// * 修改商品信息
+	// */
+	// @GET
+	// @POST
+	// @Path("/updateProduct")
+	// @Produces("application/json;charset=UTF-8")
+	// @Consumes("application/json;charset=UTF-8")
+	// public String updateProduct(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	// {
+	// JSONObject resultJson = new JSONObject();
+	// long stime = System.currentTimeMillis();
+	// // -------------------------------------------------------------------------------
+	//
+	// String productid = request.getParameter("productid");
+	// String productname = request.getParameter("productname");
+	// String headimg = request.getParameter("headimg");
+	// String intro = request.getParameter("intro");
+	// String price = request.getParameter("price");
+	// String status = request.getParameter("status");
+	// String operator = request.getParameter("operator");
+	//
+	// try
+	// {
+	// if (CodeUtil.checkParam(productid))
+	// {
+	// MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+	// return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+	// }
+	//
+	// Map<String, Object> map = new HashMap<String, Object>();
+	// map.put("productid", Integer.parseInt(productid));
+	// map.put("productname", productname);
+	// map.put("headimg", headimg);
+	// map.put("intro", intro);
+	// map.put("price", Float.parseFloat(price));
+	// map.put("operator", Integer.parseInt(operator));
+	// map.put("status", Integer.parseInt(status));
+	// productDao.updateProduct(map);
+	// } catch (Exception e)
+	// {
+	// MyMongo.mErrorLog("修改商品信息", request, e);
+	// return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+	// }
+	//
+	// // -------------------------------------------------------------------------------
+	// long etime = System.currentTimeMillis();
+	// MyMongo.mRequestLog("修改商品信息", etime - stime, request, resultJson);
+	// return this.response(resultJson, request);
+	// }
+
+	/**
+	 * 获取商品支付二维码连接
+	 */
+	@GET
+	@POST
+	@Path("/productQrcode")
+	@Produces("application/json;charset=UTF-8")
+	@Consumes("application/json;charset=UTF-8")
+	public String productQrcode(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+
+		String productid = request.getParameter("productid");
+
+		try
+		{
+			if (CodeUtil.checkParam(productid))
+			{
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			 resultJson.put("data", Config.SERVICEURL + "rest/wxlogin/wxPayLogin?productid=" + productid);
+//			resultJson.put("data", Config.SERVICEURL + "view/WXPay.html?productid=" + productid);
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("获取商品支付二维码连接", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("获取商品支付二维码连接", etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+
+	/**
+	 * 商品状态修改(上架、下架)
+	 */
+	@GET
+	@POST
+	@Path("/productStatusChange")
+	@Produces("application/json;charset=UTF-8")
+	@Consumes("application/json;charset=UTF-8")
+	public String productStatusChange(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+
+		String status = request.getParameter("status");
+		String productid = request.getParameter("productid");
+		String products = request.getParameter("products");
+
+		try
+		{
+			if (CodeUtil.checkParam(status))
+			{
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", Integer.parseInt(status));
+			map.put("productid", Integer.parseInt(productid));
+			if (!CodeUtil.checkParam(products))
+			{
+				map.put("products", JSONArray.fromObject(products));
+			}
+			productDao.productStatusChange(map);
+			
+			// 查询同步状态
+			int online = productDao.getOnline(Integer.parseInt(productid));
+			// 更改状态(同步到线上)
+			if(online == 1){
+				merchanService.changeMerchandiesStatus(productid, Integer.parseInt(status));
+			}
+			switch (Integer.parseInt(status)) {
+			case 0:
+				logInfo.addLogInfo(request, "0", "下架商品[" + productDao.getProductName(Integer.parseInt(productid)) + "]成功");
+				break;
+			case 1:
+				logInfo.addLogInfo(request, "0", "上架商品[" + productDao.getProductName(Integer.parseInt(productid)) + "]成功");
+				break;
+			}
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("商品状态修改", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("商品状态修改", etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+}

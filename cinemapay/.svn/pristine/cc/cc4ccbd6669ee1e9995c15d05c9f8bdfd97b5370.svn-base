@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cardConf">
+	
+	<!-- 发行卡类信息查询 -->
+	<select id="getCardConfList" parameterType="java.util.Map" resultType="java.util.Map">
+		select conf.cardconfid,conf.cardname,conf.cardtype,conf.count,conf.value,conf.starttime,conf.endtime,
+		conf.quantity,conf.note,conf.status,conf.createtime,conf.modifytime,user.username from t_card_conf conf
+		join t_userinfo user on conf.operatorid = user.userid
+		where 1=1 
+		<if test="theaternum != null">
+			and user.theaternum = #{theaternum}
+		</if>
+		<if test="cardtype != null">
+			and conf.cardtype = #{cardtype}
+		</if>
+		<if test="search != null">
+			and conf.cardname like #{search}
+		</if>
+		<if test="startTime != null and endTime != null">
+			and conf.starttime between #{startTime} and #{endTime}
+		</if>
+		order by conf.createtime desc limit ${pageSize} offset ${offsetNum} 
+	</select>
+	
+	
+	<!-- 发行卡类信息数量查询 -->
+	<select id="getCardConfCount" parameterType="java.util.Map" resultType="java.util.Map">
+		select count(*) as count from t_card_conf conf
+		join t_userinfo user on conf.operatorid = user.userid
+		where 1=1 
+		<if test="theaternum != null">
+			and user.theaternum = #{theaternum}
+		</if>
+		<if test="cardtype != null">
+			and conf.cardtype = #{cardtype}
+		</if>
+		<if test="search != null">
+			and conf.cardname like #{search}
+		</if>
+		<if test="startTime != null and endTime != null">
+			and conf.starttime between #{startTime} and #{endTime}
+		</if>
+	</select>
+	
+	
+	<!-- 新增卡券 -->	
+	<insert id="insertCardConf" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="cardconfid">
+		insert into t_card_conf( cardname,cardtype,count,value,starttime,endtime,quantity,note,status,createtime,modifytime,operatorid) 
+			values 
+		(#{cardname},#{cardtype},#{count},#{value},#{starttime},#{endtime},#{quantity},#{note},#{status},#{createtime},#{modifytime},#{operatorid})
+	</insert>
+	
+	<!-- 修改通卡（券）信息 -->	
+	<update id="updateCardConfStatus" parameterType="java.util.Map">
+		update t_card_conf set `status` = #{status} where cardconfid = #{cardconfid}
+	</update>
+	<update id="updateCardConf" parameterType="java.util.Map">
+		update t_card_conf set modifytime = #{modifytime}
+		<if test="cardname != null">
+			, cardname = #{cardname}
+		</if>
+		<if test="cardtype != null">
+			, cardtype = #{cardtype}
+		</if>
+		<if test="count != null">
+			, count = #{count}
+		</if>
+		<if test="value != null">
+			, value = #{value}
+		</if>
+		<if test="starttime != null">
+			, starttime = #{starttime}
+		</if>
+		<if test="endtime != null">
+			, endtime = #{endtime}
+		</if>
+		<if test="quantity != null">
+			, quantity = #{quantity}
+		</if>
+		<if test="note != null">
+			, note = #{note}
+		</if>
+		<if test="status != null">
+			, status = #{status}
+		</if>
+		<if test="operatorid != null">
+			, operatorid = #{operatorid}
+		</if>
+		where cardconfid = #{cardconfid}
+	</update>
+	
+	
+	<!-- 删除通卡（券）信息 -->
+	<delete id="deleteCardConf" parameterType="java.util.Map">
+		delete from t_card_conf where cardconfid = #{cardconfid} 
+	</delete>
+	
+	<!-- 查询单条通卡（券）信息 -->
+	<select id="getCardConf" parameterType="java.util.Map" resultType="java.util.Map">
+		select conf.cardconfid,conf.cardname,conf.cardtype,conf.count,conf.value,conf.starttime,conf.endtime,
+		conf.quantity,conf.note,conf.status,conf.createtime,conf.modifytime,user.username,cinema.confcinemaid,
+		cinema.cinemaid,cinema.consumetype,cinema.settlerate,	cinema.settlevalue,theater.theatername,theater.theaternum from t_card_conf conf
+		join t_userinfo user on conf.operatorid = user.userid
+		join t_conf_cinema cinema on conf.cardconfid = cinema.cardconfid 
+		join t_theater theater on cinema.cinemaid = theater.theaterid
+		where 1=1 and conf.cardconfid = #{cardconfid} 
+	</select>
+	
+	<!-- 查询单条通卡（券）基本信息 -->
+	<select id="getCardConfBasic" parameterType="java.util.Map" resultType="java.util.Map">
+		select cardconfid,cardname,cardtype,count,value,starttime,endtime,quantity,note,status,createtime,operatorid,modifytime from t_card_conf
+		where cardconfid = #{cardconfid}
+	</select>
+	
+	<!-- 判断是否存在相同的通卡（券）名称 -->
+	<select id="checkRepeatCardName" parameterType="java.util.Map" resultType="java.util.Map">
+		select cardconfid,cardname from t_card_conf  
+		where 1=1 
+		<if test="cardname != null">
+			and cardname = #{cardname}
+		</if>
+		<if test="cardconfid != null">
+			and cardconfid != #{cardconfid}
+		</if>
+	</select>
+	
+	
+	
+</mapper>

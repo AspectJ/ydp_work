@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="manageData">
+
+	<!-- 根据卡名称查询批次信息  -->
+	<sql id="findBatchCondition">
+		<where>
+			<if test="cardconfid!=null"> and a.cardconfid=#{cardconfid} </if>
+			<if test="cardname!=null and cardname!='' "> and a.cardname=#{cardname} </if>
+			 <if test="cardtype!=null"> and a.cardtype=#{cardtype} </if>
+	 	 	<if test="card_status!=null"> and a.status=#{card_status} </if>
+	 	 	<if test="s_time!=null  and s_time!='' and e_time!=null and e_time!='' "> and a.createtime between #{s_time} and #{e_time} </if>
+	 	 	<if test="filter != null " > and (a.cardname like #{filter} or a.note like #{filter} or b.username like #{filter}) </if>
+	 	 	<if test="cinemaid != null">
+	 	 		and a.cardconfid in(select cardconfid from t_conf_cinema where cinemaid = #{cinemaid})
+	 	 	</if>
+ 	 	</where>
+	</sql>
+ 	<select id="findBatch_count"  parameterType="java.util.Map" resultType="int">
+ 		 select count(*) from t_card_conf a  join t_userinfo b on a.operatorid=b.userid 
+ 		 <include refid="findBatchCondition"></include>
+ 	</select>
+ 	<select id="findBatchByName" parameterType="java.util.Map" resultType="java.util.Map">
+ 		select a.cardconfid,a.cardname,a.cardtype,a.count,a.value,a.starttime,a.endtime,a.quantity,a.note,a.status,a.createtime,a.operatorid,a.modifytime,b.username
+ 		  from t_card_conf a
+ 		  join t_userinfo b on a.operatorid=b.userid 
+ 		<include refid="findBatchCondition"></include>
+ 		order by a.cardconfid desc
+	 	<if test="start != null and pagesize != null"> 
+ 			limit #{pagesize} offset #{start} 
+		</if>
+ 	</select>
+ 	
+ 	<!-- 查影院名字和ID -->
+ 	<select id="findCinema" parameterType="java.lang.String" resultType="java.util.Map">
+ 		 select theatername,theaterid as cinemaid from t_theater where theatertype = 2 
+ 		 <if test="_parameter != null">
+ 		 	and theatername like #{_parameter}
+ 		 </if>
+ 	</select>
+ 	
+ 	<!-- 查询可用影院(根据卡号查询  cardnumber) -->
+ 	<sql id="findUsableCinema_cardnumber_Condition">
+ 		<choose>
+ 			<when test="cardconfid != null">
+ 				where a.cardconfid=#{cardconfid}
+ 			</when>
+ 			<when test="cardnumber != null">
+ 				 join t_card c on a.cardconfid=c.cardconfid where c.cardnumber=#{cardnumber}
+ 			</when>
+ 		</choose>
+ 		<if test="cinemaid != null">
+	 		and a.cinemaid = #{cinemaid}
+	 	</if>
+ 	</sql>
+ 	<select id="findUsableCinema_cardnumber_Count" parameterType="java.util.Map" resultType="int">
+ 		select count(*) from t_conf_cinema a join t_theater b on a.cinemaid=b.theaterid
+ 		<include refid="findUsableCinema_cardnumber_Condition"></include>				
+ 	</select>
+ 	<select id="findUsableCinema_cardnumber" parameterType="java.util.Map"  resultType="java.util.Map">
+ 		select b.theatername, a.consumetype, a.settlerate settlerate, a.settlevalue
+ 		  from t_conf_cinema a 
+ 		  join t_theater b on a.cinemaid=b.theaterid
+		<include refid="findUsableCinema_cardnumber_Condition"></include>	
+ 		<if test="start != null and pagesize != null"> 
+ 			limit #{pagesize} offset #{start} 
+ 		</if> 
+ 	</select>
+ 	
+ 	<!-- 卡详情 -->
+ 	<select id="cardDeatil" parameterType="java.lang.String" resultType="java.util.Map">
+ 		select b.cardnumber, b.restcount, b.restvalue, b.modifytime, a.count, a.value, b.createtime, a.cardtype, a.cardname
+ 		  from t_card_conf a join t_card b on a.cardconfid=b.cardconfid
+ 		 where b.cardnumber=#{cardnumber}			
+ 	</select>
+ 	
+ 	
+ 	<!-- 查询消费记录的条数（全部） -->
+ 	<sql id="findCardRecordCondition">
+		<where>
+	 		<if test="cinemaid!=null"> and a.cinemaid = #{cinemaid} </if>
+			<if test="cardconfid!=null"> and a.cardconfid = #{cardconfid} </if>
+			<if test="cardname!=null"> and d.cardname = #{cardname} </if>
+			<if test="status!=null"> and a.status = #{status} </if>
+			<if test="cardnumber!=null"> and c.cardnumber like #{cardnumber} </if>
+			<if test="s_time!=null and s_time!='' and e_time!=null and e_time!=''"> and a.createtime between #{s_time} and #{e_time} </if>	
+	 	</where>
+ 	</sql>
+ 	<select id="findCardRecord_qb_Count" parameterType="java.util.Map" resultType="java.lang.Integer">
+ 		select count(*) as count
+ 		  from t_card_record a 
+ 		  join t_theater b on a.cinemaid=b.theaterid
+ 		  join t_card c on a.cardid=c.cardid
+ 		  join t_card_conf d on d.cardconfid=a.cardconfid
+ 		<include refid="findCardRecordCondition"></include>
+ 	</select>
+ 	<!-- 查询消费记录（全部 ） -->
+ 	<select id="findCardRecord_qb" parameterType="java.util.Map" resultType="java.util.Map">
+ 		select a.recordid,a.cardid,a.cardconfid,a.cinemaid,a.ext_userid,a.value,a.count,a.settleprice,a.status,a.createtime,a.operatorid,a.modifytime,c.cardnumber,b.theatername,d.cardname
+ 		  from t_card_record a 
+ 		  join t_theater b on a.cinemaid=b.theaterid
+ 		  join t_card c on a.cardid=c.cardid
+ 		  join t_card_conf d on a.cardconfid=d.cardconfid
+ 		<include refid="findCardRecordCondition"></include>
+ 		order by a.recordid desc
+ 		<if test="start != null and pagesize != null"> 
+ 			limit #{pagesize} offset #{start} 
+ 		</if>
+ 	</select>
+ 	
+ 	<!-- 查询全部的批次信息 -->
+ 	<select id="findAllBatch" resultType="java.util.Map" parameterType="java.lang.String">
+ 		select cardconfid,cardname from t_card_conf 
+ 		<if test="_parameter != null">
+ 			where cardname like #{_parameter}
+ 		</if>
+ 	</select>
+
+	<!-- 批次影院结算列表 -->
+<!--  	<select id="cinemaBatchListTotal" parameterType="java.util.Map" resultType="java.lang.Integer"> -->
+<!--  		 select count(*) from t_conf_cinema a  -->
+<!--  		   join t_theater b on a.cinemaid=b.theaterid -->
+<!--  		   join t_card c on a.cardconfid=c.cardconfid				 -->
+<!-- 		  where c.cardconfid = #{cardconfid} -->
+<!--  	</select> -->
+<!--  	<select id="cinemaBatchList" parameterType="java.util.Map" resultType="java.util.Map"> -->
+<!--  		 select b.theatername,a.consumetype,a.settlerate,a.settlevalue,c.cardnumber -->
+<!--  		   from t_conf_cinema a  -->
+<!--  	       join t_theater b on a.cinemaid=b.theaterid -->
+<!--  		   join t_card c on a.cardconfid=c.cardconfid						 -->
+<!-- 		  where c.cardconfid = #{cardconfid} -->
+<!--  		 	limit #{start}, #{pagesize}  -->
+<!--  	</select> -->
+</mapper>

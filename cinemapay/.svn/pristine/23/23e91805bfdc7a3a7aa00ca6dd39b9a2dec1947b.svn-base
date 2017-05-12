@@ -1,0 +1,89 @@
+.main-box .data_box .operator .query{margin-left: 20px; }
+.main-box .data_box .operator .putaway{display: none;}
+.main-box .data_box .operator .upload{padding-left: 18px; width: 84px; background-image: url(../img/productupload.png); background-repeat: no-repeat; background-position: 18px 11px;}
+
+.downqrcode{cursor: pointer;}
+.downqrcode:hover{text-decoration:underline;color:#FF4400}
+.edit,.del,.card,.disable,.enable,.reset,.delete,.get,.per,.create,.showcard{margin: 0 3px; padding:2px 5px;display: inline-block; cursor: pointer; border: 1px solid #E2E0E0; background-color: #F3F3F3; font-size: 13px; font-weight: bold; color: #7E7B7B; border-radius: 3px;}
+.disable{color: #F5152A;}
+
+.role{border: 2px solid #e8e9ea; width: 500px; height: 410px;margin: 115px auto;background-color:#fff}
+.role .title{margin-top: 40px; padding-left: 30px; font-weight: bold; color: #989899; font-size: 22px;}
+.role .title .cancel{width: 32px; margin-left: 350px;}
+.role .measure{text-align: center; margin: 30px 0px;}
+.role label{font-size: 16px; color: lightgray; font-weight: bold;}
+.role .show{line-height: 28px;margin-left: 10px; margin-right: 26px; padding-left: 10px;}
+.role input{border: 2px solid lavender;width: 200px;line-height: 28px;margin-left: 10px; margin-right: 26px; padding-left: 10px;}
+.role select{border: 2px solid lavender;width: 210px;height:32px;line-height: 32px;margin-left: 10px; margin-right: 26px; padding-left: 10px;font-weight: bold; color: #505052;}
+.role span{font-size: 14px; color: lightgray; font-weight: 600;}
+.role .commit{text-align: center; margin-top: 30px; border: 2px solid #e8e9ea; width: 150px; line-height: 50px; background-color: #57B382; color: #fff; font-size: 20px; font-weight: bold; letter-spacing: 16px;padding-left: 8px; margin-left: auto;margin-right: auto; cursor: pointer;}
+.role .commit-temp{text-align: center; margin-top: 30px; border: 2px solid #e8e9ea; width: 150px; line-height: 50px; background-color: #57B382; color: #fff; font-size: 20px; font-weight: bold; letter-spacing: 16px;padding-left: 8px; margin-left: auto;margin-right: auto; cursor: pointer;}
+
+
+.menu{border: 2px solid #e8e9ea; width: 500px; height: 500px;margin: 115px auto;background-color:#fff}
+.menu .title{margin-top: 40px; padding-left: 30px; font-weight: bold; color: #989899; font-size: 22px;}
+.menu .title .cancel{width: 32px; margin-left: 350px;}
+.menu .measure{text-align: center; margin: 30px 0px;}
+.menu label{font-size: 16px; color: lightgray; font-weight: bold;}
+.menu .show{line-height: 28px;margin-left: 10px; margin-right: 26px; padding-left: 10px;}
+.menu input{border: 2px solid lavender;width: 200px;line-height: 28px;margin-left: 10px; margin-right: 26px; padding-left: 10px;}
+.menu select{border: 2px solid lavender;width: 215px;height:34px;line-height: 34px;margin-left: 12px; margin-right: 28px; padding-left: 10px;font-weight: bold; color: #505052;}
+.menu span{font-size: 14px; color: lightgray; font-weight: 600;}
+.menu .commit{text-align: center; margin-top: 40px; border: 2px solid #e8e9ea; width: 150px; line-height: 50px; background-color: #57B382; color: #fff; font-size: 20px; font-weight: bold; letter-spacing: 16px;padding-left: 8px; margin-left: auto;margin-right: auto; cursor: pointer;}
+.menu .commit-temp{text-align: center; margin-top: 40px; border: 2px solid #e8e9ea; width: 150px; line-height: 50px; background-color: #57B382; color: #fff; font-size: 20px; font-weight: bold; letter-spacing: 16px;padding-left: 8px; margin-left: auto;margin-right: auto; cursor: pointer;}
+
+
+.roleper{border: 2px solid #e8e9ea; width: 800px; height: 700px;margin: 115px auto;background-color:#fff;overflow :auto}
+.roleper .title{margin-top: 40px; padding-left: 30px; font-weight: bold; color: #989899; font-size: 22px;}
+.roleper .title .cancel{width: 32px; margin-left: 630px;}
+.roleper .perBox{border: 1px solid #e8e9ea;margin-top: 10px; margin-left:18px;margin-right:10px;padding-left: 20px; color:#515254;font-size: 16px; width:740px;overflow:auto;}
+.roleper .measure{text-align: center; margin: 30px 0px;}
+.roleper label{font-size: 16px; color: lightgray; font-weight: bold;}
+.roleper .show{line-height: 28px;margin-left: 10px; margin-right: 26px; padding-left: 10px;}
+.roleper input{border: 2px solid lavender;width: 20px;line-height: 28px;margin-left: 20px; margin-right: 12px; padding-left: 10px;}
+.roleper select{border: 2px solid lavender;width: 200px;line-height: 32px;margin-left: 10px; margin-right: 26px; padding-left: 10px;}
+.roleper span{font-size: 14px; color: lightgray; font-weight: 600;}
+.roleper .commit{text-align: center; margin-top: 40px; border: 2px solid #e8e9ea; width: 150px; line-height: 50px; background-color: #57B382; color: #fff; font-size: 20px; font-weight: bold; letter-spacing: 16px;padding-left: 8px; margin-left: auto;margin-right: auto; cursor: pointer;}
+.roleper .commit-temp{text-align: center; margin-top: 40px; border: 2px solid #e8e9ea; width: 150px; line-height: 50px; background-color: #57B382; color: #fff; font-size: 20px; font-weight: bold; letter-spacing: 16px;padding-left: 8px; margin-left: auto;margin-right: auto; cursor: pointer;}
+
+
+/*color: #e8e9ea; 边框颜色*/
+
+.main-box .productBox{background-color:#fff;margin-top:0px;padding-top:5px;margin-left:30px;padding-left:0}
+.main-box .title{width:95%;height:40px;line-height: 40px; margin: 0 auto; padding:5px 0px;font-weight:bold;color:#505052;font-size:18px}
+.product{border:2px solid #e8e9ea !important;width:95%;margin-left:auto;margin-right:auto;padding-top:30px}
+.productBox p{ margin-left: 20px; color: #505052; margin-bottom: 50px; }
+.productBox label{ font-weight: bold; font-size: 14px; min-width: 100px; display: inline-block; text-align: left;}
+.productBox p .tishi{ font-weight: bold;font-size: 14px; width: 180px; display: inline-block; text-align: center;color: red;margin-left: 8px;}
+.productBox .xianshi{ font-weight: bold;font-size: 14px; width: 200px; display: inline-block; text-align: left; margin-left: 10px; margin-right: 42px;}
+.productBox input{outline:medium; background-color: #fafafa;border: 1px solid #e8e9ea; margin-left: 8px; margin-right: 50px; line-height: 26px; height: 30px; width: 180px; font-size: 15px; padding-left: 10px; font-weight: bold; color: #505052;}
+.productBox select{background-color: #fafafa; border: 1px solid #e8e9ea; margin-right: 50px; line-height: 30px; height: 35px; width: 195px; font-size: 15px; padding-left: 10px; font-weight: bold; color: #505052;}
+.productBox textarea{ background-color: #fafafa;vertical-align: text-top; border: 1px solid #e8e9ea;  height: 100px; width: 840px; font-size: 15px; padding-left: 20px; padding-top: 10px; color: #505052;}
+.productBox label .must{ color: red; font-weight: bold; margin-left: 3px;}
+
+.productBox .image-editor{position:absolute;margin-top:-70px;margin-left:126px;width:300px;height:300px}
+.productBox .image-editor .cropit-image-input, #headimg{display:none}
+.productBox .image-editor .cropit-preview{border:1px solid #e8e9ea;width:200px;height:200px;margin-left:auto;margin-right:auto}
+.productBox .image-editor .cropit-preview-image-container{cursor:move}
+.productBox .chooseBn{width:100px;color:#fff;background-color:#383B43;padding:8px 10px;border-radius:5px;border:1px solid #e8e9ea;color:#E8E9EA;font-weight:bold;font-size:13px;margin-left:460px;text-align:center;cursor:pointer}
+
+.cropit-image-zoom-input{margin-left:50px !important;-webkit-appearance:none;width:100%;border:none !important}
+.cropit-image-zoom-input::-webkit-slider-thumb{-webkit-appearance:none;height:22px;width:12px;border-radius:3px;background-color:chocolate;cursor:pointer;margin-top:-8px;box-shadow:1px 1px 1px #000000,0px 0px 1px #0d0d0d}
+.cropit-image-zoom-input::-webkit-slider-runnable-track{width:100%;height:8px;cursor:pointer;box-shadow:1px 1px 1px #000000,0px 0px 1px #0d0d0d;background:#6495ED}
+
+.productBox .image-editor span {
+	border: 1px solid;
+}
+.productBox .submitBn, .productBox .cancelBn,.productBox .submitBn-temp{text-align: center; margin-top: 100px; border: 2px solid #e8e9ea; width: 150px; line-height: 45px;   font-size: 20px; font-weight: bold; letter-spacing: 16px;padding-left: 20px; cursor: pointer; margin-left: 50px; margin-right: 50px;}
+.productBox .submitBn{background-color: #57B382;color: #fff;}
+.productBox .submitBn-temp{background-color: #57B382;color: #fff;}
+.productBox .cancelBn{background-color: #fff;color: #C6C4C4;}
+
+
+.passBox{ margin-top: 10px; border: 2px solid #e8e9ea; width: 95%; margin-left: auto; margin-right: auto; padding-top: 10px;}
+.passBox p{ margin-left: 20px; color: #505052; margin-bottom: 50px;}
+.passBox label{ font-weight: bold; font-size: 14px; width: 150px; display: inline-block; text-align: center;}
+.passBox input{outline:medium; background-color: #fafafa;border: 1px solid #e8e9ea; margin-left: 10px; margin-right: 50px; line-height: 26px; height: 30px; width: 180px; font-size: 15px; padding-left: 10px; font-weight: bold; color: #505052;}
+.passBox label .must{ color: red; font-weight: bold; margin-left: 3px;}
+
+.passBox .submitBn{text-align: center; margin-top: 10px; border: 2px solid #e8e9ea; width: 150px; line-height: 45px;   font-size: 20px; font-weight: bold; letter-spacing: 16px;padding-left: 20px; cursor: pointer; margin-left: 50px; margin-right: 50px;background-color: #57B382;color: #fff;}

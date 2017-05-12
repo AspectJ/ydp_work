@@ -1,0 +1,22 @@
+.myChargeOff{border:2px solid #b1b1b1; background-color: #249B6A; font-size: 20px;color: #fff; font-weight: bold; padding: 10px 20px; cursor: pointer;}
+
+.content-data .checkcard{text-align: center; margin-top: 50px;}
+.content-data .checkcard p label{font-size: 40px; color: #7e7b7b; font-weight: bold; width: 250px; display: inline-block; vertical-align: middle; text-align: left;}
+.content-data .checkcard #cardCode{background-color: #fdfdfc; height: 60px;width: 450px; line-height: 50px; border: 2px solid #D3D3D3; padding-left: 50px; font-size: 25px;font-weight: bold;}
+.content-data .checkcard #cardcipher{background-color: #fdfdfc; height: 60px;width: 450px; line-height: 50px; border: 2px solid #D3D3D3; padding-left: 50px; font-size: 25px;font-weight: bold;}
+.content-data .checkcard #query{border:2px solid #b1b1b1; background-color: #249B6A; font-size: 30px; color: #fff; font-weight: bold; padding: 10px 20px; margin-left: 50px; vertical-align: middle; cursor: pointer;}
+
+.content-data .checkcard .productMess{ margin: 25px auto;display: none;}
+.content-data .checkcard .productMess .data-tab{border: none; padding: 0px; font-weight: bold; text-align: center;}
+.content-data .checkcard .productMess .data-tab table, .content-data .checkcard .productMess .headLine{width: 88%; margin-left: auto !important;margin-right: auto !important;}
+.main-box .data_box .content-data .data-tab table td{ font-size: 22px;}
+.content-data .checkcard .productMess .headLine{text-align: left; font-size: 22px;}
+.content-data .checkcard .productMess td{color: #B9B8B8 !important; line-height: 75px;}
+.content-data .checkcard .productMess input{border: 2px solid lavender;width: 150px;line-height: 28px;margin-left: 10px; margin-right: 26px; padding-left: 10px;}
+.content-data .checkcard .chargeOff{border:2px solid #b1b1b1; background-color: #249B6A; font-size: 35px; color: #fff; font-weight: bold; padding: 12px 80px 12px 100px; letter-spacing: 20px; margin-top: 20px; cursor: pointer;}
+
+.charge_off_order td {
+	line-height: 30px !important;
+	height: 30px !important;
+	font-size: 15px !important;
+}

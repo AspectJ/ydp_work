@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="log">
+
+	<!-- 新增日志信息 -->	
+	<insert id="insertLog" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="logid">
+		insert into t_loginfo( log_type,theaterid,operator,log_content,operator_time,log_status,ip ) 
+			values 
+		(#{log_type},#{theaterid},#{operator},#{log_content},#{operator_time},#{log_status},#{ip})
+	</insert>
+	
+	<!-- 修改日志信息 -->	
+	<update id="updateLog" parameterType="map">
+		update t_loginfo set log_status = 1 
+		where 1=1
+		<if test="theaterid != null">
+			and theaterid = #{theaterid}
+		</if>
+	</update>
+	
+	<!-- 查询用户信息个人 -->
+	<select id="getLog" parameterType="java.util.Map" resultType="java.util.Map">
+		select l.logid,l.log_type,l.theaterid,t.theatername,l.operator,u.username,l.log_content,l.operator_time,l.log_status,l.ip from t_loginfo l 
+		join t_userinfo u on l.operator=u.userid 
+		join t_theater t on l.theaterid=t.theaterid
+		where 1=1 
+		and l.logid = #{logid} 
+	</select>
+	
+	<!-- 日志信息查询 -->
+	<select id="getLogList" parameterType="java.util.Map" resultType="java.util.Map">
+		select l.logid,l.log_type,l.theaterid,t.theatername,l.operator,u.username,l.log_content,l.operator_time,l.log_status,l.ip from t_loginfo l 
+		join t_userinfo u on l.operator=u.userid 
+		join t_theater t on l.theaterid=t.theaterid
+		where 1=1 
+		<if test="theaterid != null">
+			and l.theaterid = #{theaterid}
+		</if>
+		<if test="operator != null">
+			and l.operator = #{operator}
+		</if>
+		<if test="log_type != null">
+			and l.log_type = #{log_type}
+		</if>
+		<if test="log_status != null">
+			and l.log_status = #{log_status}
+		</if>
+		<if test="search != null">
+			and l.log_content like #{search}
+		</if>
+		<if test="startTime != null and endTime != null">
+			and l.operator_time between #{startTime} and #{endTime}
+		</if>
+		order by l.logid desc limit ${pageSize} offset ${offsetNum} 
+	</select>
+	
+	<!-- 日志信息查询 -->
+	<select id="getLogListCount" parameterType="java.util.Map" resultType="java.util.Map">
+		select count(*) as count from t_loginfo l 
+		join t_userinfo u on l.operator=u.userid 
+		join t_theater t on l.theaterid=t.theaterid
+		where 1=1 
+		<if test="theaterid != null">
+			and l.theaterid = #{theaterid}
+		</if>
+		<if test="operator != null">
+			and l.operator = #{operator}
+		</if>
+		<if test="log_type != null">
+			and l.log_type = #{log_type}
+		</if>
+		<if test="log_status != null">
+			and l.log_status = #{log_status}
+		</if>
+		<if test="search != null">
+			and l.log_content like #{search}
+		</if>
+		<if test="startTime != null and endTime != null">
+			and l.operator_time between #{startTime} and #{endTime}
+		</if>
+	</select>
+	
+	
+</mapper>

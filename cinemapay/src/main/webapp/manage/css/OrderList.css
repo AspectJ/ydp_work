@@ -1,0 +1,19 @@
+.filter .placeholder_condition{display: none;}
+
+/*操作按钮*/
+.data-tab .dataoperator i{margin: 0 3px; padding:2px 5px;display: inline-block;font-size: 13px;font-weight: bold;border-radius: 3px;}
+.data-tab .dataoperator .refund{cursor: pointer;background-color: #2B2A3C;   color: #ECECEC;font-weight: 100;}
+
+.statistics{float: right;
+	margin-top: 10px;
+    right: 100px;
+	font-weight: bold;
+	color: #AAAAAA;
+	font-size: 15px;
+}
+    
+.statistics span{
+	border: 2px solid #D3D3D3; padding: 2px 12px;margin: 5px;
+	color: #515254;
+	
+} 

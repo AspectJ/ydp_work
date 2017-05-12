@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>系统</title>
+		<link rel="stylesheet" href="../css/base.css" />
+		<link rel="stylesheet" href="../css/main.css" />
+		<link rel="stylesheet" href="../css/info.css" />
+		
+		<script type="text/javascript" src="../js/jquery-1.11.2.min.js" ></script>
+		<link rel="stylesheet" href="../css/top.css" />
+		<script type="text/javascript" src="../js/top.js" ></script>
+		<script type="text/javascript" src="../js/My97DatePicker/WdatePicker.js" ></script>
+		<script type="text/javascript" src="../js/jquery.pagination.js" ></script>
+		<script type="text/javascript" src="../js/config.js"></script>
+		<script type="text/javascript" src="../js/public.js" ></script>
+		<script src="../js/vCode.js"></script>
+		<script type="text/javascript" src="../js/cardRecordInfo.js" ></script>
+	</head>
+	<body>
+		<!-- 主面板 -->
+		<div class="main-box">
+			<div class="content-title">
+				<span>您当前位置：首页/卡号核销记录</span>
+			</div>
+			
+			<div class="data_box">
+				<!--操作菜单-->
+				<div class="operator">
+					<span class="" id="status0">正常</span>
+					<span class="" id="status1">已退款</span>
+					<input id="startTime" readonly="readonly" placeholder="开始时间" class="querytime"/>
+					<input id="endTime" readonly="readonly" placeholder="结束时间" class="querytime"/>
+					<input class="query filter_input" id="search" placeholder="请输入卡号进行查询" />
+					<button class="querybn" onclick="loadData(1);">查询</button>
+				</div>
+				<!-- 数据区 -->
+				<div class="content-data">
+					<p class="headLine">卡号核销列表</p>
+					<div class="data-tab">
+						<table>
+						</table>
+					<div class="page">
+						<ul class="data-tab-ul">
+						</ul>
+					</div>						
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
+
+
+
+
+
+
+

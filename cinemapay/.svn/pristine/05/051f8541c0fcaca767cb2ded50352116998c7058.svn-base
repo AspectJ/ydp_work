@@ -1,0 +1,76 @@
+package com.test;
+
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONObject;
+
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import com.cp.rest.managedata.dao.ManageDataDaoImpl;
+
+
+
+
+public class UnitTest {
+	
+	private  static ApplicationContext app ;
+	
+	
+	
+	@BeforeClass
+	public static void before(){
+		
+		app= new ClassPathXmlApplicationContext("root-spring.xml");
+		
+	}
+	
+	@Test
+	public void test1(){
+		
+	     ManageDataDaoImpl manageDataDao = (ManageDataDaoImpl)app.getBean("manageDataDao");
+	     
+	     Map<String,Object>batchMap = new HashMap<String,Object>();
+	     batchMap.put("cardname", "");
+	     batchMap.put("cardtype", null);
+	     batchMap.put("stime", Timestamp.valueOf("2016-08-30 00:00:00"));
+	     batchMap.put("etime",Timestamp.valueOf("2016-09-1 00:00:00"));
+	    List< Map<String, Object>> batchInfo =   manageDataDao.findBatchByName(batchMap);
+	     int total = manageDataDao.findBatch_count(batchMap);
+		JSONObject resultJson = new JSONObject();
+		
+	  resultJson.put("data", batchInfo);
+	  resultJson.put("total", total);
+	  System.out.println(resultJson.get("data").toString());
+	  System.out.println(resultJson.get("total").toString());
+	   
+	   Map<String,Object> consumptionMap = new HashMap<String,Object>();
+	   consumptionMap.put("cardconfid", 2);
+	   List<Map<String,Object>> lists = manageDataDao.findConsumptionById(consumptionMap);
+	   
+	   resultJson.put("data", lists);
+	   
+	   System.out.println(resultJson.get("data"));
+
+	   Map<String,Object> recordInfo = new HashMap<String,Object>();
+	   recordInfo.put("recordid", 4);
+	   
+	List<  Map<String, Object>> recordMap =   manageDataDao.findRecordById(recordInfo);
+	  
+	   JSONObject resultJson1 = new JSONObject();
+	   resultJson1.put("data", recordMap);
+	   System.out.println(resultJson1.get("data").toString());
+	
+	    
+	    List<Map<String,Object>> card_conf_lists = manageDataDao.findAllBatch();
+	    
+	    System.out.println(card_conf_lists.toString());
+	}
+
+}

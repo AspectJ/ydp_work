@@ -1,0 +1,136 @@
+@charset "UTF-8";body{overflow-x:hidden;background:#353644}
+
+/*.nav{width:200px;float:left;background:#272636;font-family:"微软雅黑"}
+
+.nav .head{width:180px;margin:30px auto;text-align:center;color:#fff}
+.nav .head i{display:block;font-family:"微软雅黑";font-style:normal;background:url(../img/icon.png) no-repeat;cursor:pointer}
+.nav .head .img{margin:0 auto;width:120px;height:133px;background-position:0 -76px}
+.nav .head p{height:40px;padding:10px 0}
+.nav .head .edit{float:left;width:30px;height:30px;background-position:-233px -43px}
+.nav .head .quanxian{float:right;width:80px;height:30px;background-position:0 -211px}
+.nav .head button{width:120px;height:30px;line-height:30px;border:none;cursor:pointer;border-radius:5px;background:#FF4400;color:#fff;font-family:"微软雅黑";font-size:16px}*/
+
+/*.menu{width:200px;font-family:"微软雅黑"}
+.menu div{overflow:hidden;background-repeat:no-repeat}
+.menu .menu-box{background:#333247}
+.menu ul{display:none;background:#fff;width:230px;float:right}
+.menu li{padding:15px 0 15px 33px;color:#fff;font-size:14px;border-bottom:1px solid #777;background:#333247;transition:all .3s;position:relative;cursor:pointer}
+.menu li:hover{background:#FF4400 !important}
+.menu li:before{content:'';position:absolute;width:5px;height:5px;background:#fff;border-radius:50%;left:0;top:50%;margin-top:-3px}
+.menu li:last-child{border:none}
+.menu .menu-title{width:250px;margin:0;padding:15px 0 15px 20px;color:#000;cursor:pointer;font-size:16px;color:#fff;font-weight:normal}
+.menu .menu-title span{float:left;margin-top:-3px;margin-right:20px;width:33px;height:33px;background:url(../img/icon.png) no-repeat;background-position-y:-46px}
+.menu .menu-title .yingyuan{background-position-x:0}
+.menu .menu-title .huiyuan{background-position-x:-34px}
+.menu .menu-title .paiqi{background-position-x:-73px}
+.menu .menu-title .qudao{background-position-x:-111px}
+.menu .menu-title .yingxiao{background-position-x:-149px}
+.menu .menu-title .fenxi{background-position-x:-186px}
+.menu .more{float:right;width:28px;height:18px;margin-right:15px;background:url(../img/icon.png) no-repeat;background-position:-270px -58px}
+.menu-show ul{display:block}
+.menu-show .menu-title{background-color:#FF4400}
+.menu-show .more{background-position:-270px -41px}*/
+
+.nav{
+	width: 180px;
+	padding-bottom:10px;
+}
+.nav .logo{
+	background:#2d2e3b;
+	margin-bottom: 20px;
+	padding: 28px 0 28px 40px;
+	color:#fff;
+	font-size:20px;
+}
+.nav .main_menu .menu {
+	margin-bottom: 50px;
+	height: 110px;
+	line-height: 110px;
+	text-align: center;
+	padding-top: 20px;
+}
+.nav .main_menu .checked {border-left: 5px solid #249b6a;background-color: #383B43;width: 170px;}
+.nav .main_menu .icon {width: 70px;height: 70px;background-repeat: no-repeat;cursor: pointer;margin-left: auto;margin-right: auto;}
+.nav .main_menu p{line-height:30px;color:#989899;font-weight:bold}
+.nav .main_menu p.choise{color:#fff;}
+
+.nav .main_menu .usermanage .icon{background-image:url(../img/nav_usermanage.png)}
+.nav .main_menu .usermanage .check{background-image:url(../img/nav_usermanage_check.png)}
+.nav .main_menu .productmanage .icon{background-image:url(../img/nav_productmanage.png)}
+.nav .main_menu .productmanage .check{background-image:url(../img/nav_productmanage_check.png)}
+.nav .main_menu .ordermanage .icon{background-image:url(../img/nav_order.png)}
+.nav .main_menu .ordermanage .check{background-image:url(../img/nav_order_check.png)}
+.nav .main_menu .managedata .icon{background-image:url(../img/nav_order.png)}
+.nav .main_menu .managedata .check{background-image:url(../img/nav_order_check.png)}
+.nav .main_menu .changeoff .icon{background-image:url(../img/nav_changeoff.png)}
+.nav .main_menu .changeoff .check{background-image:url(../img/nav_changeoff_check.png)}
+
+.menu_wrapper{
+	background: #2d2e3b;
+	color: #b8bcc9;
+	border-bottom:10px solid #353644;
+}
+.menu_header{
+    position: relative;
+    height: 48px;
+    line-height: 48px;
+    padding-left: 45px;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+.menu_header.open{
+	background: #249b6a;
+	color: #fff;	
+}
+
+.menu_header.open:after{
+	background: url(../img/icon_checked.png) no-repeat;
+}
+.menu_header:after{
+    content: '';
+    display: inline;
+    width: 8px;
+    height: 8px;
+    position: absolute;
+    top: 20px;
+    right: 14px;
+    background: url(../img/icon_open.png) no-repeat;
+}
+
+.menu_header .usersmanage{
+	background: url(../img/icon_usersmanage.png) no-repeat;
+}
+.menu_header .goodsmanage{
+	background: url(../img/icon_goodsmanage.png) no-repeat;
+}
+.menu_header .ordersmanage{
+	background: url(../img/icon_ordersmanage.png) no-repeat;
+}
+.menu_header .cardsmanage{
+	background: url(../img/icon_cardsmanage.png) no-repeat;
+}
+.menu_header .writeoff{
+	background: url(../img/icon_writeoff.png) no-repeat;
+}
+.menu_header .billsmanage{
+	background: url(../img/icon_billsmanage.png) no-repeat;
+}
+
+.menu_header i{
+	position: absolute;
+    top: 12px;
+    left: 10px;
+	width: 28px;
+	height: 28px;
+}
+
+.menu_list li{
+	height: 40px;
+	line-height: 40px;
+	border-top: 1px solid #404252;
+    padding-left: 40px;
+	cursor: pointer;
+}
+.menu_list li.select{
+	background: #404252;
+}

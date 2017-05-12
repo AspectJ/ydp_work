@@ -1,0 +1,23 @@
+package com.cp.rest.theater.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Repository;
+
+import com.cp.filter.BaseDao;
+
+
+@Repository("theaterDao")
+public class TheaterDaoImpl extends BaseDao{
+
+	public List<Map<String, Object>> getTheaterList(Map<String, Object> paramsMap) {
+		List<Map<String, Object>> resultList= this.getSqlSession().selectList("theater.getTheaterList", paramsMap);
+		return resultList;
+	}
+
+	public int getTheaterType(int theaterid) {
+		return this.getSqlSession().selectOne("theater.getTheaterType", theaterid);
+	}
+
+}

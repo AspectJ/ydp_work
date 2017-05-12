@@ -1,0 +1,16 @@
+.main-box .productBox{background-color:#fff;margin-top:0px;padding-top:5px;margin-left:30px;padding-left:0}
+.main-box .title{width:95%;height:40px;line-height:40px;margin:0 auto;padding:5px 0px;font-weight:bold;color:#505052;font-size:18px}
+.product{border:2px solid #e8e9ea !important;width:95%;margin-left:auto;margin-right:auto;padding-top:30px}
+.productBox{height:-moz-calc(100% - (75px));height:-webkit-calc(100% - (75px) * 1);height:calc(100% - (75px))}
+.productBox p{margin-left:20px;color:#505052;margin-bottom:40px}
+.productBox label{font-weight:bold;font-size:14px;width:85px;display:inline-block}
+.productBox input{outline:medium;background-color:#fafafa;border:1px solid #e8e9ea;margin-left:10px;margin-right:50px;line-height:26px;height:30px;width:180px;font-size:15px;padding-left:10px;font-weight:bold;color:#505052}
+input[type="checkbox"]{width:16px;height:16px;vertical-align:middle;margin-right:15px}
+.productBox select{background-color:#fafafa;border:1px solid #e8e9ea;margin-right:50px;line-height:30px;height:35px;width:150px;font-size:15px;padding-left:20px;font-weight:bold;color:#505052}
+.productBox textarea{background-color:#fafafa;vertical-align:text-top;border:1px solid #e8e9ea;height:100px;width:840px;font-size:15px;padding-left:20px;padding-top:10px;color:#505052}
+.productBox label .must{color:red;font-weight:bold;margin-left:3px}
+#headimg{display:none}
+.webuploader-pick{width:200px;height:200px;background-image:url("../img/upload_bg.png");background-size:200px 200px;color:#fff;border-radius:5px;border:1px solid #e8e9ea;color:#E8E9EA;font-weight:bold;font-size:13px;margin-left:400px;text-align:center;cursor:pointer;display:inline-block;margin-top:20px}
+.productBox .submitBn,.productBox .cancelBn{text-align:center;margin-top:50px;border:2px solid #e8e9ea;width:150px;line-height:45px;font-size:20px;font-weight:bold;letter-spacing:16px;padding-left:20px;cursor:pointer;margin-left:50px;margin-right:50px}
+.productBox .submitBn{background-color:#57B382;color:#fff;margin-left:285px}
+.productBox .cancelBn{background-color:#fff;color:#C6C4C4}

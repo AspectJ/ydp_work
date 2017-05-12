@@ -1,0 +1,333 @@
+var beginTime;
+var endTime;
+
+var refund_privilege;
+
+var online = 0;
+	
+$(function(){
+	
+	var menu = localStorage.getItem("menuinfo");
+	var menuinfo = JSON.parse(menu);
+	if(menuinfo != null){
+		for(var i=0;i<menuinfo.length;i++){
+			var requesturl = menuinfo[i].requesturl;
+			if(requesturl == "manager/OrderList.html"){
+				var show = menuinfo[i].show;
+				if(show != null){
+					for(var j=0;j<show.length;j++){
+						var label = show[j].requesturl;
+						if(label == "refund_privilege"){ refund_privilege = 1; }
+					}
+				}
+				break;
+			}
+		}
+	}
+	
+	var header_nav = '',
+    	url_status = window.location.href.split('status=');
+	status = url_status[1];
+
+	switch(status){
+		case '0':
+			header_nav = '全部订单';
+			break;
+		case '2':
+			header_nav = '已支付订单';
+			break;
+		case '6':
+			header_nav = '已核销订单';
+			break;
+		case '4':
+			header_nav = '已验证订单';
+			break;
+		case '-2':
+			header_nav = '已退款订单';
+			break;
+	}
+	$('.content-title span').html('您当前位置：首页/' + header_nav);
+	
+	if(status == '0' || status == '2'){
+		$(".filter .placeholder_condition").hide();
+	} else if(status == '6' || status == '4' || status == '-2') {
+		$(".filter .placeholder_condition").show();
+	}
+	
+	loadData(1);
+	
+//	$(".allOrder").on("click", function(){
+//		status = 0;
+//		loadData(1);
+//		$(".filter .placeholder_condition").hide();
+//	});
+//	$(".paysuccess").on("click", function(){
+//		status = 2;
+//		loadData(1);
+//		$(".filter .placeholder_condition").hide();
+//	});
+//	$(".refund").on("click", function(){
+//		status = -2;
+//		loadData(1);
+//		$(".filter .placeholder_condition").show();
+//	});
+//	$(".orderChecked").on("click", function(){
+//		status = 4;
+//		loadData(1);
+//		$(".filter .placeholder_condition").show();
+//	});
+//	$(".chargeoff").on("click", function(){
+//		status = 6;
+//		loadData(1);
+//		$(".filter .placeholder_condition").show();
+//	});
+//	$(".operator span").on("click", function(){
+//		$(".operator span").removeClass("cur");
+//		$(this).addClass("cur");		
+//	});
+	
+	beginTime = addDate(new Date(), -30).format("yyyy-MM-dd");
+	endTime = new Date().format("yyyy-MM-dd");
+	
+	// 初始化加载数据(订单，商品列表, 操作员)
+	loadData(null, function(){
+		productList(null, function(){
+			operator();
+		});
+	});
+	$("#productname_search_icon").on("click", function(){ productList($("#productname_search").val()); });
+	$("#operatorname_search_icon").on("click", function(){ productList($("#operatorname_search").val()); });
+	
+	$(".main-box .filter .time .rangetime .drp-popup").on("click", function(){
+		if(beginTime != $(".drp-calendar-date").eq(0).text() || endTime != $(".drp-calendar-date").eq(1).text()){
+			beginTime = $(".drp-calendar-date").eq(0).text();
+			endTime = $(".drp-calendar-date").eq(1).text();
+			loadData(1);
+		}
+	});
+	// 选择线上线下订单
+	$(".online").on("click", function(){
+		beginTime = addDate(new Date(), -30).format("yyyy-MM-dd");
+		endTime = new Date().format("yyyy-MM-dd");
+		online = parseInt($(this).attr("online"));
+		status = 0;
+		page = 1;
+		loadData(1);
+	});
+});
+
+
+/**
+ * 加载权限列表
+ */
+var page = 1;
+var pagesize = 10;
+var pagingsize = 3;
+var status = 0;
+function loadData(side, complete_fn){
+	page = pageUpDown(side);
+	var param = {};
+	param.page = page;
+	param.pagesize = pagesize;
+	param.status = status;
+	param.filter = $(".filter_input").val();
+	param.beginTime = beginTime;
+	param.endTime = endTime;
+	
+	var apiName = "order/orderList";
+	if(online == 0){
+		// 线下订单
+		if($("#productname").attr("productid") != null && $("#productname").attr("productid") != 0){
+			param.productid = $("#productname").attr("productid");
+		}
+		if((status == -2 || status == 6) && $("#operatorname").attr("operatorid") != null
+				&& $("#operatorname").attr("operatorid") != 0){
+			param.operatorid = $("#operatorname").attr("operatorid");
+		}
+		$(".product_condition").show();
+	}else{
+		// 线上订单
+		apiName = "order/onlineOrderList";
+		$(".product_condition").hide();
+	}
+	
+	ajaxRequest(apiName, "GET", true, param,
+		function(data) {
+			var result = data.result;
+			switch (result) {
+				case 1000:
+					var dataArr = [];
+					dataList = data.data;
+					
+					var total = data.total;
+//					var totalPrice = data.totalPrice;
+					$("#orderTotal").text(total == null ? "0" : total);
+//					$("#moneyTotal").text(totalPrice == null ? "0.00" : totalPrice);
+						
+					if(total > 0 && dataList != null && dataList.length > 0){
+						var totalpage = parseInt(total % pagesize == 0 ? total / pagesize : total / pagesize + 1);
+						for(var i=0; i<dataList.length; i++){
+							var order = dataList[i];
+							var dataJson = {};
+//							dataJson.check = '<i class="check"></i>';
+							dataJson.ordernumber = order.ordernumber + "";
+							dataJson.productname = order.productname + "";
+							dataJson.amount = order.amount.toFixed(2) + "";
+							dataJson.quantity = "fs_13||"+order.quantity + "";
+							dataJson.createtime = order.createtime + "";
+//							dataJson.openid = order.openid;
+//							dataJson.paymentmethod = order.paymentmethod;
+//							dataJson.transaction_number = order.transaction_number != null ? order.transaction_number : "";
+							dataJson.status = getOrderStatusText(order.status);
+//							if(refund_privilege == 1){
+//								dataJson.refund = "dataoperator||" + (order.status == 2 ? '<i class="refund" onclick="javascript: operateCheckTip(\'退款提示\', \'是否对当前订单进行退款操作？\', \'退款后，款项将退还用户，不能做任何更改，请谨慎操作！\', function(){ refund(\''+ order.ordernumber + '\')});">退款</i>' : "");
+//							}
+							dataArr.push(dataJson);
+						}
+					}
+					
+					$(".data-tab tr").not(":first").remove();
+					pushJsonData(".data-tab table", dataArr);
+					
+					// 分页
+					var pagingstr = loadPaging(totalpage, page, pagingsize, "loadData");
+					$(".data-tab-ul").html(pagingstr);
+					break;
+				default : 
+					errorTip("错误提示",data.msg);
+					break;
+			}
+		}, null,
+		function(){ 
+			loading();
+			
+			var table_head = '<tr><th>订单ID</th><th>商品名称</th><th>总价(元)</th><th>数量(份)</th><th>订单创建时间</th><th>订单状态</th>';
+//			table_head += refund_privilege == 1 ? '<th class="w80">操作</th>' : "";
+			table_head += '</tr>';
+			$(".data-tab table").append(table_head);
+		}, 
+		function(){
+			if(complete_fn != null){
+				complete_fn();
+			}
+			loadover();
+		}
+	);
+}
+
+
+/**
+  * 商品列表
+  */
+function productList( productName, complete_fn ){
+	var param = {};
+	if( productName !=null && productName != "" ){
+		param.filter = productName;
+	}
+	
+	ajaxRequest("product/productNameList", "GET", true, param, 
+		function(data) {
+			var result = data.result;
+			switch (result) {
+				case 1000:
+					var dataArr = [];
+					var productList = data.data;
+					
+					var productHtml = '';
+					if(productList != null && productList.length > 0){
+						productHtml += '<ul class="list-unstyled">';
+						productHtml += '<li class="filter-item items" productid="0">所有商品</li>';
+						for(var i=0; i<productList.length; i++){
+							productHtml += '<li class="filter-item items ellipsis" title="'+ productList[i].productname +'" productid="'+ productList[i].productid +'">'+ productList[i].productname +'</li>';
+						}
+						productHtml += '</ul>';
+					}else{
+						productHtml += '<div class="no-search-results">';
+						productHtml += '<div class="alert alert-warning" role="alert"><i class="fa fa-warning margin-right-sm"></i>No entry for <strong>"<span></span>"</strong> was found.</div>';
+						productHtml += '</div>';
+					}
+					$(".product_list_filter").html(productHtml);
+					
+					$(".product_list_filter li").on("click", function(){
+						$(this).parents(".selectpicker").removeClass("open");
+						$("#productname").attr("productid", $(this).attr("productid"));
+						$("#productname").text($(this).text());
+						loadData(1);
+					});
+					break;
+				default : errorTip( "提示", "查询商品错误" ); break;
+			}
+		}
+		, null, null,
+		function(){ if(complete_fn != null){new complete_fn();}}
+	);
+}
+
+
+/**
+ * 操作员列表
+ */
+function operator(operatorName){
+	var param = {};
+	if( operatorName !=null && operatorName != "" ){
+		param.filter = operatorName;
+	}
+	
+	ajaxRequest("user/operaterList", "GET", true, param, 
+		function(data) {
+			var result = data.result;
+			switch (result) {
+				case 1000:
+					var dataArr = [];
+					var operaterList = data.data;
+					var operaterHtml = '';
+					if(operaterList != null && operaterList.length > 0){
+						operaterHtml += '<ul class="list-unstyled">';
+						operaterHtml += '<li class="filter-item items" operatorid="0">操作员</li>';
+						for(var i=0; i<operaterList.length; i++){
+							operaterHtml += '<li class="filter-item items" operatorid="'+ operaterList[i].userid +'">'+ operaterList[i].username +'</li>';
+						}
+						operaterHtml += '</ul>';
+					}else{
+						operaterHtml += '<div class="no-search-results">';
+						operaterHtml += '<div class="alert alert-warning" role="alert"><i class="fa fa-warning margin-right-sm"></i>No entry for <strong>"<span></span>"</strong> was found.</div>';
+						operaterHtml += '</div>';
+					}
+					$(".operator_list_filter").html(operaterHtml);
+					
+					$(".operator_list_filter li").on("click", function(){
+						$(this).parents(".selectpicker").removeClass("open");
+						$("#operatorname").attr("operatorid", $(this).attr("operatorid"));
+						$("#operatorname").text($(this).text());
+						loadData(1);
+					});
+					break;
+				default : errorTip( "提示", "查询操作员错误" ); break;
+			}
+		}
+//		, null, null,
+//		function(){ if(complete_fn != null){new complete_fn();}}
+	);
+}
+
+
+/**
+ * 退款
+ */
+function refund(ordernumber){
+	var param = {};
+	param.ordernumber = ordernumber;
+	
+	ajaxRequest("order/refund", "GET", true, param, 
+		function(data){
+			var result = data.result;
+			switch (result) {
+				case 1000:
+					errorTip("操作成功", "退款成功！");
+					loadData();
+					break;
+				default : errorTip("操作失败", data.msg); break;
+			}
+		}
+	);
+}

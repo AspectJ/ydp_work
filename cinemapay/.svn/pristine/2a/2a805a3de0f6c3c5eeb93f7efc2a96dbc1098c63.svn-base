@@ -1,0 +1,28 @@
+var rolePer = "";
+var usertheaternum = "";
+var userroletype = "";
+var usertheatername = "";
+
+$(function() {
+	usertheaternum = sessionStorage.getItem("theaternum");
+	userroletype = sessionStorage.getItem("roletype"); 
+    usertheatername = sessionStorage.getItem("theatername"); 
+	var menu = sessionStorage.getItem("menuinfo");
+	var menuinfo = JSON.parse(menu);
+	if(menuinfo != null){
+		for(var i=0;i<menuinfo.length;i++){
+			var requesturl = menuinfo[i].requesturl;
+			if(requesturl == "manager/userInfoList.html"){
+				var show = menuinfo[i].show;
+				if(show != null){
+					for(var j=0;j<show.length;j++){
+						var label = show[j].requesturl;
+						rolePer = rolePer + label + ",";
+						$("#"+label).show();
+					}
+				}
+				break;
+			}
+		}
+	}
+});

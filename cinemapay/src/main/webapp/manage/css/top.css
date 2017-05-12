@@ -1,0 +1,46 @@
+.top{height: 60px; text-align: right; margin-right: 20px; font-size: 15px; background-color: #FFFFFF;}
+.top div{ position: absolute; right: 20px; }
+.top span {
+	display: inline-block;
+	font-weight: bold;
+	color: #7C7B7B;
+	background-repeat: no-repeat;
+	height: 50px;
+	padding-left: 40px;
+	line-height: 50px;
+	background-position: 0px 8px;
+	margin-left: 20px;
+}
+.top .message{ background-image: url(../img/message.png); }
+.top .new{display: none; background-color: #F9565A; color: #fff; text-align: center;padding: 0px; margin: 0px; height: 18px; width: 18px; line-height: 16px; border-radius: 18px;font-size: 9px;position: absolute;margin-left: -23px;margin-top: 2px;}
+.top .manage {
+	background:url(../img/manage.png) 0 8px no-repeat,
+               url(../img/pull-down.png) center 36px no-repeat;
+    min-width: 100px;
+    text-align: left;
+}
+.top .manage ul {
+	display: none;
+	position: absolute;
+	right: 20px;
+	top: 50px;
+	list-style-type: none;
+	margin: 0;
+	border-top: 1px solid #E8E9EA;
+	padding: 0;
+	font-weight: bold;
+	font-size: 14px;
+}
+
+.top li {
+	text-align: center;
+	height: 38px;
+	line-height: 38px;
+	border-bottom: 1px solid #E8E9EA;
+	border-left: 1px solid #E8E9EA;
+	border-right: 1px solid #E8E9EA;
+	cursor: pointer;
+	border-radius: 2px;
+}
+
+.top li:hover{background-color: #3A3E46; color: #fff;}

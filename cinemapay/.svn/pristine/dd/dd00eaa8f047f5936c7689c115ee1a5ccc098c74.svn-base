@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta HTTP-EQUIV="pragma" CONTENT="no-cache"> 
+		<meta HTTP-EQUIV="Cache-Control" CONTENT="no-cache, must-revalidate"> 
+		<meta HTTP-EQUIV="expires" CONTENT="0"> 
+
+		<meta charset="UTF-8">
+		<link rel="stylesheet" href="../css/spinners.css" type="text/css">
+		<link rel="stylesheet" href="../css/base.css" />
+		<link rel="stylesheet" href="../css/main.css" />
+		<link rel="stylesheet" href="../css/ProductList.css" />
+
+		<script type="text/javascript" src="../js/config.js"></script>
+		<script type="text/javascript" src="../js/jquery-1.11.2.min.js"></script>
+		<link rel="stylesheet" href="../css/top.css" />
+		<script type="text/javascript" src="../js/top.js" ></script>
+		<script type="text/javascript" src="../js/libs/qrcode/canvas2image.js"></script>
+		<script type="text/javascript" src="../js/libs/qrcode/qrcode.js"></script>
+		<script type="text/javascript" src="../js/libs/qrcode/jquery.qrcode.min.js"></script>
+		<script type="text/javascript" src="../js/public.js"></script>
+		<script type="text/javascript" src="../js/ProductList.js"></script>
+	</head>
+
+	<body>
+		<div class="main-box">
+			<div class="content-title">
+				<span>您当前位置：首页/商品列表</span>
+			</div>
+			
+			<div class="data_box">
+				<!--操作菜单-->
+				<div class="operator">
+					<!-- <span class="upload">添加商品</span>
+					<span class="putaway cur">已上架商品</span>
+					<span class="stayon">待上架商品</span> -->
+					<span class="addgood">+ 添加商品</span>
+					<!--<span class="batchSoldout" status="0">批量下架</span>-->
+					<!--<span class="batchPutaway" status="1">批量上架</span>-->
+					<input class="query filter_input" placeholder="请输入商品名称进行查询" />
+					<button class="querybn" onclick="loadData(1);">查询</button>
+				</div>
+				<!-- 数据区 -->
+				<div class="content-data">
+					<p class="headLine">商品列表</p>
+					<div class="data-tab">
+						<table></table>
+						<div class="page"><ul class="data-tab-ul"></ul></div>						
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="scan_mask">
+			<div class="scanPay">
+				<div class="title"><p>二维码下载<img class="cancel" src="../img/close2.png"/></p></div>
+				<div id="qrcode"></div>
+				<p class="measure"><label>尺寸选择</label><input class="text" id="measure" /><span>像素(px)</span></p>
+				<p class="donwload">下载</p>
+			</div>
+		</div>
+	</body>
+</html>

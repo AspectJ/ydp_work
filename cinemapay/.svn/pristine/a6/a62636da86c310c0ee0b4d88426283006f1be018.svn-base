@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta HTTP-EQUIV="pragma" CONTENT="no-cache"> 
+		<meta HTTP-EQUIV="Cache-Control" CONTENT="no-cache, must-revalidate"> 
+		<meta HTTP-EQUIV="expires" CONTENT="0"> 
+		
+		<meta charset="UTF-8">
+		
+		<link rel="stylesheet" href="../css/spinners.css" type="text/css">
+		<link rel="stylesheet" href="../js/libs/calendar/style.css" media="screen" type="text/css" />
+		<link rel="stylesheet" href="../js/libs/bootstrap/bootstrap.min.css">
+		<link rel="stylesheet" href="../css/base.css" />
+		<link rel="stylesheet" href="../css/main.css" />
+		<link rel="stylesheet" href="../css/settleDetails.css" />
+		
+		<script type="text/javascript" src="../js/jquery-1.11.2.min.js"></script>
+		<link rel="stylesheet" href="../css/top.css" />
+		<script type="text/javascript" src="../js/top.js" ></script>
+		
+		<script type="text/javascript" src="../js/config.js"></script>
+		<script type="text/javascript" src="../js/public.js"></script>
+		<script type="text/javascript" src="../js/settleDetails.js"></script>
+		<script src="../js/vCode.js"></script>
+		
+		<script src="../js/libs/filelist/modernizr.min.js"></script>
+		<script src="../js/libs/bootstrap/bootstrap.min.js"></script>
+		<script src="../js/libs/filelist/tabcomplete.min.js"></script>
+		<script src="../js/libs/filelist/livefilter.min.js"></script>
+		<script src="../js/libs/bootstrap/bootstrap-select.js"></script>
+		<!--<script src="../js/libs/filelist/filterlist.js"></script>-->
+		<script src="../js/libs/filelist/plugins.js"></script>
+	</head>
+	<body>
+		<div class="main-box">
+			<div class="content-title">
+				<span>您当前位置：首页/消费明细</span>
+				<div class="clear"></div>
+			</div>
+			
+			<div class="data_box">
+				<div class="filter">
+					<div class="selectpicker condition">
+						<button data-id="prov" type="button" class="btn btn-lg btn-block btn-default dropdown-toggle">
+							<span id="operatorname" class="placeholder">线下消费</span>
+							<span class="caret"></span>
+						</button>
+						<div class="dropdown-menu">
+							<div class="live-filtering" data-clear="true" data-autocomplete="true" data-keys="true">
+								<div>
+									<ul class="list-unstyled">
+										<li class="filter-item items online" online="0">线下消费</li>
+										<li class="filter-item items online" online="1">线上消费</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="selectpicker condition product_condition">
+						<button data-id="prov" type="button" class="btn btn-lg btn-block btn-default dropdown-toggle">
+							<span id="theatername" class="placeholder ellipsis">结算方影院</span>
+							<span class="caret"></span>
+						</button>
+						<div class="dropdown-menu">
+							<div class="live-filtering" data-clear="true" data-autocomplete="true" data-keys="true">
+								<div class="search-box">
+									<div class="input-group">
+										<span class="input-group-addon" id="theatername_search_icon">
+											<span class="fa fa-search"></span>
+											<a href="#" class="fa fa-times hide filter-clear"><span class="sr-only">Clear filter</span></a>
+										</span>
+										<input type="text" placeholder="影院名称" id="theatername_search" class="form-control live-search"/>
+									</div>
+								</div>
+								<div class="theater_list_filter"></div>
+							</div>
+						</div>
+					</div>
+					
+					<div class="selectpicker condition placeholder_condition">
+						<button data-id="prov" type="button" class="btn btn-lg btn-block btn-default dropdown-toggle">
+							<span id="operatorname" class="placeholder">操作员</span>
+							<span class="caret"></span>
+						</button>
+						<div class="dropdown-menu">
+							<div class="live-filtering" data-clear="true" data-autocomplete="true" data-keys="true">
+								<div class="search-box">
+									<div class="input-group">
+										<span class="input-group-addon" id="operatorname_search_icon">
+											<span class="fa fa-search"></span>
+											<a href="#" class="fa fa-times hide filter-clear"><span class="sr-only">Clear filter</span></a>
+										</span>
+										<input type="text" placeholder="操作员名称" id="operatorname_search" class="form-control live-search"/>
+									</div>
+								</div>
+								<div class="operator_list_filter"></div>
+							</div>
+						</div>
+					</div>
+					
+					<div class="time condition">
+						<div class="rangetime">
+							<select class='custom-date' name='select'>
+								<option value='7'>近7天</option>
+								<option selected='selected' value='30'>近30天</option>
+								<option value='90'>近90天</option>
+								<option value='180'>近180天</option>
+								<option value='365'>近365天</option>
+								<option value='30'>未出账单</option>
+								<option value='custom'>自定义</option>
+							</select>
+						</div>
+					</div>
+					
+					<!-- 查询结算明细 -->
+				<div class="search_settle_detail operator">
+						<!-- <span class="no_occur">未出账单</span> -->
+						<!-- <button class="search" onclick="loadData();">查询明细</button> -->
+						<span class="querybn" onclick="loadData();">查询</span>
+					</div>
+				</div>
+				
+				<!-- 数据区 -->
+				<div class="content-data">
+					<p class="headLine">消费明细</p>
+					<div class="data-tab consume_table">
+						<table>
+							<tr>
+								<th>流水号</th>
+								<th>卡号</th>
+								<th>卡名</th>
+								<th>卡类型</th>
+								<th>消费渠道</th>
+								<th>消费影院</th>
+								<th>消费次数(次卡)</th>
+								<th>消费金额(储值卡)</th>
+								<th>消费时间</th>
+								<th>结算价(元)</th>
+							</tr>
+						</table>
+						<table class="sum_table" style="display:none;">
+							<tr>
+								<th>结算影院</th>
+								<th class="theaterName" style="width:10%;"></th>
+								<th>开始时间</th>
+								<th class="beginTime" style="width:10%;"></th>
+								<th>结束时间</th>
+								<th class="endTime" style="width:10%;"></th>
+								<th>结算总价(元)</th>
+								<th class="SUM"></th>
+								<th>操作</th>
+								<th class="create_bill"></th>
+							</tr>
+						</table>
+						<p class="statistics">共<span id="consumeTotal"></span>个消费</p>
+						<div class="page">
+							<ul class="data-tab-ul"></ul>
+						</div>
+					</div><br/>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../js/libs/calendar/calendar_happy.js"></script>
+</html>
