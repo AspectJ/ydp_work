@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com"
+	namespace="service">
+	<!-- 查询 -->
+	<sql id="selectService">
+	  SELECT sid,domain,type,surl,serviceid,opertype,dataformat,isremote,times,des FROM pt_service
+	  <dynamic>
+		WHERE
+		<if name="serviceid" test="notEmpty">AND <![CDATA[ serviceid LIKE CONCAT('%',:serviceid,'%') ]]></if>
+		<if name="opertype" test="notEmpty">AND <![CDATA[ opertype LIKE CONCAT('%',:opertype,'%') ]]></if>
+	  </dynamic>
+	</sql>
+	
+	<!-- 查询服务是否重复 -->
+	<sql id="selectServicesfcf">
+	  SELECT COUNT(*) FROM pt_service
+	  <dynamic>
+	    WHERE
+	    <if name="serviceid">serviceid=:serviceid</if>
+	    <if name="opertype">AND opertype=:opertype</if>
+	  </dynamic>
+	</sql>
+	
+	<!-- 增加 -->
+	<sql id="insertService">
+	  INSERT INTO pt_service(sid,domain,type,surl,serviceid,opertype,dataformat,isremote,des) VALUES(?,?,?,?,?,?,?,?,?)
+	</sql>
+	
+	<!-- 修改 -->
+    <sql id="updateService">
+	  UPDATE pt_service SET
+	  <dynamic>
+	    <if name="domain" test="notNull">,domain=:domain</if>
+	    <if name="type" test="notNull">,type=:type</if>
+	    <if name="surl" test="notNull">,surl=:surl</if>
+	    <if name="serviceid" test="notNull">,serviceid=:serviceid</if>
+	    <if name="opertype" test="notNull">,opertype=:opertype</if>
+	    <if name="dataformat" test="notNull">,dataformat=:dataformat</if>
+	    <if name="isremote" test="notNull">,isremote=:isremote</if>
+	    <if name="des" test="notNull">,des=:des</if>
+	  </dynamic>
+	  <dynamic>
+        WHERE
+        <if name="sid">sid=:sid</if>
+      </dynamic> 
+    </sql>
+    
+    <!-- 删除 -->
+	<sql id="deleteService">
+	  DELETE FROM pt_service
+	  <dynamic>
+		WHERE
+		<if name="sid">sid=:sid</if>
+	  </dynamic>
+	</sql>
+	
+</sqls>

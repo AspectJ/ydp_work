@@ -1,0 +1,581 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com"
+	namespace="apiorder">
+
+	<sql id="insertOrder">
+		INSERT INTO OD_ORDER(orderid,ordercode,itemid,sessionsid,
+		venueid,hallid,producttypeid,odtime,
+		locktime,unlocktime,outtime,numb,
+		policyid,totalprice,policyprice,actprice,
+		paytime,payprice,payboxid,sellerid,
+		isoutlet,outlettime,odtype,odstatus,
+		paystatus,outstatus,vid,cid,
+		ctime,mid,mtime,paytype)VALUES(?,?,?,?,
+		?,?,?,?,
+		?,?,?,?,
+		?,?,?,?,
+		?,?,?,?,
+		?,?,?,?,
+		?,?,?,?,
+		?,?,?,?
+		)
+	</sql>
+
+	<!-- 写入订单明细 -->
+	<sql id="insertOrderDetail">
+		INSERT INTO
+		OD_DETAIL(detailid,orderid,ordercode,itemid,sessionsid,
+		venueid,hallid,producttypeid,zoneid,pewid,
+		pricelevelid,reserveid,payboxid,sellerid,price,
+		vid,cid,ctime,mid,mtime)VALUES(?,?,?,?,?,
+		?,?,?,?,?,
+		?,?,?,?,?,
+		?,?,?,?,?)
+	</sql>
+
+	<!-- 写入操作明细 -->
+	<sql id="insertOrderOperate">
+		INSERT INTO
+		OD_ORDEROP(orderopid,orderid,userid,optype,optime,
+		cid,ctime,mid,mtime)VALUES(?,?,?,?,?,
+		?,?,?,?)
+	</sql>
+
+	<!-- 查询座位对应的状态 -->
+	<sql id="queryZwZt">
+		SELECT
+		count(1) c
+		FROM
+		pt_sessnpew w
+		<dynamic>
+			WHERE
+			<if name="sessionsid" test="notEmpty">w.sessionsid = :sessionsid</if>
+			<if name="pewid" test="notEmpty"> AND w.pewid IN (:pewid)</if>
+			<if>AND w.ispresell = '1'
+				AND w.issale = '1'
+				AND w.iscancel = '1'
+				AND
+				w.pewstatus = '1'
+			</if>
+		</dynamic>
+	</sql>
+
+	<!-- 查询座位的订单状态 -->
+	<sql id="queryOrderStatus">
+		SELECT
+		COUNT(1) c
+		FROM
+		OD_ORDER o
+		WHERE o.odstatus IN ('1')
+		<dynamic>
+			<if name="pewid" test="notEmpty">AND o.orderid IN (
+				SELECT
+				d.orderid
+				FROM
+				OD_DETAIL d
+				WHERE
+				d.pewid IN(:pewid)
+			</if>
+			<if name="zoneid" test="notEmpty">AND d.zoneid = :zoneid</if>
+			<if name="sessionsid" test="notEmpty">AND d.sessionsid = :sessionsid</if>
+			<if name="venueid" test="notEmpty">AND d.venueid = :venueid</if>
+			<if name="hallid" test="notEmpty">AND d.hallid = :hallid)</if>
+		</dynamic>
+	</sql>
+
+	<!-- 查询座位对应的分区 -->
+	<sql id="queryZwdyfq">
+		SELECT
+		s.zoneid,
+		s.price,
+		s.pewid,
+		s.pricelevelid,
+		s.reserveid
+		FROM
+		pt_sessnpew s
+		<dynamic>
+			WHERE
+			<if name="pewid" test="notEmpty">s.pewid=:pewid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 查询套票政策的价格 -->
+	<sql id="queryTpzcjg">
+		SELECT p.numb ,p.setpolicyid FROM pt_setpolicy p
+		<dynamic>
+			WHERE
+			<if name="sessionsid" test="notEmpty">p.sessionsid=:sessionsid</if>
+			<if>ORDER BY p.numb DESC</if>
+			<if>LIMIT 0,1</if>
+		</dynamic>
+	</sql>
+
+	<!-- 查询优惠政策 -->
+	<sql id="queryYhzcjg">
+		SELECT p.numb ,p.prefpolicyid setpolicyid FROM pt_prefpolicy
+		p
+		<dynamic>
+			WHERE
+			<if name="sessionsid" test="notEmpty">p.sessionsid=:sessionsid</if>
+			<if>ORDER BY p.numb DESC</if>
+			<if>LIMIT 0,1</if>
+		</dynamic>
+	</sql>
+
+	<!-- 根据场次和座位及订单状态为锁定的状态查询订单ID -->
+	<sql id="queryCczwddid">
+		SELECT
+		o.orderid
+		FROM
+		OD_ORDER o
+		WHERE
+		o.odstatus = '1'
+		AND o.orderid IN (
+		SELECT
+		d.orderid
+		FROM
+		OD_DETAIL d
+		<dynamic>
+			WHERE
+			<if name="sessionsid" test="notEmpty">d.sessionsid = :sessionsid</if>
+			<if name="pewid" test="notEmpty">AND d.pewid =:pewid)</if>
+		</dynamic>
+	</sql>
+
+	<!-- 修改订单 -->
+	<sql id="updateOrderu">
+		UPDATE OD_ORDER SET odstatus='9'
+		<dynamic>
+			<if name="unlocktime" test="notEmpty">,unlocktime=:unlocktime</if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="orderid" test="notEmpty">orderid=:orderid</if>
+			<if name="sessionsid" test="notEmpty">AND sessionsid=:sessionsid</if>
+			<if>AND odstatus='1'</if>
+		</dynamic>
+	</sql>
+
+	<!-- 修改操作明细表 -->
+	<sql id="updateOrderOper">
+		UPDATE OD_ORDEROP SET optype='7'
+		<dynamic>
+			<if name="optime" test="notEmpty">,optime=:optime</if>
+		</dynamic>
+		<dynamic>
+			WHERE optype='1'
+			<if name="orderid" test="notEmpty">AND orderid=:orderid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 查询订单 -->
+	<sql id="queryOrder">
+		SELECT
+		o.orderid,
+		o.ordercode,
+		o.itemid,
+		i.itemname,
+		o.sessionsid,
+		s.sessionsname,
+		o.venueid,
+		v.venuename,
+		o.hallid,
+		h.hallname,
+		o.producttypeid,
+		p.typename,
+		DATE_FORMAT(s.playtime,'%Y-%m-%d %h:%i:%s')
+		playtime,
+		DATE_FORMAT(o.odtime,'%Y-%m-%d %h:%i:%s') odtime,
+		DATE_FORMAT(o.locktime,'%Y-%m-%d %h:%i:%s') locktime,
+		DATE_FORMAT(o.unlocktime,'%Y-%m-%d %h:%i:%s') unlocktime,
+		DATE_FORMAT(o.outtime,'%Y-%m-%d %h:%i:%s') outtime,
+		o.numb,
+		o.policyid,
+		o.totalprice,
+		o.policyprice,
+		o.actprice,
+		DATE_FORMAT(o.paytime,'%Y-%m-%d
+		%h:%i:%s') paytime,
+		o.payprice,
+		o.payboxid,
+		x.payboxname,
+		o.sellerid,
+		r.realname sellername,
+		CASE isoutlet
+		WHEN '1' THEN
+		'是'
+		WHEN '2' THEN
+		'否'
+		END isoutlet,
+		DATE_FORMAT(o.outlettime,'%Y-%m-%d %h:%i:%s') outlettime,
+		o.odtype,
+		CASE odtype
+		WHEN '1' THEN
+		'售票订单'
+		WHEN
+		'2' THEN
+		'预订订单'
+		END
+		odtypename,
+		o.odstatus,
+		CASE odstatus
+		WHEN '1' THEN
+		'锁票成功'
+		WHEN '2' THEN
+		'预定成功'
+		WHEN '3' THEN
+		'已退票'
+		WHEN '4' THEN
+		'已完成'
+		WHEN '9'
+		THEN
+		'已取消'
+		END
+		odstatusname,
+		o.paystatus,
+		CASE paystatus
+		WHEN '1' THEN
+		'未支付'
+		WHEN '2' THEN
+		'支付中'
+		WHEN '3' THEN
+		'已支付'
+		WHEN '4' THEN
+		'已退款'
+		END
+		paystatusname,
+		o.outstatus,
+		CASE outstatus
+		WHEN '1' THEN
+		'未出票'
+		WHEN '2'
+		THEN
+		'已出售'
+		END
+		outstatusname,
+		zw.pewarr,
+		c.name,
+		c.sex,
+		c.tele,
+		c.custype,
+		c.credtype,
+		c.crednum,
+		c.addr,
+		c.sendtype,
+		c.tracknumb,
+		c.company,
+		o.paytype,
+		zw.pewids
+		FROM
+		OD_ORDER o
+		LEFT JOIN pt_item i ON i.itemid = o.itemid
+		LEFT
+		JOIN
+		pt_sessions s ON s.sessionsid = o.sessionsid
+		LEFT JOIN PT_VENUE v
+		ON
+		v.venueid = o.venueid
+		LEFT JOIN pt_hall h ON h.hallid = o.hallid
+		LEFT
+		JOIN pt_producttype p ON p.producttypeid = o.producttypeid
+		LEFT
+		JOIN
+		pt_paybox x ON x.payboxid = o.payboxid
+		LEFT JOIN pt_seller r ON
+		r.sellerid = o.sellerid
+		LEFT JOIN (
+		SELECT
+		d.orderid,GROUP_CONCAT(p.`row`,'排',p.col) pewarr,GROUP_CONCAT(DISTINCT
+		p.pewid) pewids FROM pt_sessnpew p
+		,OD_DETAIL d WHERE p.pewid=d.pewid
+		AND p.sessionsid=d.sessionsid
+		GROUP
+		BY d.orderid
+		)zw ON
+		zw.orderid=o.orderid
+		LEFT JOIN OD_CUSTOMER c ON
+		c.orderid=o.orderid
+		<dynamic>
+			WHERE
+			<if name="itemid" test="notEmpty">o.itemid=:itemid</if>
+			<if name="sessionsname" test="notEmpty">AND <![CDATA[ s.sessionsname like CONCAT('%',:sessionsname,'%') ]]></if>
+			<if name="venueid" test="notEmpty">AND o.venueid=:venueid</if>
+			<if name="producttypeid" test="notEmpty">AND o.producttypeid=:producttypeid
+			</if>
+			<if name="bgtime" test="notEmpty">AND <![CDATA[ DATE_FORMAT(s.playtime,'%Y-%m-%d') >=:bgtime]]></if>
+			<if name="endtime" test="notEmpty"> <![CDATA[AND DATE_FORMAT(s.playtime,'%Y-%m-%d') <=  :endtime]]></if>
+			<if name="ordercode" test="notEmpty">AND <![CDATA[ o.ordercode like CONCAT('%',:ordercode,'%') ]]></if>
+			<if name="name" test="notEmpty">AND <![CDATA[ c.name like CONCAT('%',:name,'%') ]]></if>
+			<if name="tele" test="notEmpty">AND <![CDATA[ c.tele like CONCAT('%',:tele,'%') ]]></if>
+			<if name="payboxid" test="notEmpty">AND o.payboxid=:payboxid</if>
+			<if name="sellerid" test="notEmpty">AND o.sellerid=:sellerid</if>
+			<if name="selbgtime" test="notEmpty">AND <![CDATA[ DATE_FORMAT(s.begintime,'%Y-%m-%d') >=:selbgtime]]></if>
+			<if name="selendtime" test="notEmpty"> <![CDATA[AND DATE_FORMAT(s.endtime,'%Y-%m-%d') <=  :selendtime]]></if>
+			<if name="odstatus" test="notEmpty">AND o.odstatus=:odstatus</if>
+			<if name="odtype" test="notEmpty">AND o.odtype=:odtype</if>
+			<if name="outstatus" test="notEmpty">AND o.outstatus=:outstatus</if>
+			<if name="paystatus" test="notEmpty">AND o.paystatus=:paystatus</if>
+		</dynamic>
+		<dynamic>
+			<if> ORDER BY o.mtime desc</if>
+		</dynamic>
+	</sql>
+
+	<!-- 修改订单状态 -->
+	<sql id="updateOrder">
+		UPDATE OD_ORDER SET
+		<dynamic>
+			<if name="odstatus" test="notEmpty">odstatus=:odstatus</if>
+			<if name="paystatus" test="notEmpty">,paystatus=:paystatus</if>
+			<if name="outstatus" test="notEmpty">,outstatus=:outstatus</if>
+			<if name="isoutlet" test="notEmtpy">,isoutlet=:isoutlet</if>
+			<if name="outlettime" test="notEmtpy">,outlettime=:outlettime</if>
+			<if name="paytype" test="notEmpty">,paytype=:paytype</if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="orderid" test="notEmpty">orderid=:orderid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 修改订单状态 -->
+	<sql id="updateOrderd">
+		UPDATE OD_ORDER SET
+		<dynamic>
+			<if name="odstatus" test="notEmpty">odstatus=:odstatus</if>
+			<if name="paystatus" test="notEmpty">,paystatus=:paystatus</if>
+			<if name="outstatus" test="notEmpty">,outstatus=:outstatus</if>
+			<if name="isoutlets" test="notEmtpy">,isoutlet=:isoutlets</if>
+			<if name="outlettimes" test="notEmtpy">,outlettime=:outlettimes</if>
+			<if name="paytype" test="notEmpty">,paytype=:paytype</if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="orderid" test="notEmpty">orderid=:orderid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 修改客户信息 -->
+	<sql id="updateCustomerInfo">
+		UPDATE OD_CUSTOMER SET
+		<dynamic>
+			<if name="tracknumb" test="notEmpty">tracknumb=:tracknumb</if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="orderid" test="notEmpty">orderid=:orderid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 修改订单数据状态 -->
+	<sql id="updateOutOrderStatus">
+		UPDATE OD_ORDER SET odstatus='4' ,paystatus='3' ,outstatus='2'
+		,isoutlet='1'
+		<dynamic>
+			<if name="outtime" test="notEmpty">,outtime=:outtime</if>
+			<if name="outlettime" test="notEmpty">,outlettime=:outlettime</if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="orderid" test="notEmpty">orderid=:orderid</if>
+		</dynamic>
+	</sql>
+
+
+	<!-- 修改座位状态 -->
+	<sql id="updatePewStatus">
+		UPDATE pt_sessnpew SET pewstatus='3'
+		<dynamic>
+			WHERE
+			<if name="pewid" test="notEmpty">pewid IN(:pewid)</if>
+		</dynamic>
+	</sql>
+
+	<!-- 修改销售机构的配额度 -->
+	<sql id="updateSellerMoney">
+		UPDATE PT_PAYBOXQUOTA SET
+		<dynamic>
+			<if name="price" test="notEmpty">quota=quota-(:price)</if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="sessionsid" test="notEmpty">sessionsid=:sessionsid</if>
+			<if name="payboxid" test="notEmpty">AND payboxid=:payboxid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 减少场次的配额度 -->
+	<sql id="updateSessionMoney">
+		UPDATE PT_SESSIONSQUOTA SET
+		<dynamic>
+			<if name="price" test="notEmpty">quata=quata-(:price)</if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="sessionsid" test="notEmpty">sessionsid=:sessionsid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 根据订单ID，查询支付金额 -->
+	<sql id="queryPayPrice">
+		SELECT payprice FROM OD_ORDER
+		<dynamic>
+			WHERE
+			<if name="orderid" test="notEmpty">orderid=:orderid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 修改订单操作明细，出票 -->
+	<sql id="updateOperDetail">
+		UPDATE OD_ORDEROP SET optype='6'
+		<dynamic>
+			<if name="mid" test="notEmpty">,mid=:mid</if>
+			<if name="mtime" test="notEmpty">,mtime=:mtime</if>
+			<if name="orderid" test="notEmpty">WHERE orderid=:orderid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 写入客户信息表 -->
+	<sql id="insertCustomer">
+		INSERT INTO
+		OD_CUSTOMER(customerid,orderid,ordercode,name,sex,
+		tele,custype,credtype,crednum,areaid,
+		addr,sendtype,tracknumb,company,vid,
+		cid,ctime,mid,mtime
+		)VALUES(?,?,?,?,?,
+		?,?,?,?,?,
+		?,?,?,?,?,
+		?,?,?,?)
+	</sql>
+
+	<!-- 更新座位状态 -->
+	<sql id="updateZwStatus">
+		UPDATE pt_sessnpew SET
+		<dynamic>
+			<if name="pewstatus" test="notEmpty">pewstatus=:pewstatus</if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="pewid" test="notEmpty">pewid IN(:pewid)</if>
+		</dynamic>
+	</sql>
+
+	<!-- 根据订单ID，查询场次 -->
+	<sql id="querySessionOrder">
+		SELECT sessionsid FROM OD_ORDER
+		<dynamic>
+			WHERE
+			<if name="orderid" test="notEmpty">orderid=:orderid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 订单明细，查询座位 -->
+	<sql id="queryOrderDetailZw">
+		SELECT pewid FROM OD_DETAIL
+		<dynamic>
+			WHERE
+			<if name="orderid" test="notEmpty">orderid=:orderid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 根据政策或者优惠政策ID，查询票价等级和优惠票价 -->
+	<sql id="queryZcPjdjhzpj">
+		SELECT
+		t.pricelevelid,
+		IFNULL(t.oldprice,0) oldprice,
+		t.price
+		FROM
+		pt_setpolicy_detail t
+		<dynamic>
+			WHERE
+			<if name="policyid" test="notEmpty">t.policyid = :policyid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 根据订单id查询订单编号 -->
+	<sql id="queryOrderCodes">
+		SELECT t.ordercode FROM od_order t
+		<dynamic>
+			WHERE
+			<if name="orderid" test="notEmpty">t.orderid=:orderid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 修改订单状态 -->
+	<sql id="updatePreSellOrder">
+		UPDATE OD_ORDER SET
+		odtype='2',odstatus='2',paystatus='1',outstatus='1'
+		<dynamic>
+			<if name="outtime" test="notEmpty">,outtime=:outtime</if>
+			<if name="outlettime" test="notEmpty">,outlettime=:outlettime</if>
+		</dynamic>
+		<dynamic>
+			<if name="orderid" test="notEmpty">WHERE orderid=:orderid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 修改订单状态 -->
+	<sql id="updatePreSellAddCusOrder">
+		UPDATE OD_ORDER SET
+		odtype='2',odstatus='4',paystatus='3',outstatus='2'
+		<dynamic>
+			<if name="outtime" test="notEmpty">,outtime=:outtime</if>
+			<if name="outlettime" test="notEmpty">,outlettime=:outlettime</if>
+		</dynamic>
+		<dynamic>
+			<if name="orderid" test="notEmpty">WHERE orderid=:orderid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 修改操作明细 -->
+	<sql id="udpateOperDetail">
+		UPDATE OD_ORDEROP set optype='2'
+		<dynamic>
+			WHERE
+			<if name="orderid" test="notEmpty">orderid=:orderid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 查询优惠价格 -->
+	<sql id="queryPolicyOldPrice">
+		SELECT t.oldprice FROM pt_setpolicy_detail t
+		<dynamic>
+			WHERE
+			<if name="policyid" test="notEmpty">t.policyid=:policyid</if>
+			<if name="pricelevelid" test="notEmpty">AND t.pricelevelid=:pricelevelid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 根据订单和座位IDs，查询出票价等级和票价 -->
+	<sql id="queryPewidsPricelevel">
+		SELECT t.pricelevelid,t.price, s.pewname FROM OD_DETAIL t
+		LEFT JOIN pt_sessnpew s ON s.pewid=t.pewid
+		<dynamic>
+			WHERE
+			<if name="pewids" test="notEmpty"> t.pewid IN(:pewids)</if>
+			<if name="orderid" test="notEmpty">AND t.orderid =:orderid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 场次配额设置 -->
+	<sql id="queryCcpe">
+		SELECT t.quata FROM PT_SESSIONSQUOTA t
+		<dynamic>
+			<if name="sessionsid" test="notEmpty">WHERE t.sessionsid=: sessionsid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 场次和销售机构配额设置 -->
+	<sql id="queryXszcCcpe">
+		SELECT
+		t.quota quata
+		FROM
+		PT_PAYBOXQUOTA t
+		<dynamic>
+			WHERE
+			<if name="sessionsid" test="notEmpty">t.sessionsid = :sessionsid</if>
+			<if name="payboxid" test="notEmpty">AND t.payboxid = :payboxid</if>
+		</dynamic>
+	</sql>
+</sqls>

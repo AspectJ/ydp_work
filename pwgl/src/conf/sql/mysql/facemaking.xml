@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com" namespace="facemaking">
+	
+	<!-- 查询票面 -->
+	<sql id="queryFaceMaking">
+	  SELECT 
+	  t.ticketfaceid,
+	  t.sessionsid,
+	  t.ticketcode,
+	  t.ticketname,
+	  t.ticketorient,
+	  t.bgurl,
+	  t.height,
+	  t.width,
+	  t.carbonlocation,
+	  t.carbonnum,
+	  t.carbonheight 
+	  FROM pt_ticketface t	
+	</sql>
+</sqls>

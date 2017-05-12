@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<sqls namespace="sellpower">
+	<!--查询 -->
+	<sql id="selectSellpower">
+	 SELECT
+	 t.sellpowerid,
+	 t.powername,
+	 t.characteristic,
+	 t.pxh,
+	 t.des,
+	 t. STATUS `status`
+     FROM
+	 pt_sellpower t
+		<dynamic>
+			WHERE
+			<if name="status" test="notEmpty">and t.status = :status</if>
+			<!-- 根据名称模糊查询 -->
+			<if name="powername" test="notEmpty">and <![CDATA[ t.powername like CONCAT('%',:powername,'%') ]]></if>
+		</dynamic>
+	</sql>
+	
+	<!-- 查询 -->
+	<sql id="querySellpower">
+	 SELECT COUNT(1) C FROM  pt_sellpower t
+	 <dynamic>
+	   <if name="powername"  test="notEmpty"> WHERE t.powername=:powername</if>
+	 </dynamic>
+	
+	</sql>
+	
+	<!--新增 -->
+	<sql id="insertSellpower">
+		INSERT INTO pt_sellpower(sellpowerid ,powername ,characteristic ,pxh ,des ,status ,delstatus ,vid ,cid ,ctime ,mid ,mtime )
+		VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
+	</sql>
+	
+	<!--更新 -->
+	<sql id="updateSellpower">
+		UPDATE pt_sellpower SET
+		<dynamic>
+		<if name="powername" test="notEmpty">powername = :powername </if>
+		<if name="characteristic" test="notEmpty">,characteristic = :characteristic </if>
+		<if name="pxh" test="notEmpty">,pxh = :pxh </if>
+		<if name="des" test="notEmpty">,des = :des </if>
+		<if name="status" test="notEmpty">,status = :status </if>
+		<if name="delstatus" test="notEmpty">,delstatus = :delstatus </if>
+		<if name="vid" test="notEmpty">,vid = :vid </if>
+		<if name="cid" test="notEmpty">,cid = :cid </if>
+		<if name="ctime" test="notEmpty">,ctime = :ctime </if>
+		<if name="mid" test="notEmpty">,mid = :mid </if>
+		<if name="mtime" test="notEmpty">,mtime = :mtime </if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="sellpowerid">sellpowerid = :sellpowerid</if>
+		</dynamic>
+	</sql>
+	
+	<!-- 禁用启用 -->
+	<sql id="updateStatus">
+		UPDATE pt_sellpower
+		<dynamic>
+			SET
+			<if name="status">
+				status = :status
+			</if>
+			<if name="mid">
+				,mid = :mid
+			</if>
+			<if name="mtime">
+				,mtime = :mtime
+			</if>
+			<if name="sellpowerid">
+				WHERE sellpowerid = :sellpowerid
+			</if>
+		</dynamic>
+	</sql>
+	
+	<!--删除 -->
+	<sql id="deleteSellpower">
+		DELETE FROM pt_sellpower
+		<dynamic>
+			WHERE
+			<if name="sellpowerid">sellpowerid = :sellpowerid</if>
+		</dynamic>
+	</sql>
+</sqls>

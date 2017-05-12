@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+	<appender name="rootlogAppender" class="org.apache.log4j.ConsoleAppender">
+		<param name="Target" value="System.out" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[ %p ] %d{yyyy-MM-dd HH:mm:ss} %c %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="debuglogAppender" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="D://log//debuglog.log" />
+		<param name="Append" value="true" />
+		<param name="DatePattern" value="yyyy-MM-dd'.log'" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[ %p ] %d{yyyy-MM-dd HH:mm:ss} %c %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="exlogAppender" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="D://log//exlog.log" />
+		<param name="Append" value="true" />
+		<param name="DatePattern" value="yyyy-MM-dd'.log'" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[ %p ] %d{yyyy-MM-dd HH:mm:ss} %c %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="seclogAppender" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="D://log//seclog.log" />
+		<param name="Append" value="true" />
+		<param name="DatePattern" value="yyyy-MM-dd'.log'" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[ %p ] %d{yyyy-MM-dd HH:mm:ss} %c %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="perflogAppender" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="D://log//preflog.log" />
+		<param name="Append" value="true" />
+		<param name="DatePattern" value="yyyy-MM-dd'.log'" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[ %p ] %d{yyyy-MM-dd HH:mm:ss} %c %m%n" />
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="LevelMax" value="ERROR" />
+			<param name="LevelMin" value="DEBUG" />
+		</filter>
+	</appender>
+
+	<appender name="exceptionLogAppender" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="D://log//exception.log" />
+		<param name="Append" value="true" />
+		<param name="DatePattern" value="yyyy-MM-dd'.log'" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[ %p ] %d{yyyy-MM-dd HH:mm:ss} %c %m%n" />
+		</layout>
+	</appender>
+
+	<!-- 日志信息的优先级从高到低有ERROR>WARN>INFO>DEBUG 显示所有优先权等於和高于设定的日志级别 -->
+
+	<category name="debuglog">
+		<level value="DEBUG" />
+		<appender-ref ref="debuglogAppender" />
+	</category>
+
+	<category name="exlog">
+		<level value="DEBUG" />
+		<appender-ref ref="exlogAppender" />
+	</category>
+
+	<category name="seclog">
+		<level value="DEBUG" />
+		<appender-ref ref="seclogAppender" />
+	</category>
+
+	<category name="perflog">
+		<level value="DEBUG" />
+		<appender-ref ref="perflogAppender" />
+	</category>
+
+	<category name="exceptionLog">
+		<level value="INFO" />
+		<appender-ref ref="exceptionLogAppender" />
+	</category>
+
+	<root>
+		<level value="INFO" />
+		<appender-ref ref="rootlogAppender" />
+	</root>
+
+</log4j:configuration>

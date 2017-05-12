@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com"
+	namespace="apiother">
+	<sql id="queryApiOther">		
+      SELECT t.content FROM pt_ticketelement t WHERE t.ticketfaceid  IN(
+      <dynamic>
+      <if name="sessionsid" test="notEmpty"> SELECT f.ticketfaceid FROM pt_ticketface f  WHERE f.sessionsid=:sessionsid)</if>
+      <if>LIMIT 0,1</if>
+    </dynamic>
+	</sql>
+</sqls>

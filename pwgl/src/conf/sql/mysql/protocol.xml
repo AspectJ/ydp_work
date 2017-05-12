@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com"
+	namespace="protocol">
+	<!-- 查询免责申明 -->
+	<sql id="selectProtocol">
+	  SELECT proid,scene,title,content FROM pt_protocol
+	  <dynamic>
+		WHERE
+		<if name="scene" test="notEmpty">AND scene =:scene</if>
+		<if name="title" test="notEmpty">AND <![CDATA[ title LIKE CONCAT('%',:title,'%') ]]></if>
+	  </dynamic>
+	  <dynamic>
+	    ORDER BY ctime DESC
+	  </dynamic>
+	</sql>
+	
+	<!-- 增加免责申明 -->
+	<sql id="insertProtocol">
+	  INSERT INTO pt_protocol(proid,scene,title,content,cid,ctime,mid,mtime) VALUES(?,?,?,?,?,?,?,?)
+	</sql>
+	
+	<!-- 修改免责申明 -->
+    <sql id="updateProtocol">
+	  UPDATE pt_protocol SET scene=?,title=?,content=?,mid=?,mtime=? WHERE proid=?
+    </sql>
+    
+    <!-- 删除免责申明 -->
+	<sql id="deleteProtocol">
+	  DELETE FROM pt_protocol
+	  <dynamic>
+		WHERE
+		<if name="proid">proid=:proid</if>
+	  </dynamic>
+	</sql>
+</sqls>

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com"
+	namespace="apireport">
+
+	<sql id="queryReport">
+		SELECT
+		o.orderid,
+		o.ordercode,
+		d.detailid,
+		o.itemid,
+		i.itemname,
+		o.sessionsid,
+		s.sessionsname,
+		o.venueid,
+		v.venuename,
+		o.hallid,
+		h.hallname,
+		o.producttypeid,
+		p.typename producttypename,
+		DATE_FORMAT(o.odtime,'%Y-%m-%d %h:%i:%s') odtime,
+		sz.sessnzoneid
+		zoneid,
+		sz.zonename,
+		pe.pewid,
+		pe.pewname,
+		t.pricelevelid,
+		t.pricelevelname,
+		d.price,
+		b.payboxid,
+		b.payboxname,
+		se.sellerid,
+		se.realname sellername
+		FROM
+		OD_ORDER o
+		LEFT JOIN OD_DETAIL d ON d.orderid
+		= o.orderid
+		LEFT JOIN pt_item i ON i.itemid = o.itemid
+		LEFT JOIN
+		pt_sessions s ON s.sessionsid = o.sessionsid
+		LEFT JOIN PT_VENUE v ON
+		v.venueid = o.venueid
+		LEFT JOIN PT_HALL h ON h.hallid = o.hallid
+		LEFT
+		JOIN pt_producttype p ON p.producttypeid = o.producttypeid
+		LEFT JOIN
+		pt_sessnzone sz ON sz.sessnzoneid = d.zoneid
+		AND sz.sessionsid =
+		d.sessionsid
+		LEFT JOIN pt_sessnpew pe ON pe.pewid = d.pewid
+		AND
+		pe.sessionsid = d.sessionsid
+		LEFT JOIN pt_ticketprice t ON
+		t.pricelevelid = d.pricelevelid
+		AND t.sessionsid = d.sessionsid
+		LEFT
+		JOIN pt_paybox b ON b.payboxid = d.payboxid
+		LEFT JOIN pt_seller se ON
+		se.sellerid = d.sellerid
+		<dynamic>
+			WHERE
+			<if name="payboxid" test="notEmpty">b.payboxid=:payboxid</if>
+			<if name="sellerid" test="notEmpty">AND se.sellerid=:sellerid</if>
+			<if name="bgtime" test="notEmpty"><![CDATA[AND DATE_FORMAT(o.odtime,'%Y-%m-%d') >=:bgtime]]></if>
+			<if name="endtime" test="notEmpty"><![CDATA[AND DATE_FORMAT(o.odtime,'%Y-%m-%d') <=:endtime]]></if>
+		</dynamic>
+	</sql>
+
+	<!-- 查询场次对应的票价等级，票价等级名称，价格 -->
+	<sql id="queryPriceLevel">
+		SELECT DISTINCT
+		t.pricelevelid,
+		t.pricelevelname,
+		t.price,
+		t.sessionsid
+		FROM
+		pt_ticketprice t
+		<dynamic>
+			WHERE
+			<if name="sessionsid" test="notEmpty"> t.sessionsid=:sessionsid</if>
+			<if> ORDER BY t.pricelevelname</if>
+		</dynamic>
+	</sql>
+
+	<!-- 查询场次对应的套票政策和优惠政策 -->
+	<sql id="querySessionTpOrYh">
+		SELECT
+		t.setpolicyid,
+		t.policyname
+		FROM
+		pt_setpolicy t
+		<dynamic>
+			WHERE
+			<if name="sessionsid" test="notEmpty">t.sessionsid = :sessionsid</if>
+		</dynamic>
+		<dynamic>
+			UNION ALL
+			SELECT
+			p.prefpolicyid,
+			p.policyname
+			FROM
+			pt_prefpolicy p
+			WHERE
+			<if name="sessionsid" test="notEmpty">p.sessionsid = :sessionsid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 查询套票和优惠政策的数量和价格 -->
+	<sql id="queryTpYhSlPrice">
+		SELECT
+		d.price,
+		d.pricelevelid,
+		IF (
+		s.numb IS NOT NULL,
+		s.numb,
+		r.numb
+		) numb
+		FROM
+		pt_setpolicy_detail d
+		LEFT JOIN pt_setpolicy s ON d.policyid =
+		s.setpolicyid
+		<dynamic>
+			<if name="sessionsid" test="notEmpty">AND s.sessionsid=:sessionsid
+			</if>
+			<if name="sessionsid1" test="notEmpty"> LEFT JOIN pt_prefpolicy r ON
+				r.prefpolicyid = d.policyid
+				AND r.sessionsid=:sessionsid1
+			</if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="policyid" test="notEmpty">d.policyid = :policyid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 查询套票和优惠政策的数量价格总和 -->
+	<sql id="queryTpAndYhSum">
+		SELECT SUM(s.sumnumb) sumnumb , SUM(s.sumprice) sumprice FROM (SELECT
+		SUM(d.price) sumprice,
+		SUM(s.numb) sumnumb
+		FROM
+		pt_setpolicy_detail d
+		LEFT JOIN pt_setpolicy s ON d.policyid = s.setpolicyid
+		<dynamic>
+		 WHERE
+		 <if name="pricelevelid" test="notEmpty"> d.pricelevelid =:pricelevelid</if>
+		  <if name="sessionsid" test="notEmpty">AND  s.sessionsid =:sessionsid</if>
+		</dynamic>
+		<dynamic>
+		   UNION ALL
+		SELECT
+		SUM(t.price) sumprice,
+		SUM(r.numb) sumnumb
+		FROM
+		pt_setpolicy_detail t
+			LEFT JOIN pt_prefpolicy r ON r.prefpolicyid = t.policyid
+			WHERE
+			 <if name="pricelevelid" test="notEmpty"> t.pricelevelid =:pricelevelid</if>
+			 <if name="sessionsid" test="notEmpty">AND  r.sessionsid =:sessionsid) s</if>
+		</dynamic>
+
+	</sql>
+</sqls>

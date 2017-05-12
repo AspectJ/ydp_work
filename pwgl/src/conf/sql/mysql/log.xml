@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqls namespace="log">
+
+	<sql id="insertLog">
+		INSERT INTO PT_LOG(logid,czgn,czlx,czrid,name,lxdh,czsj,rc,fhz,serviceid,optype,czylx,ip) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+	</sql>
+	
+	<sql id="selectLog">
+		SELECT l.czrid,l.name,l.lxdh,DATE_FORMAT(l.czsj,'%Y-%m-%d %H:%i:%s') czsj,l.rc,l.czylx,p.interfacedomain,p.interfacetype FROM PT_LOG l LEFT JOIN PT_INTERFACE p ON p.serviceid = l.serviceid AND p.opertype = l.optype
+		<dynamic>
+			WHERE
+			<if name="czlx" test="notEmpty">
+				l.czlx = :czlx
+			</if>
+			<if name="czgn" test="notEmpty">
+				<![CDATA[AND l.czgn like  CONCAT('%',:czgn,'%')]]>
+			</if>
+			<if name="bgTime" test="notEmpty">
+				AND l.czsj > :bgTime
+			</if>
+			<if name="endTime" test="notEmpty">
+				<![CDATA[AND l.czsj < :endTime]]>
+			</if>
+			<if name="lxdh" test="notEmpty">
+				AND l.lxdh = :lxdh
+			</if>
+			<if name="yblx" test="notEmpty">
+				AND l.czylx = :yblx
+			</if>
+		</dynamic>
+		<dynamic>
+			ORDER BY 6 DESC
+		</dynamic>
+	</sql>
+
+</sqls>

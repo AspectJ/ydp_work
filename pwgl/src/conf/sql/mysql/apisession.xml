@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com"
+	namespace="apisession">
+	<sql id="queryApiSession">
+		SELECT
+		i.itemid,
+		i.itemname,
+		s.sessionsid,
+		s.sessionscode,
+		s.sessionsname,
+		v.venueid,
+		v.venuename,
+		h.hallid,
+		h.hallname,
+		DATE_FORMAT(s.playtime,'%Y-%m-%d %h:%i:%s') playtime,
+		s.length,
+		s.producttypeid,
+		d.typename producttypename,
+		CASE
+		s.status
+		WHEN '1' THEN
+		'待审核'
+		WHEN '2' THEN
+		'审核通过'
+		WHEN '3' THEN
+		'已驳回'
+		WHEN '4' THEN
+		'发布中'
+		WHEN '5' THEN
+		'停止演出'
+		END statusname,
+		s.status
+		FROM
+		pt_sessions s
+		LEFT JOIN
+		pt_item i ON i.itemid = s.itemid
+		LEFT JOIN PT_VENUE v ON v.venueid =
+		s.venueid
+		LEFT JOIN pt_hall h ON h.hallid = s.hallid
+		LEFT JOIN
+		pt_producttype d ON d.producttypeid=s.producttypeid
+		<dynamic>
+			WHERE
+			<if name="itemid" test="notEmpty">i.itemid=:itemid</if>
+			<if name="itemname" test="notEmpty"><![CDATA[ AND i.itemname LIKE CONCAT('%',:itemname,'%') ]]></if>
+			<if name="sessionsname" test="notEmpty"><![CDATA[ AND s.sessionsname LIKE CONCAT('%',:sessionsname,'%') ]]></if>
+			<if name="producttypeid" test="notEmpty"><![CDATA[ AND s.producttypeid LIKE CONCAT('%',:producttypeid,'%') ]]></if>
+			<if name="bgtime" test="notEmpty"><![CDATA[AND DATE_FORMAT(s.playtime,'%Y-%m-%d') >=:bgtime]]></if>
+			<if name="endtime" test="notEmpty"><![CDATA[AND DATE_FORMAT(s.playtime,'%Y-%m-%d') <=:endtime]]></if>
+		</dynamic>
+		<dynamic>
+			<if>ORDER BY s.playtime DESC</if>
+		</dynamic>
+	</sql>
+
+	<!-- 查询分区list -->
+	<sql id="queryZoneList">
+		SELECT
+		z.sessnzoneid zoneid,
+		z.zonename zonename,
+		z.rownum,
+		z.colnum,
+		z.text,
+		z.color
+		FROM
+		pt_sessnzone z
+		<dynamic>
+			WHERE
+			<if name="sessionsid" test="notEmpty">z.sessionsid =:sessionsid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 查询座位List -->
+	<sql id="queryPewList">
+		SELECT
+		p.pewid,
+		p.zoneid,
+		z.zonename,
+		p.pewname,
+		p. ROW,
+		p.col,
+		CASE
+		p.isaddpew
+		WHEN '1' THEN
+		'是'
+		WHEN '2' THEN
+		'否'
+		END isaddpew,
+		l.pricelevelid,
+		l.pricelevelname,
+		p.price,
+		p.reserveid,
+		r.reservename,
+		CASE p.ispresell
+		WHEN '1' THEN
+		'是'
+		WHEN '2' THEN
+		'否'
+		END ispresell,
+		CASE
+		p.issale
+		WHEN '1'
+		THEN
+		'是'
+		WHEN '2' THEN
+		'否'
+		END issale,
+		CASE p.iscancel
+		WHEN
+		'1' THEN
+		'是'
+		WHEN
+		'2' THEN
+		'否'
+		END iscancel,
+		CASE p.pewstatus
+		WHEN '1' THEN
+		'可售'
+		WHEN '2' THEN
+		'不可售'
+		WHEN '3' THEN '已售'
+		END pewstatus
+		FROM
+		pt_sessnpew p
+		LEFT JOIN
+		pt_sessnzone z ON p.zoneid = z.sessnzoneid
+		LEFT JOIN
+		pt_ticketprice l
+		ON
+		l.pricelevelid = p.pricelevelid
+		AND
+		l.sessionsid=p.sessionsid
+		LEFT JOIN pt_reserve r ON
+		r.reserveid=p.reserveid
+		<dynamic>
+			WHERE
+			<if name="sessionsid" test="notEmpty">p.sessionsid=:sessionsid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 票价等级List -->
+	<sql id="queryPriceList">
+		SELECT DISTINCT
+		l.pricelevelid,
+		l.pricelevelname,
+		l.color,
+		IFNULL(p.price
+		,0) price,
+		l.mark,
+		count(DISTINCT p.pewid) pewnum,
+		IFNULL(SUM(p.price),0) pewprice
+		FROM
+		pt_ticketprice l
+		LEFT JOIN
+		pt_sessnpew p ON p.pricelevelid = l.pricelevelid
+		AND
+		p.sessionsid=l.sessionsid
+		<dynamic>
+			WHERE
+			<if name="sessionsid" test="notEmpty">AND p.sessionsid=:sessionsid</if>
+		</dynamic>
+		<dynamic>
+			GROUP BY l.pricelevelid,
+			l.pricelevelname,
+			l.color,
+			p.price ,
+			l.mark
+			ORDER BY L.pricelevelname
+		</dynamic>
+	</sql>
+
+	<!-- 查询预留种类 -->
+	<sql id="queryReserverList">
+		SELECT r.reserveid,r.reservename,
+		CASE
+		r.isreserve
+		WHEN '1'
+		THEN
+		'是'
+		WHEN '2' THEN
+		'否'
+		END ispresell,
+		CASE
+		r.issale
+		WHEN '1' THEN
+		'是'
+		WHEN
+		'2' THEN
+		'否'
+		END issale,
+		CASE
+		r.iscancel
+		WHEN '1' THEN
+		'是'
+		WHEN '2' THEN
+		'否'
+		END iscancel
+		FROM pt_reserve r
+	</sql>
+
+	<!-- 查询套票政策 -->
+	<sql id="querySetpolicyList">
+		SELECT
+		t.setpolicyid,
+		t.policyname,
+		t.numb,
+		t.totalprice,
+		CASE t.setshow
+		WHEN '1' THEN
+		'是'
+		WHEN '2' THEN
+		'否'
+		END setshow,
+		t.charshow,
+		DATE_FORMAT(
+		t.begintime,
+		'%Y-%m-%d %h:%i:%s'
+		) begintime,
+		DATE_FORMAT(
+		t.endtime,
+		'%Y-%m-%d %h:%i:%s'
+		) endtime
+		FROM
+		pt_setpolicy t
+		<dynamic>
+			WHERE
+			<if name="sessionsid" test="notEmpty">t.sessionsid=:sessionsid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 根据套票或优惠政策查询票价，票价等级名称，和套票价格或优惠票价 -->
+	<sql id="querySetpolicyPj">
+		SELECT
+		distinct t.pricelevelid,
+		t.oldprice,
+		t.price,
+		p.pricelevelname
+		FROM
+		PT_SETPOLICY_DETAIL t,
+		pt_ticketprice p
+		<dynamic>
+			WHERE t.pricelevelid = p.pricelevelid
+			<if name="policyid" test="notEmpty">AND t.policyid = :policyid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 查询优惠政策 -->
+	<sql id="queryPrefpolicyList">
+		SELECT
+		t.prefpolicyid,
+		t.policyname,
+		t.prefprice,
+		t.agio,
+		t.charshow,
+		CASE
+		t.origshow
+		WHEN '1' THEN
+		'是'
+		WHEN '2' THEN
+		'否'
+		END origshow,
+		CASE t.agioshow
+		WHEN '1' THEN
+		'是'
+		WHEN '2' THEN
+		'否'
+		END agioshow,
+		DATE_FORMAT(
+		t.begintime,
+		'%Y-%m-%d %h:%i:%s'
+		) begintime,
+			DATE_FORMAT(
+		t.endtime,
+		'%Y-%m-%d %h:%i:%s'
+		) endtime,
+		t.numb
+		FROM
+		pt_prefpolicy t
+		<dynamic>
+			WHERE
+			<if name="sessionsid" test="notEmpty">t.sessionsid=:sessionsid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 查询场次可用金额 -->
+	<sql id="querySessionKyjj">
+		SELECT IFNULL(t.quata,0) sessionstotal FROM PT_SESSIONSQUOTA t
+		<dynamic>
+			WHERE
+			<if name="sessionsid" test="notEmpty">t.sessionsid=:sessionsid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 查询销售机构的可用金额 -->
+	<sql id="queryXsjgKyjj">
+		SELECT IFNULL(SUM(a.quota),0) payboxtotal
+		FROM PT_PAYBOXQUOTA a
+		<dynamic>
+			WHERE
+			<if name="sessionsid" test="notEmpty">A.sessionsid=:sessionsid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 查询 -->
+	<sql id="queryZwpjdj">
+		SELECT t.pricelevelid,count(1) sl
+		FROM pt_sessnpew t
+		<dynamic>
+			WHERE
+			<if name="pewids" test="notEmpty">t.pewid IN(:pewids)</if>
+			<if>GROUP BY t.pricelevelid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 根据票价等级查询座位 -->
+	<sql id="queryZwidpjdj">
+		SELECT
+		GROUP_CONCAT(t.pewid) pewids
+		FROM
+		pt_sessnpew t
+		<dynamic>
+			WHERE
+			<if name="pricelevelid" test="notEmpty">t.pricelevelid =:pricelevelid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 查询座位的座位Id,名称，价格，及优惠价格 -->
+	<sql id="queryZwyhjg">
+		SELECT t.pewid,t.pewname,t.price,t.pricelevelid FROM pt_sessnpew t
+		<dynamic>
+			WHERE
+			<if name="pewids" test="notEmpty">t.pewid IN(:pewids)</if>
+		</dynamic>
+	</sql>
+</sqls>

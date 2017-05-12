@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com" namespace="common">
+	
+	<!-- 行政区划树 -->	
+	<sql id="queryAreaTree">
+		select t.xzqhid id,t.xzqhmc name,t.sjxzqhid pId from pt_xzqh t where t.xzqhid IN (xzqhid, queryChildrenAreaInfo('ROOT'));
+	</sql>
+	
+	<!-- 字典缓存：取所有字典分类  -->
+	<sql id="selectDictType">
+	  SELECT DISTINCT dicttypeid typeId FROM pt_dicttype WHERE status='1'
+	</sql>
+	
+	<!-- 字典缓存：取分类下的字典值  -->
+	<sql id="selectDictByType">
+	  SELECT dictid dmId,dvalue dmz,pxh,dicttypeid flid FROM pt_dict WHERE status='1'
+	  <dynamic>
+	    <if name="flid">AND dicttypeid in(:flid) ORDER BY dicttypeid,pxh</if>
+	  </dynamic>
+	</sql>
+	
+	<!-- 查询资讯代码 -->
+	<sql id="queryZxdm">
+		SELECT t.zxid,t.zxlxdm,t.dm,t.dmz FROM pt_zxdm t
+		<dynamic>
+			WHERE
+			<if name="zxlxdm" test="notEmpty">and t.zxlxdm =:zxlxdm</if>
+		</dynamic>
+	</sql>
+	
+	<!-- 查询数据字典 -->
+	<sql id="querySjzd">
+	select t.dmid,t.dmz from PT_DMB t
+	<dynamic>
+	 where 
+	 <if name="dmflid"> t.dmflid IN(:dmflid)</if>
+	</dynamic>
+	</sql>
+	
+	<!-- 查询推送信息的内容模板 -->
+	<sql id="selectNote">
+		SELECT setkey,setvalue FROM pt_set where keytype='note'
+	</sql>
+
+</sqls>

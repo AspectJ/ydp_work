@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rules>
+
+	<!-- 配置说明： 
+		rowRule：导入、导出时解析excel的规则对象，一个rowRule就是一个对象
+		ruleId：规则id，此ID必须唯一
+		templateFile：模板文件
+		insertSqlId：导入时，插入操作的sql语句id，解析好的数据将通过此sql来进行数据库插入操作 
+		pkStrategy：主键生成策略，0：不生成   1：生成10位ID,IdUtil.createNineId  2: 生成20位ID,IdUtil.createNinetyId 默认使用0(不生成主键)
+		selectSqlId：导出时，查询操作的sql语句id，在导出excel的时候将通过此sql来进行数据查询，并将查询结果导出到excel 
+		startRowNum：excel表格解析开始行，根据此规则，excel将从此行开始解析（最小索引从0开始），可不配置，不配置默认取第一行
+		maxSqlIndex：insert语句要插入的最大列数
+		pkFiledIndex：主键所在列的索引位置，默认的解析实现将为这个索引为添加UUID 
+		columRule：列规则对象
+		columnName：列名称，可不配置
+		columnNum：列索引（从0开始） 
+		notEmpty：是否强制不为空（true:不能为空，false：允许为空），可不配置，不配置默认为false 
+		type：列类型，可不配置，不配置默认为java.lang.String类型，类型包括： java.lang.String、java.util.Date、java.sql.Date、java.math.BigDecimal、java.lang.Integer、java.lang.Long、java.lang.Short、short、int、java.lang.Double、double、java.lang.Float、float、java.lang.Boolean、boolean、java.lang.Character、char
+		sqlFieldIndex：导入\导出时，取该索引位置(rs)的数据项填充excel的该列，可不配，默认取值与columnNum相同
+	-->
+	
+ 	<rowRule ruleId="importCbsId" templateFile="cbsModel.xls" pkStrategy="0" insertSqlId="ecbs.insertEcbs" startRowNum="3" maxSqlIndex="5" pkFiledIndex="1">
+		<columRule columnNum="0" type="java.lang.String" sqlFieldIndex="2"/> <!-- 代码-->
+		<columRule columnNum="1" type="java.lang.String" sqlFieldIndex="3"/><!-- 名称-->
+		<columRule columnNum="2" type="java.lang.String" sqlFieldIndex="4"/><!-- 行政区划-->
+		<columRule columnNum="3" type="java.lang.String" sqlFieldIndex="5"/><!-- 状态-->
+	</rowRule>	
+	
+</rules>

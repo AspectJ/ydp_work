@@ -1,0 +1,207 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+<head>
+<title>演出厅</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<script src="js/page/hall/indexHall.js" type="text/javascript"></script>
+<style type="text/css">
+
+</style>
+</head>
+
+<body>
+    <div class=" f14 pt15 pb15 pl15 bgblue b_blue">
+		<table width="80%">
+			<tr>
+				<td class="pl10 pr10 t_r">演出厅名称：</td>
+				<td class="pb10"><input id="hallname" type="text" class="v_m txt" /></td>
+				<td class="pl10 pr10 t_r">状态：</td>
+				<td class="pb10"><div id="status" class="dropdownlist"></div></td>
+				<td>
+				    <span class="dnb v_m btn">
+				        <input id="hall_query" type="button" value="查询" class="f14 blue c_p btnbg1 btn1" />
+				    </span>
+				    <span class="dnb v_m btn">
+				        <input id="hall_add" type="button" value="新增" class="f14 blue c_p btnbg2" />
+				    </span>
+				</td>
+			</tr>
+		</table>
+	</div>
+	
+	<div class="pt10 pb10 pl10 pr10">
+	  <div class=" f14 t_c">
+		  <table id="hall_grid" width="100%"></table>
+		  <div id="hall_pager"></div>
+	  </div>
+    </div>
+    
+    <!-- 新增/修改弹出层 -->
+	<div id="addhall_div" class="zhezhao" style="display:none;">
+		<div class="pt10 pb10 pl10 pr10 bb">
+			<div class="pt15">
+				<table width="100%">
+					<tr>
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 演出厅名称：</td>
+						<td class="pb10">
+							<input id="addhallid" maxlength="20" type="hidden" class="I_txt v_m bod w140" />
+							<input id="addhallname" maxlength="80" type="text" class="I_txt v_m bod w140" />
+						</td>
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 场馆名称：</td>
+						<td class="pb10">
+						<div id="cgmc" class="dropdownlist d_ib" style="float:left;"></div>
+						</td>
+					</tr>
+					<tr>
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 位置：</td>
+						<td class="pb10">
+							<input id="addlocation" maxlength="80" type="text"  style="width:300px;" class="I_txt v_m bod w140" />
+						</td>						
+					</tr>
+					<tr>
+						<td class="pb10 pr10 t_r">介绍：</td>
+						<td class="pb10">
+							<textarea  cols="40" rows="4" id="addintroduction" />
+						</td>						
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div class="t_c pt15 pb15">
+			<input id="addhall_save" type="button" value="保存" class="vote v_m c_p c_f f14" /> 
+			<input id="addhall_close" type="button" value="取消" class="vote vote01 v_m c_p blue f14" />
+		</div>
+	</div>
+	
+	
+	<!-- 添加分区 -->
+	<div id="addhall_fq_div" class="zhezhao" style="display:none;">
+	    <div class=" f14 pt15 pb15 pl15 bgblue b_blue">
+		<table width="80%">
+			<tr>
+				<td class="pl10 pr10 t_r">分区名称：</td>
+				<td class="pb10"><input id="zonename" type="text" class="v_m txt" /></td>				
+				<td>
+				    <span class="dnb v_m btn">
+				        <input id="hall_query" type="button" value="查询" class="f14 blue c_p btnbg1 btn1" />
+				    </span>
+				    <span class="dnb v_m btn">
+				        <input id="hall_add" type="button" value="新增" class="f14 blue c_p btnbg1 btn2" />
+				    </span>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="pt10 pb10 pl10 pr10">
+		<div class=" f14 t_c">
+		     <table id="hall_zone_grid" width="100%"></table>
+			 <div id="hall_zone_pager"></div>
+	     </div>
+	   </div>
+	 </div>
+	 
+	<!-- 添加座位 -->
+	<div id="addhall_zw_div" class="zhezhao" style="display:none;">
+	    <div class=" f14 pt15 pb15 pl15 bgblue b_blue">
+		<table width="80%">
+			<tr>
+				<td class="pl10 pr10 t_r">座位名称：</td>
+				<td class="pb10"><input id="pewname" type="text" class="v_m txt" /></td>				
+				<td>
+				    <span class="dnb v_m btn">
+				        <input id="pewname_query" type="button" value="查询" class="f14 blue c_p btnbg1 btn1" />
+				    </span>
+				    <span class="dnb v_m btn">
+				        <input id="pewname_add" type="button" value="新增" class="f14 blue c_p btnbg1 btn2" />
+				    </span>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="pt10 pb10 pl10 pr10">
+		<div class=" f14 t_c">
+		     <table id="hall_pewname_grid" width="100%"></table>
+			 <div id="hall_pewname_pager"></div>
+	     </div>
+	   </div>
+	 </div>
+	 
+	 
+	<!-- 新增分区的弹出层-->
+	<div id="addhall_zone_div" class="zhezhao" style="display:none;">
+		<div class="pt10 pb10 pl10 pr10 bb">
+			<div class="pt15">
+				<table width="100%">
+					<tr>
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 分区名称：</td>
+						<td class="pb10">
+							<input id="zonename" maxlength="80" type="text" class="I_txt v_m bod w140" />
+						</td>
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 分区规则：</td>
+						<td class="pb10">
+						<input id="rule" maxlength="80" type="text" class="I_txt v_m bod w140" />
+						</td>
+					</tr>
+					<tr>
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 分区文字：</td>
+						<td class="pb10">
+							<input id="text" maxlength="80" type="text"  style="width:300px;" class="I_txt v_m bod w140" />
+						</td>						
+					</tr>
+					<tr>
+						<td class="pb10 pr10 t_r">分区描述：</td>
+						<td class="pb10">
+							<textarea  cols="40" rows="4" id="des" />
+						</td>						
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div class="t_c pt15 pb15">
+			<input id="addhall_zone_save" type="button" value="保存" class="vote v_m c_p c_f f14" /> 
+			<input id="addhall_zone_close" type="button" value="取消" class="vote vote01 v_m c_p blue f14" />
+		</div>
+	</div>
+	
+	
+	<!-- 新增座位的弹出层-->
+	<div id="addhall_pew_div" class="zhezhao" style="display:none;">
+		<div class="pt10 pb10 pl10 pr10 bb">
+			<div class="pt15">
+				<table width="100%">
+					<tr>
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 座位名：</td>
+						<td class="pb10">
+							<input id="pewname" maxlength="80" type="text" class="I_txt v_m bod w140" />
+						</td>
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 排号：</td>
+						<td class="pb10">
+						<input id="row" maxlength="80" type="text" class="I_txt v_m bod w140" />
+						</td>
+					</tr>
+					<tr>
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 列号：</td>
+						<td class="pb10">
+							<input id="col" maxlength="80" type="text"  style="width:300px;" class="I_txt v_m bod w140" />
+						</td>
+						<td class="pb10 pr10 t_r"><span class="red">*</span>是否加座：</td>
+						<td class="pb10">
+							<div id="sfjz" class="dropdownlist"></div>
+						</td>						
+					</tr>
+					<tr>
+						<td class="pb10 pr10 t_r">备注：</td>
+						<td class="pb10">
+							<textarea  cols="40" rows="4" id="remark" />
+						</td>						
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div class="t_c pt15 pb15">
+			<input id="addhall_pew_save" type="button" value="保存" class="vote v_m c_p c_f f14" /> 
+			<input id="addhall_pew_close" type="button" value="取消" class="vote vote01 v_m c_p blue f14" />
+		</div>
+	</div>
+</body>
+</html>

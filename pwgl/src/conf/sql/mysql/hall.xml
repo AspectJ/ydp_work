@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls namespace="hall">
+	<!--查询 -->
+	<sql id="selectHall">
+		SELECT
+	    t.hallid,
+	    t.hallname,
+	    t.venueid,
+	    t.location,
+	    t.introduction,
+	    t. STATUS status,
+        p.venuename
+        FROM
+	    pt_hall t
+        LEFT JOIN PT_VENUE p ON p.venueid=t.venueid
+		<dynamic>
+			WHERE
+			<if name="status" test="notEmpty">and t.status = :status</if>
+			<!-- 根据名称模糊查询 -->
+			<if name="hallname" test="notEmpty">and <![CDATA[ t.hallname like CONCAT('%',:hallname,'%') ]]></if>
+		</dynamic>
+	</sql>
+	
+	<!-- 查询分区名称 -->
+	<sql id="queryHallZone">
+	 SELECT 
+	 z.zoneid,
+	 z.hallid,
+	 z.zonename,
+	 z.pewpic,
+	 z.rule,
+	 z.height,
+	 z.width,
+	 z.rownum,
+	 z.colnum,
+	 z.x,
+	 z.y,
+	 z.text,
+	 z.color,
+	 z.tpurl,
+	 z.zonetype,
+	 z.des,
+	 z.remark,
+	 z.status
+	 FROM pt_hall_zone z	
+	 <dynamic>
+			WHERE
+			<!-- 根据名称模糊查询 -->
+			<if name="zonename" test="notEmpty">and <![CDATA[ z.zonename like CONCAT('%',:zonename,'%') ]]></if>
+			<if name="hallid" test="notEmpty">and <![CDATA[ z.hallid like CONCAT('%',:hallid,'%') ]]></if>
+		</dynamic>
+	</sql>
+	
+	<!-- 查询演出厅座位 -->
+	<sql id="queryYctzw">
+	SELECT pew.pewid,
+	pew.hallid,
+	pew.zoneid,
+	pew.pewname,
+	pew.row,
+	pew.col,
+	pew.isaddpew,
+	pew.remark,
+	pew.status 
+	FROM pt_hall_pew pew
+	<dynamic>
+	  WHERE
+	  <if name="hallid" test="notEmpty">pew.hallid=:hallid</if>
+	  <if name="zoneid" test="notEmpty">AND pew.zoneid=:zoneid</if>
+	  <if name="pewname" test="notEmpty">AND <![CDATA[ pew.pewname like CONCAT('%',:pewname,'%') ]]></if>
+	</dynamic>
+	
+	</sql>
+	
+	<!-- 查询场次名称 -->
+	<sql id="queryCgmc">
+	   SELECT t.venueid,t.venuename FROM  PT_VENUE T 
+	</sql>
+	
+	<!--新增 -->
+	<sql id="insertHall">
+		INSERT INTO pt_hall(hallid ,hallname ,venueid ,location ,introduction ,status ,delstatus ,vid ,cid ,ctime ,mid ,mtime )
+		VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
+	</sql>	
+	
+	<!-- 新增座位 -->
+	<sql id="insertHallPew">
+	 INSERT INTO pt_hall_pew(pewid,
+	 hallid,
+	 zoneid,
+	 pewname,
+	 row,
+	 col,
+	 isaddpew,
+	 remark,
+	 status,
+	 delstatus,
+	 vid,
+	 cid,
+	 ctime,
+	 mid,
+	 mtime)VALUES(?,?,?,?,?,
+	 ?,?,?,?,?,
+	 ?,?,?,?,?)
+	</sql>
+		
+	<!-- 新增分区 -->
+	<sql id="insertHallZone">
+	 INSERT INTO pt_hall_zone(zoneid,hallid,zonename,pewpic,rule,
+	 height,width,rownum,colnum,x,
+	 y,text,color,tpurl,zonetype,
+	 des,remark,status,delstatus,vid,
+	 cid,ctime,mid,mtime)VALUES(?,?,?,?,?,
+	 ?,?,?,?,?,
+	 ?,?,?,?,?,
+	 ?,?,?,?,?,
+	 ?,?,?,?)
+	</sql>
+	
+	<!--更新 -->
+	<sql id="updateHallZone">
+		UPDATE pt_hall_zone SET
+		<dynamic>
+		<if name="zonename" test="notEmpty">zonename = :zonename </if>
+		<if name="rule" test="notEmpty">,rule = :rule </if>
+		<if name="des" test="notEmpty">,des = :des </if>
+		<if name="text" test="notEmpty">,text = :text </if>
+		<if name="cid" test="notEmpty">,cid = :cid </if>
+		<if name="ctime" test="notEmpty">,ctime = :ctime </if>
+		<if name="mid" test="notEmpty">,mid = :mid </if>
+		<if name="mtime" test="notEmpty">,mtime = :mtime </if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="zoneid">zoneid = :zoneid</if>
+		</dynamic>
+	</sql>
+	
+    <!--修改座位 -->
+	<sql id="updateHallPrev">
+		UPDATE pt_hall_pew SET
+		<dynamic>
+		<if name="pewname" test="notEmpty">pewname = :pewname </if>
+		<if name="row" test="notEmpty">,row = :row </if>
+		<if name="col" test="notEmpty">,col = :col </if>
+		<if name="isaddpew" test="notEmpty">,isaddpew = :isaddpew </if>
+		<if name="remark" test="notEmpty">,remark = :remark </if>
+		<if name="cid" test="notEmpty">,cid = :cid </if>
+		<if name="ctime" test="notEmpty">,ctime = :ctime </if>
+		<if name="mid" test="notEmpty">,mid = :mid </if>
+		<if name="mtime" test="notEmpty">,mtime = :mtime </if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="pewid">pewid = :pewid</if>
+		</dynamic>
+	</sql>
+	
+	<!--删除 -->
+	<sql id="deleteHallPrev">
+		DELETE FROM pt_hall_pew
+		<dynamic>
+			WHERE
+			<if name="pewid">pewid = :pewid</if>
+		</dynamic>
+	</sql>
+	
+	<!--删除 -->
+	<sql id="deleteHallZone">
+		DELETE FROM pt_hall_zone
+		<dynamic>
+			WHERE
+			<if name="zoneid">zoneid = :zoneid</if>
+		</dynamic>
+	</sql>
+	
+	<!-- 禁用启用 -->
+	<sql id="updatePrevStatus">
+		UPDATE pt_hall_pew
+		<dynamic>
+			SET
+			<if name="status">
+				status = :status
+			</if>
+			<if name="mid">
+				,mid = :mid
+			</if>
+			<if name="mtime">
+				,mtime = :mtime
+			</if>
+			<if name="pewid">
+				WHERE pewid = :pewid
+			</if>
+		</dynamic>
+	</sql>
+	
+	<!-- 禁用启用 -->
+	<sql id="updateZoneStatus">
+		UPDATE pt_hall_zone
+		<dynamic>
+			SET
+			<if name="status">
+				status = :status
+			</if>
+			<if name="mid">
+				,mid = :mid
+			</if>
+			<if name="mtime">
+				,mtime = :mtime
+			</if>
+			<if name="zoneid">
+				WHERE zoneid = :zoneid
+			</if>
+		</dynamic>
+	</sql>
+	
+	<!--更新 -->
+	<sql id="updateHall">
+		UPDATE pt_hall SET
+		<dynamic>
+		<if name="hallname" test="notEmpty">hallname = :hallname </if>
+		<if name="venueid" test="notEmpty">,venueid = :venueid </if>
+		<if name="location" test="notEmpty">,location = :location </if>
+		<if name="introduction" test="notEmpty">,introduction = :introduction </if>
+		<if name="status" test="notEmpty">,status = :status </if>
+		<if name="delstatus" test="notEmpty">,delstatus = :delstatus </if>
+		<if name="vid" test="notEmpty">,vid = :vid </if>
+		<if name="cid" test="notEmpty">,cid = :cid </if>
+		<if name="ctime" test="notEmpty">,ctime = :ctime </if>
+		<if name="mid" test="notEmpty">,mid = :mid </if>
+		<if name="mtime" test="notEmpty">,mtime = :mtime </if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="hallid">hallid = :hallid</if>
+		</dynamic>
+	</sql>
+	
+	<!-- 禁用启用 -->
+	<sql id="updateStatus">
+		UPDATE pt_hall
+		<dynamic>
+			SET
+			<if name="status">
+				status = :status
+			</if>
+			<if name="mid">
+				,mid = :mid
+			</if>
+			<if name="mtime">
+				,mtime = :mtime
+			</if>
+			<if name="hallid">
+				WHERE hallid = :hallid
+			</if>
+		</dynamic>
+	</sql>
+	
+	<!--删除 -->
+	<sql id="deleteHall">
+		DELETE FROM pt_hall
+		<dynamic>
+			WHERE
+			<if name="hallid">hallid = :hallid</if>
+		</dynamic>
+	</sql>
+</sqls>

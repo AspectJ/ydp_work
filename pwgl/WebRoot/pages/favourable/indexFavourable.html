@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>优惠政策</title>	
+    <meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+    <meta http-equiv="description" content="this is my page">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <script src="js/page/favourable/indexFavourable.js" type="text/javascript"></script>
+    <style>
+    .w100{
+     width:180px;
+    }
+    </style>
+  </head>  
+ <body class="ff">
+     <input  type="hidden" id="playtime_hidden_id"/>
+     <div class="pr30 pt10 pb10">
+          <div class="bgf mt17 f14" id="indexSession_two_steep_div" >
+               <h3 class="f18 f_b green ">优惠政策</h3>
+               <div class="clearfix">
+                   <span style="padding-left:5px;">场次编号：</span><span class=""  id="indexSession_two_ccbh" style="margin-right: 10px; color: red;"> </span>
+                   	<span style="margin-left: 10px;">场次名称：</span><span class="" id="indexSession_two_ccmc_txt" style="color: red;"></span>
+                   	<div></div>
+                    </br>
+                   	<span class="pr5">优惠政策名称</span> <input type="text" id="name"
+							class="bod bgcolor txt" /> 	
+                   <input type="button" id="indexFavourable_query_btn" value="查询" class="ff c_f c_p btn-green bod_r f14 ml30" /> 
+				   <input type="button"	id="indexFavourable_add_btn" value="新增"	class="ff c_f c_p btn-green btn-green-add bod_r f14 ml30" />
+               </div>
+                
+                <div class="bod mt17 t_c table">
+                     <table id="indexSetPllicy_yhzc_grid" width="100%"></table>
+					 <div id="indexSetPllicy_yhzc_pager"></div>
+                </div>
+               
+               <div class="t_c pb20 pt20"><input type="button" value="下一步" id="indexSession_second_next_btn" class="ff c_f f20 c_p bggreen pl30 pr30 pt10 pb10 bod" /> </div>
+          </div>
+     </div>
+
+<!-- 修改-->
+<div class="contion"  id="indexFavourable_upate_div" style="display:none;">
+     <div class="pl30 pr30 pt10 pb10">
+          <div class="bgf mt17 pt30 pb30 pl30 pr30 f14">
+                <div class=" f_b pb30">
+                     <table width="100%">
+                           <tr>
+                               <td class=" t_r pr5"><span style="color:red;">*</span>优惠政策名称</td>
+                               <td><input type="text" class="bod bgcolor txt"  id="indexFavourable_update_yhzcmc"/></td>                               
+                           </tr>
+                           <tr>
+                               <td class="pt15 t_r pr5"><span style="color:red;">*</span>数量</td>
+                               <td class="pt15"><input type="text" class="bod bgcolor txt w100" id="indexFavourable_sl" /></td>                               
+                           </tr>
+                           <tr>
+                               <td class="pt15 t_r pr5"><span style="color:red;">*</span>政策开始时间</td>
+                               <td class="pt15">
+                               <input type="text" style="with:150px;" class="bod bgcolor txt w100 data v_m" id="indexFavourable_update_kssj"  />
+                               <span class="v_m ml30 pr10"><span style="color:red;">*</span>政策结束时间</span>
+                               <input type="text"  style="with:150px;" class="bod bgcolor txt w100 data v_m"  id="indexFavourable_update_jssj"   />
+                               </td>
+                           </tr>
+                           <tr>
+                               <td class="pt15 t_r pr5">票面标记</td>
+                               <td class="pt15"><input type="text" class="bod bgcolor txt" id="indexFavourable_update_bj" /> 
+                           </tr>                          
+                     </table>
+
+                </div>         
+               <p class="f16 pt30 pb30 red">*优惠政策明细</p>
+               <div class="tab-title f_b"><span class="c_p dnb bod on">优惠政策明细</span></div>                
+               <div class="tab-box">
+                    <table id="indexFavourable_yhzc_grid" width="100%"></table>
+					<div id="indexFavourable_yhzc_pager"></div>
+               </div>               
+               <div class="t_c pt30 pb30"><input type="button" id="indexFavourable_update_ok_btn" value="保存" class="ff c_f f20 c_p bggreen pl30 pr30 pt10 pb10 bod" />
+               <input type="button"  id="indexFavourable_update_cancel_btn" value="取消" class="ff c_9 f20 c_p bgcolor pl30 pr30 pt10 pb10 bod ml30" />
+               </div>
+          </div>
+     </div>
+</div>
+
+<!-- 添加 -->
+<div class="contion"  id="indexFavourable_div" style="display:none;">
+     <div class="pl30 pr30 pt10 pb10">
+          <div class="bgf mt17 pt30 pb30 pl30 pr30 f14">
+                <div class=" f_b pb30">
+                     <table width="100%">
+                           <tr>
+                               <td class=" t_r pr5"><span style="color:red;">*</span>优惠政策名称</td>
+                               <td><input type="text" class="bod bgcolor txt"  id="indexFavourable_yhzcmc"/></td>                               
+                           </tr>
+                           <!-- 
+                           <tr>
+                               <td class="pt15 t_r pr5"><span style="color:red;">*</span>折扣比例</td>
+                               <td class="pt15"><input type="text" class="bod bgcolor txt w100" id="indexFavourable_zkbl" /></td>                               
+                           </tr> -->
+                           <tr>
+                               <td class="pt15 t_r pr5"><span style="color:red;">*</span>数量</td>
+                               <td class="pt15"><input type="text" class="bod bgcolor txt w100" id="indexFavourable_sl" /></td>                               
+                           </tr>
+                           <tr>
+                               <td class="pt15 t_r pr5"><span style="color:red;">*</span>政策开始时间</td>
+                               <td class="pt15">
+                               <input type="text" style="with:150px;" class="bod bgcolor txt w100 data v_m" id="indexFavourable_kssj"  />
+                               <span class="v_m ml30 pr10"><span style="color:red;">*</span>政策结束时间</span>
+                               <input type="text"  style="with:150px;" class="bod bgcolor txt w100 data v_m"  id="indexFavourable_jssj"   />
+                               </td>
+                           </tr>
+                           <tr>
+                               <td class="pt15 t_r pr5">票面标记</td>
+                               <td class="pt15"><input type="text" class="bod bgcolor txt" id="indexFavourable_bj" /> 
+                           </tr>                          
+                     </table>
+
+                </div>         
+               <p class="f16 pt30 pb30 red">*制定优惠政策（只能同时制定一种优惠政策）</p>
+               <div class="tab-title f_b"><span class="c_p dnb bod on">优惠政策明细</span></div>
+               <div class="tab-box">              
+                     <table id="pjdj_grid" width="100%"></table>
+					<div id="pjdj_pager"></div>
+               </div> 
+               <div class="t_c pt30 pb30"><input type="button" id="indexFavourable_ok_btn" value="保存" class="ff c_f f20 c_p bggreen pl30 pr30 pt10 pb10 bod" />
+               <input type="button"  id="indexFavourable_cancel_btn" value="取消" class="ff c_9 f20 c_p bgcolor pl30 pr30 pt10 pb10 bod ml30" />
+               </div>
+          </div>
+     </div>
+</div>
+
+	 <!-- 修改套票政策明细 -->
+	<div id="indexFavourable_detail_update_div" class="zhezhao" style="display:none;">
+		<div class="pt10 pb10 pl10 pr10 bb">
+			<div class="pt15">
+				<table width="100%">
+				<tr>
+					    <td class="pb10 pr10 t_r">折扣比例：</td>
+						<td class="pb10" style="padding-bottom:10px;"><input id="indexFavourable_detail_zkbl" maxlength="80" type="text"  style="width:156px;" class="I_txt v_m bod w140" /></td>
+					</tr>
+					<tr>
+					    <td class="pb10 pr10 t_r"><span class="red">*</span> 数量：</td>
+						<td class="pb10" style="padding-bottom:10px;"><input id="indexFavourable_detail_sl" maxlength="80" type="text"  style="width:156px;" class="I_txt v_m bod w140" /></td>
+				</tr>
+					<tr>
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 票价等级：</td>
+						<td class="pb10" style="padding-bottom:10px;">
+                           <div id="indexFavourable_detail_pjdj" class="dropdownlist d_ib" style="float:left;">
+                           <input type="hidden" id="indexFavourable_detail_pjdj_name"/>
+                           </div>
+						</td>
+					</tr>
+			
+					<tr>
+					    <td class="pb10 pr10 t_r">总价格(元)：</td>
+						<td class="pb10" style="padding-bottom:10px;"><input id="indexFavourable_detail_jg" readonly="readonly"  type="text"  style="width:156px;" class="I_txt v_m bod w140" /></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div class="t_c pt15 pb15">
+			<input id="indexFavourable_detail_save_btn" type="button" value="保存" class="vote v_m c_p c_f f14" /> 
+			<input id="indexFavourable_detail_cancel_btn" type="button" value="取消" class="vote vote01 v_m c_p blue f14" />
+		</div>
+	</div>
+  </body>
+</html>

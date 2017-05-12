@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqls namespace="xzqh">
+	<!-- 查询省级行政区划 -->
+    <sql id="querySheng">
+        SELECT a.areaid xzqhid ,a.areaname  xzqhmc FROM pt_area a WHERE a.fareaid='360'
+    </sql>
+  
+    <!-- 查询市级行政区划 -->
+    <sql id="queryShi">
+        SELECT a.areaid xzqhid ,a.areaname  xzqhmc FROM pt_area a WHERE a.areaid!='360'
+        <dynamic>
+            <if name="sheng" test="">AND a.fareaid=:sheng</if>
+        </dynamic>
+    </sql>
+    
+    <!-- 查询县区级行政区划 -->
+    <sql id="queryXian">
+        SELECT a.areaid xzqhid ,a.areaname  xzqhmc FROM pt_area a WHERE a.areaid!='360'
+        <dynamic>
+            <if name="shi" test="">AND a.fareaid=:shi</if>
+        </dynamic>
+    </sql>
+</sqls>

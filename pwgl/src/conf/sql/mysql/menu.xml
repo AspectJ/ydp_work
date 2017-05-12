@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com" 
+	namespace="menu">
+	
+	<!-- 查询平台用户 -->	
+	<sql id="selectMenu">
+	  SELECT menuid,mname,alias,murl,pxh,CASE fmenuid WHEN '100' THEN null ELSE fmenuid END fmenuid,des,status,CASE fmenuid WHEN '100' THEN 0
+	  ELSE 1 END level,CASE fmenuid WHEN '100' THEN false ELSE true END isLeaf,true loaded,false expanded FROM pt_menu WHERE fmenuid != 'ROOT'
+	</sql>
+	
+	<!-- 新增 -->
+	<sql id="insertMenu">
+	  INSERT INTO pt_menu(menuid,mname,alias,murl,pxh,fmenuid,des,status,cid,ctime,mid,mtime) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
+	</sql>
+	
+	<!-- 修改 -->
+	<sql id="updateMenu">
+	  UPDATE pt_menu SET
+	  <dynamic>
+	    <if name="fmenuid" test="notNull">,fmenuid=:fmenuid</if>
+	    <if name="mname" test="notNull">,mname=:mname</if>
+	    <if name="alias" test="notNull">,alias=:alias</if>
+	    <if name="murl" test="notNull">,murl=:murl</if>
+	    <if name="pxh" test="notNull">,pxh=:pxh</if>
+	    <if name="des" test="notNull">,des=:des</if>
+	    <if name="mid" test="notNull">,mid=:mid</if>
+	    <if name="mtime" test="notNull">,mtime=:mtime</if>
+	  </dynamic>
+	  <dynamic>
+	    WHERE
+	    <if name="menuid">menuid=:menuid AND status='2'</if>
+	  </dynamic>
+	</sql>
+	
+	<!-- 修改状态 -->
+	<sql id="updateMenuStatus">
+	  UPDATE pt_menu SET
+	  <dynamic>
+	    <if name="status" test="notNull">,status=:status</if>
+	    <if name="mid" test="notNull">,mid=:mid</if>
+	    <if name="mtime" test="notNull">,mtime=:mtime</if>
+	  </dynamic>
+	  <dynamic>
+	    WHERE
+	    <if name="menuid">menuid=:menuid</if>
+	  </dynamic>
+	</sql>
+	
+	<!-- 查询菜单关联的角色 -->
+	<sql id="selectGljs">
+	  SELECT GROUP_CONCAT(r.rolename) FROM pt_role_menu rm LEFT JOIN pt_role r ON rm.roleid=r.roleid
+	  <dynamic>
+	    WHERE
+	    <if name="menuid">rm.menuid=:menuid</if>
+	  </dynamic>
+	</sql>
+	
+	<!-- 删除 -->
+	<sql id="deleteMenu">
+	  DELETE FROM pt_menu WHERE status='2'
+	  <dynamic>
+	    <if name="menuid">AND menuid=:menuid</if>
+	  </dynamic>
+	</sql>
+</sqls>

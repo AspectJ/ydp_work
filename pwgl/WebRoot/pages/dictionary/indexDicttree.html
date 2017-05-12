@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+<head>
+<title></title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<script src="js/page/dictionary/indexDicttree.js" type="text/javascript"></script>
+</head>
+
+<body>
+    <div class=" f14 pt15 pb15 pl15 bgblue b_blue">
+		<table width="80%">
+			<tr>
+				<td class="pl10 v_m">值：</td>
+				<td><input id="dvalue" type="text" class="v_m txt" /></td>
+				<td class=" pl10 v_m">代码分类：</td>
+				<td><input id="typename" type="text" class="v_m txt" /></td>
+				<td class=" pl10 v_m">状 态：</td>
+				<td><div id="status" class="dropdownlist"></div></td>
+				<td class=" pl10">
+				    <span class="dnb v_m btn"><input id="queryBtn" type="button" value="查询" class="f14 blue c_p btnbg1 btn1" /></span>
+				    <span class="dnb v_m btn"><input id="addBtn" type="button" value="新增" class="f14 blue c_p btnbg2" /></span>
+				</td>
+			</tr>
+		</table>
+	</div>
+	
+	<div class="pt10 pb10 pl10 pr10">
+		<div class=" f14 t_c">
+			<table id="dicttreeGrid" width="100%"></table>
+			<div id="dicttreePager"></div>
+		</div>
+	</div>
+	
+	<!-- 新增/修改弹出层 -->
+	<div id="addDiv" class="zhezhao" style="display:none;">
+		<div class="pt10 pb10 pl10 pr10 bb">
+			<div class="pt15">
+				<table width="100%">
+				    <tr>
+					    <td class="pb10 pr10 t_r"><span class="red">*</span> 父代码值：</td>
+						<td class="pb10">
+						    <div id="addFdvalue" class="dropdownlist"></div>
+						    <input id="addFdvalueInput" maxlength="20" type="text" class="I_txt v_m bod w140" disabled style="display:none"/>
+						</td>
+					    <td class="pb10 pr10 t_r"><span class="red">*</span> 代码分类：</td>
+						<td class="pb10">
+						    <input id="addTypenameInput" maxlength="20" type="text" class="I_txt v_m bod w140" disabled/>
+						    <div id="addTypenameSel" class="dropdownlist"></div>
+						</td>
+					</tr>
+					<tr>
+					    <td class="pb10 pr10 t_r"><span class="red">*</span> 代码ID：</td>
+						<td class="pb10"><input id="addTreeid" maxlength="20" type="text" class="I_txt v_m bod w140" /></td>
+					    <td class="pb10 pr10 t_r"><span class="red">*</span> 值：</td>
+						<td class="pb10"><input id="addDvalue" maxlength="20" type="text" class="I_txt v_m bod w140" /></td>
+					</tr>
+					<tr>
+					    <td class="pb10 pr10 t_r"><span class="red">*</span> 排序号：</td>
+						<td class="pb10"><input id="addPxh" maxlength="20" type="text" class="I_txt v_m bod w140" /></td>
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 说明：</td>
+						<td class="pb10"><input id="addDes" maxlength="20" type="text" class="I_txt v_m bod w140" /></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div class="t_c pt15 pb15">
+			<input id="saveBtn" type="button" value="保存" class="vote v_m c_p c_f f14" /> 
+			<input id="cancelBtn" type="button" value="取消" class="vote vote01 v_m c_p blue f14" />
+		</div>
+	</div>
+</body>
+</html>

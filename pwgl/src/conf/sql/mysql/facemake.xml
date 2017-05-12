@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls namespace="facemake">
+	<!--查询 -->
+	<sql id="selectFacemake">
+		SELECT t.ticketfaceid,t.ticketcode,t.ticketname,t.bgurl,t.height,t.width,u.realname cjr,DATE_FORMAT(t.ctime,'%Y-%m-%d %T') cjsj
+		,s.sessionsname,t.carbonlocation,t.carbonnum,t.carbonheight,te.content
+		FROM pt_ticketface t LEFT JOIN pt_user u ON t.cid=u.userid LEFT JOIN pt_sessions s ON t.sessionsid=s.sessionsid
+		LEFT JOIN pt_ticketelement te ON t.ticketfaceid=te.ticketfaceid
+		<dynamic>
+			<if name="sessionsid">WHERE t.sessionsid=:sessionsid</if>
+		</dynamic>
+	</sql>
+	
+	<sql id="selectSessions">
+		SELECT sessionsid,sessionsname FROM pt_sessions
+	</sql>
+	
+	<sql id="insertTicketface">
+		INSERT INTO pt_ticketface(ticketfaceid,sessionsid,ticketcode,ticketname,bgurl,carbonlocation,carbonnum,carbonheight,cid,ctime,mid,mtime)
+		VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
+	</sql>
+	
+	<sql id="insertTicketelement">
+		INSERT INTO pt_ticketelement(elementid,ticketfaceid,content,cid,ctime,mid,mtime) VALUES(?,?,?,?,?,?,?)
+	</sql>
+	
+	<sql id="selectDbfieled">
+		SELECT v.venuename cgmc,h.hallname yctmc,p.performername ycsmc,i.itemname xmmc,s.sessionscode ccbh,s.sessionsname ccmc
+		,s.engname ywmc,s.playtime sysj,s.length pc,s.sponsor zbf,s.dessponsor zdzbf,s.actualsponsor cbf,s.website wz 
+		FROM pt_sessions s LEFT JOIN pt_venue v ON s.venueid=v.venueid LEFT JOIN pt_hall h ON s.hallid=h.hallid
+    	LEFT JOIN pt_performer p ON s.performerid=p.performerid LEFT JOIN pt_item i ON s.itemid=i.itemid 
+    	<dynamic>
+    		<if name="sessionsid">WHERE s.sessionsid=:sessionsid</if>
+    	</dynamic>
+	</sql>
+	
+	<sql id="updateFacemake">
+		UPDATE pt_ticketface SET
+		<dynamic>
+			<if name="ticketname" test="notNull">,ticketname=:ticketname</if>
+			<if name="bgurl" test="notNull">,bgurl=:bgurl</if>
+			<if name="carbonlocation" test="notNull">,carbonlocation=:carbonlocation</if>
+			<if name="carbonnum" test="notNull">,carbonnum=:carbonnum</if>
+			<if name="carbonheight" test="notNull">,carbonheight=:carbonheight</if>
+			<if name="mid" test="notNull">,mid=:mid</if>
+			<if name="mtime" test="notNull">,mtime=:mtime</if>
+		</dynamic>
+		<dynamic>
+			<if name="ticketfaceid">WHERE ticketfaceid=:ticketfaceid</if>
+		</dynamic>
+	</sql>
+	
+	<sql id="updateTicketelement">
+		UPDATE pt_ticketelement SET content=?,mid=?,mtime=? WHERE ticketfaceid=?
+	</sql>
+</sqls>

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls namespace="sessnzone">
+	<sql id="querySessnzone">
+	  SELECT t.sessnzoneid,t.zonename,s.sessionsname,h.hallname,
+	  t.pewpic,t.rule,t.height,t.width,t.rownum,t.colnum,
+	  t.x,t.y,t.text,t.color,t.tpurl,t.zonetype,t.des,t.remark,t.sessionsid,t.addr FROM pt_sessnzone t
+	  LEFT JOIN pt_sessions s ON s.sessionsid=t.sessionsid
+	  LEFT JOIN pt_hall h ON h.hallid=t.hallid
+	  <dynamic>
+	    WHERE
+	    <if name="sessionsid" test="">t.sessionsid=:sessionsid</if>
+	    <if name="sessnzoneid" test="notEmpty">AND t.sessnzoneid=:sessnzoneid</if>
+	    
+	  </dynamic>
+	</sql>
+	
+	<!-- 新增 -->
+	<sql id="insertSessnzone">
+	 INSERT INTO pt_sessnzone(sessnzoneid,sessionsid,hallid,zonename,addr,pewpic,
+	 rule,height,width,rownum,colnum,
+	 x,y,text,color,tpurl,
+	 zonetype,des,remark,status,delstatus,
+	 vid,cid,ctime,mid,mtime)VALUES(?,?,?,?,?,
+	?,?,?,?,?,
+	?,?,?,?,?,
+	?,?,?,?,?,
+	?,?,?,?,?,?
+	)
+	</sql>
+	
+	<!-- 写入座位表 -->
+	<sql id="insertSessnpew">
+	  INSERT INTO pt_sessnpew(pewid,sessionsid,hallid,zoneid,pewname,
+	  row,col,isaddpew,pricelevelid,price,
+	  reserveid,ispresell,issale,iscancel,remark,
+	  pewstatus,status,delstatus,vid,cid,
+	  ctime,mid,mtime,pxh)VALUES(?,?,?,?,?,
+	  ?,?,?,?,?,
+	  ?,?,?,?,?,
+	  ?,?,?,?,?,
+	  ?,?,?,?)
+	</sql>
+	
+	<!-- 查询场次 -->
+	<sql id="queryCcmc">
+	  SELECT t.sessionsid,t.sessionsname FROM pt_sessions t
+	</sql>
+	
+	<!-- 查询演出厅 -->
+	<sql id="queryYct">
+		SELECT
+		t.hallid,
+		t.hallname
+	    FROM
+		pt_hall t
+	    WHERE
+		t.hallid IN (
+			SELECT
+				s.hallid
+			FROM
+				pt_sessions s
+			WHERE
+			<dynamic>
+			  <if name="sessionsid">s.sessionsid=:sessionsid)</if>
+			</dynamic>
+	</sql>
+	
+	<!-- 根据分区查询座位 -->
+	<sql id="queryZw">
+	  SELECT * FROM pt_sessnpew w
+	  <dynamic>
+	     WHERE
+	    <if name="zoneid" test="notEmpty">w.zoneid=:zoneid</if>
+	  </dynamic>
+	</sql>
+	
+	<!-- 查询汇总数据 -->
+	<sql id="queryHz">
+	SELECT
+	SUM(t.price) sumprice,
+	COUNT(1) num,
+	p.pricelevelname
+    FROM
+	pt_sessnpew t
+    LEFT JOIN pt_pricelevel p ON p.pricelevelid = t.pricelevelid   
+     <dynamic>
+       WHERE 
+       <if name="sessnzoneid" test="notEmpty">t.zoneid=:sessnzoneid</if>
+     </dynamic>
+     <dynamic>
+        GROUP BY P.pricelevelname
+     </dynamic>
+	</sql>
+	
+	<!-- 删除分区 -->
+	<sql id="deleteFq">
+	  DELETE FROM pt_sessnzone 
+	  <dynamic>
+	   <if name="sessnzoneids" test="notEmpty">WHERE sessnzoneid IN(:sessnzoneids) </if>
+	  </dynamic>
+	</sql>
+	
+	<!-- 删除分区对应的座位表 -->
+	<sql id="deleteZw">
+	 DELETE FROM pt_sessnpew 
+	 <dynamic>
+	   <if name="zoneid">WHERE zoneid IN(:zoneid)</if>
+	 </dynamic>
+	</sql>
+	
+	<!-- 修改 -->
+	<sql id="updateFq">
+	  UPDATE pt_sessnzone t SET
+	  <dynamic>
+	    <if name="zonename" test="notEmpty">t.zonename=:zonename</if>
+	    <if name="rownum" test="notEmpty">,t.rownum=:rownum</if>
+	    <if name="colnum" test="notEmpty">,t.colnum=:colnum</if>
+	    <if name="des" test="notEmpty">,t.des=:des</if>
+	    <if name="addr" test="notEmpty">,t.addr=:addr</if>
+	    <if name="sessnzoneid" test="notEmpty">WHERE t.sessnzoneid=:sessnzoneid</if>
+	  </dynamic>	
+	</sql>
+	
+	<!-- 查询分区名称是否存在 -->
+	<sql id="queryFqmc">
+	  SELECT COUNT(1) FROM pt_sessnzone s
+	  <dynamic>
+	    <if name="zonename" test="notEmpty">WHERE s.zonename=:zonename</if>
+	  </dynamic>
+	</sql>
+</sqls>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls namespace="performer">
+	<!--查询 -->
+	<sql id="selectPerformer">
+	SELECT
+	t.performerid,
+	t.performername,
+	t.areaid,
+	t.address,
+	t.fperformerid,
+	t.introduction,
+	t. STATUS status,
+    a.areaname,
+   p.performername fperformername
+    FROM
+	pt_performer t
+    LEFT JOIN pt_area a ON a.areaid=t.areaid	
+    LEFT JOIN pt_performer P ON p.performerid=t.fperformerid
+	<dynamic>
+			WHERE
+			<if name="status" test="notEmpty">and t.status = :status</if>
+			<if name="performername" test="notEmpty">and <![CDATA[ t.performername like CONCAT('%',:performername,'%') ]]></if>
+	</dynamic>
+	</sql>
+	
+	<sql id="queryFperformer">
+	SELECT COUNT(1) C FROM pt_performer  T 
+	<dynamic>
+	  WHERE 
+        <if name="performerid" test="notEmpty">T.fperformerid=:performerid</if>
+	</dynamic>
+	</sql>
+	
+	<!-- 查询上级演出商名称 -->
+	<sql id="querySjycsmc">
+	SELECT 	t.performerid,t.performername FROM pt_performer t 
+	<dynamic>	
+	 <if>WHERE t.fperformerid='ROOT'</if>
+	 <if name="performerid" test="notEmpty">AND t.performerid!=:performerid</if>
+	</dynamic>
+	
+	</sql>
+	
+	<!--新增 -->
+	<sql id="insertPerformer">
+		INSERT INTO pt_performer(performerid ,performername ,areaid ,address ,fperformerid ,introduction ,status ,delstatus ,vid ,cid ,ctime ,mid ,mtime )
+		VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)
+	</sql>
+	
+	<!--更新 -->
+	<sql id="updatePerformer">
+		UPDATE pt_performer SET
+		<dynamic>
+		<if name="performername" test="notEmpty">performername = :performername </if>
+		<if name="areaid" test="notEmpty">,areaid = :areaid </if>
+		<if name="address" test="notEmpty">,address = :address </if>
+		<if name="fperformerid" test="notEmpty">,fperformerid = :fperformerid </if>
+		<if name="introduction" test="notEmpty">,introduction = :introduction </if>
+		<if name="status" test="notEmpty">,status = :status </if>
+		<if name="delstatus" test="notEmpty">,delstatus = :delstatus </if>
+		<if name="vid" test="notEmpty">,vid = :vid </if>
+		<if name="cid" test="notEmpty">,cid = :cid </if>
+		<if name="ctime" test="notEmpty">,ctime = :ctime </if>
+		<if name="mid" test="notEmpty">,mid = :mid </if>
+		<if name="mtime" test="notEmpty">,mtime = :mtime </if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="performerid">performerid = :performerid</if>
+		</dynamic>
+	</sql>
+	
+	<!-- 禁用启用 -->
+	<sql id="updateStatus">
+		UPDATE pt_performer
+		<dynamic>
+			SET
+			<if name="status">
+				status = :status
+			</if>
+			<if name="mid">
+				,mid = :mid
+			</if>
+			<if name="mtime">
+				,mtime = :mtime
+			</if>
+			<if name="performerid">
+				WHERE performerid = :performerid
+			</if>
+		</dynamic>
+	</sql>
+	
+	<!--删除 -->
+	<sql id="deletePerformer">
+		DELETE FROM pt_performer
+		<dynamic>
+			WHERE
+			<if name="performerid">performerid = :performerid</if>
+		</dynamic>
+	</sql>
+</sqls>

@@ -1,0 +1,82 @@
+.us_gl{width:99.6%; border:1px #ccc solid; float:left;}
+.us_gl .us_glbtn{float:left; width:100%; background:url(../../images/page/anniu_bg02.gif) repeat-x 0 bottom; border-bottom:1px #ccc solid; height:32px;}
+.sli{ line-height:32px; text-indent:1em; font-weight:bold; font-size:12px;}
+.us_gl .us_glbtn button{margin:5px 6px 0 0; float:right;}
+.us_gl .us_glbtn select{float:left; margin:6px 0 0 0;}
+.us_gl .us_glbtn label{float:left; margin-left:12px; line-height:32px;}
+
+.us_gl .us_gltab{width:99%; float:left; margin:0.5%;}
+
+/**/
+.role_tab{width:487px; height:168px; float:left; padding:0px 22px; margin:5px 0 15px 0;}
+.role_tab li{width:100%; float:left;}
+.role_tab li label{float:left; height:32px; line-height:32px;}
+.role_tab li select,.role_tab li input{float:left; margin-top:10px; margin-top:6px\9\0;}
+.role_tab li div.rolediv{width:440px; height:128px; float:left; margin:4px 0 0 0px; overflow:auto; background:#eee; border:1px #ccc solid;}
+.role_tab li div.dropdownTree-select{width:96px; margin-right:26px;}
+.role_tab li div.rolediv dl{float:left; margin-right:22px; padding-bottom:5px;min-width:116px;white-space:nowrap;overflow:hidden;}
+.role_tab li div.rolediv dd{ overflow:hidden; color:#000; font-size:12px; height:26px; line-height:26px; margin-left:5px}
+.role_tab li div.rolediv dd label{margin-left:2px; min-width:65px;}
+
+.role_tab .ri{width:99%;float:left;}
+.role_tab .ri button{float:right; margin:8px 0 16px 7px;}
+
+
+/*  */
+.role_tab2{width:526px; float:left; padding:15px 20px; background:#;}
+.role_tab2 li{width:100%; float:left; margin-top:8px;}
+.role_tab2 li label{float:left; width:60px;  height:22px; line-height:22px; text-align:right;}
+.role_tab2 li .lab2{margin-left:62px;}
+.role_tab2 li .lab3{width:86px; }
+.role_tab2 li div input{float:left; margin-top:4px; margin-top:0px\9\0;}
+.role_tab2 li .int2{float:left; width:158px; height:22px; line-height:22px; border:1px #ccc solid;}
+.role_tab2 li .rolediv{width:440px; min-height:108px; background:#eee; border:1px #ccc solid; float:left; margin:1px 0 0 0px; overflow:hidden;}
+.role_tab2 li .rolediv dl{float:left; min-width:112px; margin-right:18px; padding:7px 0 3px 0;}
+.role_tab2 li .rolediv dd{ overflow:hidden; color:#000; font-size:12px; height:26px; line-height:26px; margin-left:6px;}
+.role_tab2 li .rolediv dd label{margin-left:2px; text-align:left; min-width:100px;}
+.role_tab2  .ri{width:502px;}
+.role_tab2  .ri button{float:right; margin:8px 0 6px 7px;}
+.tc_star{float:left; position:relative; z-index:6; color:#f00; margin-left:3px; line-height:22px;}
+
+
+.role_tab024{width:260px; float:left; padding:15px 20px; background:#;}
+.role_tab024 li{width:100%; float:left; margin-top:8px;}
+.role_tab024 li label{float:left; width:86px;  height:22px; line-height:22px; text-align:right;}
+.role_tab024 li input{float:left; width:160px; height:22px; line-height:22px; border:1px #ccc solid;}
+.role_tab024 li .redcolor{color:red;margin-top:20px;margin-left:3px;}
+.role_tab024 li .select{border:1px #ccc solid;}
+.role_tab024 .ri{width:240px;}
+.role_tab024  .ri button{float:right; margin:8px 0 6px 10px;}
+
+
+.role_tab025{width:330px; float:left; padding:15px 20px; background:#;}
+.role_tab025 li{width:100%; float:left; margin-top:8px;}
+.role_tab025 li label{float:left; width:156px;  height:22px; line-height:22px; text-align:right;}
+.role_tab025 li input{float:left; width:160px; height:22px; line-height:22px; border:1px #ccc solid;}
+.role_tab025 li .redcolor{color:red; text-align:center;margin-top:15px;margin-left:3px;text-align:center;}
+.role_tab025 li .select{border:1px #ccc solid;}
+.role_tab025 .ri{width:240px;}
+.role_tab025  .ri button{float:right; margin:8px 0 6px 10px;}
+
+
+.role_tab026{width:630px; float:left; padding:15px 20px; background:#;}
+.role_tab026 li{width:100%; float:left; margin-top:8px;}
+.role_tab026 li label{float:left; width:156px;  height:22px; line-height:22px; text-align:right;}
+.role_tab026 li input{float:left; width:160px; height:22px; line-height:22px; border:1px #ccc solid;}
+.role_tab026 li .redcolor{color:red;margin-top:10px;margin-left:3px;}
+.role_tab026 li .select{border:1px #ccc solid;}
+.role_tab026 .ri{width:240px;}
+.role_tab026  .ri button{float:right; margin:8px 0 6px 10px;}
+
+
+.tshuruk3a{width:90px!important;}
+.tshuruk3a{border:1px solid #cccccc; width:88px; height:18px;}
+.tshuruk3a .dateInput{background:#fff url(../../images/page/54.png) no-repeat right;}
+
+.tshuruk3a1{width:135px!important;}
+.tshuruk3a1{border:1px solid #cccccc; width:88px; height:18px;}
+.tshuruk3a1 .dateInput{background:#fff url(../../images/page/54.png) no-repeat right;}
+
+.tshuruk3a2{width:145px!important;}
+.tshuruk3a2{border:1px solid #cccccc; width:88px; height:20px;}
+.tshuruk3a2 .dateInput{background:#fff url(../../images/page/54.png) no-repeat right;}

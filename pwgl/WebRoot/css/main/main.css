@@ -1,0 +1,122 @@
+/* remove padding and scrolling from elements that contain an Accordion OR a content-div */
+.ui-layout-center, /* has content-div */ .ui-layout-west,
+	/* has Accordion */ .ui-layout-east, /* has content-div ... */
+	.ui-layout-east .ui-layout-content { /* content-div has Accordion */
+	padding: 0;
+	overflow: hidden;
+}
+
+h3,h4 { /* Headers & Footer in Center & East panes */
+	font-size: 1.1em;
+	background: #EEF;
+	border: 1px solid #BBB;
+	border-width: 0 0 1px;
+	padding: 9px 10px;
+	margin: 0;
+}
+
+#centerDiv li .ui-icon-close {
+	float: left;
+	margin: 0.4em 0.2em 0 0;
+	cursor: pointer;
+}
+
+.save {
+	margin: 5px 10px 0px 0px;
+	text-decoration: none;
+	font-weight: normal;
+	background: url(../images/save.gif) left top no-repeat;
+	width: 40px;
+	height: 16px;
+	line-height: 16px;
+	display: block;
+	color: #fff;
+	padding: 0px 0px 0px 10px
+}
+
+.ui-layout-toggler .ui-icon {
+	margin: 0 auto;
+} /* default - center horizontally */
+.ui-layout-toggler-north .ui-icon,.ui-layout-toggler-south .ui-icon {
+	margin-top: -3px;
+} /* tweak arrow vertical-center */
+.ui-layout-toggler-west .ui-icon,.ui-layout-toggler-east .ui-icon {
+	margin-left: -3px;
+} /* tweak arrow horizontal-center */
+/* assign arrows for each side & state */
+.ui-layout-toggler-north-closed .ui-icon,.ui-layout-toggler-south-open .ui-icon
+	{
+	background-position: -64px -192px; /* ui-icon-circle-triangle-s */
+	background-position: -128px -16px; /* ui-icon-triangle-2-n-s */
+	background-position: -64px -16px; /* ui-icon-triangle-1-s */
+}
+
+.ui-layout-toggler-south-closed .ui-icon,.ui-layout-toggler-north-open .ui-icon
+	{
+	background-position: -96px -192px; /* ui-icon-circle-triangle-n */
+	background-position: -128px -16px; /* ui-icon-triangle-2-n-s */
+	background-position: 0 -16px; /* ui-icon-triangle-1-n */
+}
+
+.ui-layout-toggler-west-closed .ui-icon,.ui-layout-toggler-east-open .ui-icon
+	{
+	background-position: -48px -192px; /* ui-icon-circle-triangle-e */
+	background-position: -144px -16px; /* ui-icon-triangle-2-e-w */
+	background-position: -32px -16px; /* ui-icon-triangle-1-e */
+}
+
+.ui-layout-toggler-east-closed .ui-icon,.ui-layout-toggler-west-open .ui-icon
+	{
+	background-position: -80px -192px; /* ui-icon-circle-triangle-w */
+	background-position: -144px -16px; /* ui-icon-triangle-2-e-w */
+	background-position: -96px -16px; /* ui-icon-triangle-1-w */
+} /*
+	.ui-layout-toggler-east-closed, 
+	.ui-layout-toggler-west-open	{ background: transparent url(../images/toggle-lt.gif) no-repeat right center; }
+	.ui-layout-toggler-west-closed, 
+	.ui-layout-toggler-east-open	{ background: transparent url(../images/toggle-rt.gif) no-repeat left center; }
+	.ui-layout-toggler-south-closed, 
+	.ui-layout-toggler-north-open	{ background: transparent url(../images/toggle-up.gif) no-repeat center bottom; }
+	.ui-layout-toggler-north-closed, 
+	.ui-layout-toggler-south-open	{ background: transparent url(../images/toggle-dn.gif) no-repeat center top; }
+	
+	*/
+body {
+	font-size: 12px;
+}
+
+/* 便携工具箱css ----------------开始 */
+#img_portable_toolbox_div {
+	top: 99px;
+	/*left: 850px;*/
+	position: absolute; /*绝对定位*/
+	z-index: 999999999;
+}
+
+#portable_toolbox_win { /*希望窗口有边框*/
+	background-color: #BBB;
+	border: 1px green solid;
+	/*希望窗口宽度和高度固定，不要太大*/
+	width: 300px;
+	height: 300px;
+	/*控制窗体的位置*/
+	position: absolute; /*绝对定位*/
+	z-index: 999999999;
+	top: 100px;
+	/*left: 880px;*/
+}
+
+#portable_toolbox_win ul {
+	list-style-type: none;
+	margin-top: 20px;
+}
+
+#portable_toolbox_win ul li {
+	margin: 0px;
+	padding: 0px;
+	float: left;
+	width: 70px;
+	line-height: 60px;
+}
+
+/* 便携工具箱css ----------------结束 */

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com" 
+	namespace="role">
+	
+	<!-- 查询平台用户 -->	
+	<sql id="selectRole">
+	  SELECT roleid,rolename,froleid,roletype,des FROM pt_role
+	  <dynamic>
+	    WHERE
+	    <if name="rolename" test="notEmpty"><![CDATA[rolename LIKE CONCAT('%',:rolename,'%') ]]></if>
+	  </dynamic>
+	</sql>
+	
+	<!-- 查询父角色 -->
+	<sql id="selectFatherRole">
+	  SELECT roleid,rolename FROM pt_role WHERE froleid='ROOT'
+	</sql>
+	
+	<!-- 检查角色名称是否重复 -->
+	<sql id="selectSfcf">
+	  SELECT COUNT(*) FROM pt_role
+	  <dynamic>
+	    WHERE
+	    <if name="rolename">rolename=:rolename</if>
+	  </dynamic>
+	</sql>
+	
+	<!-- 查询角色类型 -->
+	<sql id="selectRoletype">
+	  SELECT roletype FROM pt_role
+	  <dynamic>
+	    WHERE
+	    <if name="roleid">roleid=:roleid</if>
+	  </dynamic>
+	</sql>
+	
+	<!-- 新增 -->
+	<sql id="insertRole">
+	  INSERT INTO pt_role(roleid,rolename,froleid,roletype,des,cid,ctime,mid,mtime) VALUES(?,?,?,?,?,?,?,?,?)
+	</sql>
+	
+	<!-- 修改 -->
+	<sql id="updateRole">
+	  UPDATE pt_role SET
+	  <dynamic>
+	    <if name="rolename" test="notNull">,rolename=:rolename</if>
+	    <if name="des" test="notNull">,des=:des</if>
+	    <if name="mid" test="notNull">,mid=:mid</if>
+	    <if name="mtime" test="notNull">,mtime=:mtime</if>
+	  </dynamic>
+	  <dynamic>
+	    WHERE
+	    <if name="roleid">roleid=:roleid</if>
+	  </dynamic>
+	</sql>
+	
+	<!-- 查询角色是否关联用户 -->
+	<sql id="selectSfgl">
+	  SELECT COUNT(*) FROM pt_user_role
+	  <dynamic>
+	    WHERE
+	    <if name="roleid">roleid=:roleid</if>
+	  </dynamic>
+	</sql>
+	
+	<!-- 删除 -->
+	<sql id="deleteRole">
+	  DELETE FROM pt_role
+	  <dynamic>
+	    WHERE
+	    <if name="roleid">roleid=:roleid</if>
+	  </dynamic>
+	</sql>
+	
+   <sql id="selectSqCd">
+		SELECT c.menuid id,c.mname name,c.fmenuid pId,case when j.menuid IS NOT NULL THEN 'true' ELSE 'false' END checked,'true' open 
+		FROM pt_menu c LEFT JOIN pt_role_menu j ON c.menuid = j.menuid
+		<dynamic>
+			<if name="roleid">
+				AND j.roleid = :roleid WHERE c.status='1'
+			</if>
+		</dynamic>
+	</sql>
+	
+		
+	<sql id="deleteJscdByJsid">
+		DELETE FROM pt_role_menu
+		<dynamic>
+			WHERE
+			<if name="roleid">roleid=:roleid</if>
+		</dynamic>
+	</sql>
+	
+	<sql id="insertJscdgx">
+		INSERT INTO pt_role_menu(rmid ,roleid ,menuid ,cid ,ctime ,mid ,mtime )VALUES(?,?,?,?,?,?,?)
+	</sql>
+</sqls>

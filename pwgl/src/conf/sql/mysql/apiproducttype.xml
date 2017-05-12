@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com" namespace="apiproducttype">
+	
+	<sql id="queryApiProductType">
+	  SELECT t.producttypeid,t.typename FROM pt_producttype t
+	</sql>
+	
+</sqls>

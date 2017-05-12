@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<sqls namespace="paybox">
+	<!--查询 -->
+	<sql id="selectPaybox">
+		SELECT
+	    t.payboxid,
+	    t.payboxname,
+	    t.areaid,
+	    t.address,
+	    t.fpayboxid,
+	    t.introduction,
+	    t. STATUS  `status`,
+        a.areaname,
+        p.payboxname fpayboxname
+        FROM
+	    pt_paybox t
+        LEFT JOIN pt_area a ON a.areaid=t.areaid
+        LEFT JOIN pt_paybox p ON  p.payboxid=t.fpayboxid
+		<dynamic>
+			WHERE
+			<if name="status" test="notEmpty">and t.status = :status</if>
+			<!-- 根据名称模糊查询 -->
+			<if name="payboxname" test="notEmpty">and <![CDATA[ t.payboxname like CONCAT('%',:payboxname,'%') ]]></if>
+		</dynamic>
+	</sql>
+	
+	<!-- 查询上级售票点名称 -->
+	<sql id="querySjspmc">
+	SELECT 	t.payboxid,t.payboxname FROM pt_paybox t 
+	<dynamic>	
+	 <if>WHERE t.fpayboxid='ROOT'</if>
+	 <if name="payboxid" test="notEmpty">AND t.payboxid!=:payboxid</if>
+	</dynamic>
+	</sql>
+	 
+     <!-- 查询是否存在子类--> 
+	<sql id="queryZl">
+	SELECT COUNT(1) C FROM pt_paybox  T 
+	<dynamic>
+	  WHERE 
+        <if name="payboxid" test="notEmpty">T.fpayboxid=:payboxid</if>
+	</dynamic>
+	</sql>
+	
+	<!--新增 -->
+	<sql id="insertPaybox">
+		INSERT INTO pt_paybox(payboxid ,payboxname ,areaid ,address ,fpayboxid ,introduction ,status ,delstatus ,vid ,cid ,ctime ,mid ,mtime )
+		VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)
+	</sql>
+	
+	<!--更新 -->
+	<sql id="updatePaybox">
+		UPDATE pt_paybox SET
+		<dynamic>
+		<if name="payboxname" test="notEmpty">payboxname = :payboxname </if>
+		<if name="areaid" test="notEmpty">,areaid = :areaid </if>
+		<if name="address" test="notEmpty">,address = :address </if>
+		<if name="fpayboxid" test="notEmpty">,fpayboxid = :fpayboxid </if>
+		<if name="introduction" test="notEmpty">,introduction = :introduction </if>
+		<if name="status" test="notEmpty">,status = :status </if>
+		<if name="delstatus" test="notEmpty">,delstatus = :delstatus </if>
+		<if name="vid" test="notEmpty">,vid = :vid </if>
+		<if name="cid" test="notEmpty">,cid = :cid </if>
+		<if name="ctime" test="notEmpty">,ctime = :ctime </if>
+		<if name="mid" test="notEmpty">,mid = :mid </if>
+		<if name="mtime" test="notEmpty">,mtime = :mtime </if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="payboxid">payboxid = :payboxid</if>
+		</dynamic>
+	</sql>
+	
+	<!-- 禁用启用 -->
+	<sql id="updateStatus">
+		UPDATE pt_paybox
+		<dynamic>
+			SET
+			<if name="status">
+				status = :status
+			</if>
+			<if name="mid">
+				,mid = :mid
+			</if>
+			<if name="mtime">
+				,mtime = :mtime
+			</if>
+			<if name="payboxid">
+				WHERE payboxid = :payboxid
+			</if>
+		</dynamic>
+	</sql>
+	
+	<!--删除 -->
+	<sql id="deletePaybox">
+		DELETE FROM pt_paybox
+		<dynamic>
+			WHERE
+			<if name="payboxid">payboxid = :payboxid</if>
+		</dynamic>
+	</sql>
+</sqls>

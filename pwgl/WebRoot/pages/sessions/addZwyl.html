@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport"
+	content="width=device-width,target-densitydpi=high-dpi,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>2票价制定</title>
+<script src="js/page/sessions/indexSession_add.js"
+	type="text/javascript"></script>
+</head>
+
+<body class="ff">
+	<div class="pl30 pr30 pt10 pb10">
+		<div class="bgf mt17 pt30 pb30 pl30 pr30 f14" id="indexSession_zwyl_all_div">
+			<div class="tab-title f_b">
+				<span class="c_p dnb bod on" id="indexBookedseat_zwyl_div">座位预留</span>
+				<span class="c_p dnb bod" id="indexBookedseat_ylfp_div">预留分配</span>
+			</div>
+			<div class="  bod pt20 pb20 pl20 pr20 tab-box"
+				id="indexSession_zwyl_div">
+				<p class="pb15 f16 f_b">票价划分</p>
+				<p class="green">
+					分区名称：
+					<div id="indexBookedseat_fqmc" class="dropdownlist"
+						style="float:left;"></div>
+					<span class="ml30" id="indexSession_zwyl_ccmc_span"></span><span
+						class="ml30" id="indexSession_zwyl_sysj_span"></span>
+				</p>
+				<div class="clearfix mt15">
+					<div class="l fq-l">
+						<div class="bod t_c table" id="indexBookedSeat_left_table_div">
+
+						</div>
+					</div>
+					<div class="fq-r">
+						<div class="bod_c pt10 pl10 pr10 pb10 p_r"
+							style="margin-left:130px;">
+							<p>
+								<input type="button" value="取消选定"
+									class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl20 pr20"
+									id="indexBookedseat_reselect_btn" /> <input type="button"
+									value="刷新座位"
+									class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl30 pr30"
+									id="indexBookedseat_refresh_btn" />
+							</p>
+							<table>
+								<tr>
+									<td><span class="v_m pl20 pr20">票价等级</span>
+									</td>
+									<td>
+										<div id="indexBookedseat_pjdj" class="dropdownlist"></div>
+										<input type="hidden" id="indexBookedseat_pjdj_name" />
+									</td>
+									<td><span class="v_m pl20 pr20">预留种类</span>
+									</td>
+									<td>
+										<div id="indexBookedseat_ylzl" class="dropdownlist"></div>
+									</td>
+								</tr>
+							</table>
+							<div class="pt30  t_c ">
+								<ul class="clearfix piao" id="indexBookedSeat_seat_div">
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 预留分配 -->
+			<div class="bod pt20 pb20 pl20 pr20 tab-box d_n"
+				id="indexBookedseat_ylfp_div_id" style="display:none;">
+				<h3 class="green f_b">预留分配</h3>
+				<p class="mt">
+					<span class="pl20">售票点</span> <input type="text"
+						class="bod bgcolor txt" id="indexBookedseat_spd_query_name" /> <input
+						type="button" value="查询"
+						class="ff c_f ml15 c_p btn-green02 bod_r f14 v_m"
+						id="indexBookedseat_spd_query_btn" /> <span class="pl20">预留种类</span>
+					<input type="text" class="bod bgcolor txt"
+						id="indexBookedseat_ylp_query_name" /> <input type="button"
+						value="查询" class="ff c_f ml15 c_p btn-green02 bod_r f14 v_m"
+						id="indexBookedseat_ylp_query_btn" />
+				</p>
+				<div class="clearfix mt15">
+					<div class="l bod ylfp" style="height:305px; overflow-y:scroll;"
+						id="indexBookedSeat_ylfp_spd_div"></div>
+					<div class="r bod ylfp" style="height:305px; overflow-y:scroll;"
+						id="indexBookedSeat_ylfp_ylzl_div"></div>
+				</div>
+			</div>
+			<div class="t_c pt30 pb30">
+				<input type="button" value="保存" id="indexBookedseat_save_btn"
+					class="ff c_f f20 c_p bggreen pl30 pr30 pt10 pb10 bod" /><input
+					type="button" value="下一步"
+					class="ff c_f f20 c_p bggreen pl30 pr30 pt10 pb10 bod" />
+			</div>
+		</div>
+	</div>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<sqls namespace="ticketface">
+	<!--查询 -->
+	<sql id="selectTicketface">
+		SELECT t.ticketfaceid,t.sessionsid,t.ticketcode,t.ticketname,t.ticketorient,t.bgurl,t.height,t.width,t.carbonlocation,t.carbonnum,t.carbonheight FROM pt_ticketface t
+		<dynamic>
+			WHERE
+			<if name="ticketfaceid" test="notEmpty">and t.ticketfaceid = :ticketfaceid</if>
+			<!-- 根据名称模糊查询 -->
+			<if name="ticketname" test="notEmpty">and <![CDATA[ t.ticketname like CONCAT('%',:ticketname,'%') ]]></if>
+		</dynamic>
+	</sql>
+	
+	<!-- 查询场馆名称 -->
+	<sql id="queryCgmc">
+	  SELECT T.sessionsid,T.sessionsname FROM pt_sessions T
+	</sql>
+	
+	<!--新增 -->
+	<sql id="insertTicketface">
+		INSERT INTO pt_ticketface(ticketfaceid ,sessionsid ,ticketcode ,ticketname ,ticketorient ,bgurl ,height ,width ,carbonlocation ,carbonnum ,carbonheight )
+		VALUES(?,?,?,?,?,
+		?,?,?,?,?,
+		?)
+	</sql>
+	
+	<!--更新 -->
+	<sql id="updateTicketface">
+		UPDATE pt_ticketface SET
+		<dynamic>
+		<if name="sessionsid" test="notEmpty">sessionsid = :sessionsid </if>
+		<if name="ticketcode" test="notEmpty">,ticketcode = :ticketcode </if>
+		<if name="ticketname" test="notEmpty">,ticketname = :ticketname </if>
+		<if name="ticketorient" test="notEmpty">,ticketorient = :ticketorient </if>
+		<if name="bgurl" test="notEmpty">,bgurl = :bgurl </if>
+		<if name="height" test="notEmpty">,height = :height </if>
+		<if name="width" test="notEmpty">,width = :width </if>
+		<if name="carbonlocation" test="notEmpty">,carbonlocation = :carbonlocation </if>
+		<if name="carbonnum" test="notEmpty">,carbonnum = :carbonnum </if>
+		<if name="carbonheight" test="notEmpty">,carbonheight = :carbonheight </if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="ticketfaceid">ticketfaceid = :ticketfaceid</if>
+		</dynamic>
+	</sql>
+</sqls>

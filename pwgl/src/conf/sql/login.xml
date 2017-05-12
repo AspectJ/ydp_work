@@ -1,0 +1,603 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqls namespace="login">
+
+	<sql id="checkUser">
+		SELECT
+		yh.userid yhid,
+		yh.username userName,
+		yh.realname yhnc,
+		yh.pass yhmm
+		FROM
+		PT_USER yh
+		<dynamic>
+			WHERE
+			<if name="username">
+				yh.username = :username
+			</if>
+			<if name="password">
+				AND yh.pass = :password
+				AND yh.status = '1'
+				AND
+				yh.delstatus = '3'
+			</if>
+		</dynamic>
+	</sql>
+
+	<sql id="getUserMenu">
+		SELECT
+		cd.menuid cdid,
+		cd.pxh,
+		cd.murl cdurl,
+		cd.fmenuid fcdid,
+		cd.mname cdmc,
+		cd.alias ys
+		FROM
+		pt_menu cd
+		WHERE
+		cd.fmenuid != 'ROOT'
+		AND EXISTS (
+		SELECT
+		1
+		FROM
+		pt_user_role j,
+		pt_role_menu c
+		WHERE
+		j.roleid = c.roleid
+		<dynamic>
+			<if name="yhid">
+				AND j.userid = :yhid
+				AND c.menuid = cd.menuid
+				) ORDER BY CAST(cd.pxh AS SIGNED)
+			</if>
+		</dynamic>
+	</sql>
+
+	<!-- 用户APP用户 -->
+	<sql id="checkyh">
+		SELECT
+		yh.userid yhid,
+		yh.sjhm userName,
+		yh.zsxm yhnc,
+		yh.xb,
+		yh.tx,
+		yh.jzjf,
+		yh.ptye,
+		yh.dlmm yhmm,
+		yh.zyzzzid,
+		yh.sfzyz,
+		yh.zyzlx,
+		yh.szzzfzr sfzzfzr,
+		yh.yhlx
+		FROM
+		A_USER yh
+		<dynamic>
+			WHERE
+			<if name="username">
+				yh.sjhm = :username
+			</if>
+			<if name="password">
+				AND yh.dlmm = :password
+				AND yh.zt = '启用'
+			</if>
+		</dynamic>
+	</sql>
+
+	<!-- 通过手机号码查询用户ID，用于修改环信登录密码 -->
+	<sql id="selectUserId">
+		SELECT
+		yh.userid yhid
+		FROM
+		A_USER yh
+		<dynamic>
+			WHERE
+			<if name="sjhm">
+				yh.sjhm = :sjhm
+			</if>
+		</dynamic>
+	</sql>
+
+	<!-- 通过手机号码查询加盟商用户ID，用于修改环信登录密码 -->
+	<sql id="selectWorkerId">
+		SELECT
+		yh.workerid yhid
+		FROM
+		A_WORKER yh
+		<dynamic>
+			WHERE
+			<if name="sjhm">
+				yh.sjhm = :sjhm
+			</if>
+		</dynamic>
+	</sql>
+
+	<!-- 加盟商用户 -->
+	<sql id="checkjms">
+		SELECT
+		yh.workerid yhid,
+		yh.sjhm userName,
+		yh.zsxm yhnc,
+		yh.tx,
+		yh.dlmm yhmm,
+		yh.jmsid,
+		yh.smzt,
+		yh.zt,
+		a.lxr,
+		a.jmsmc,
+		CASE WHEN (a.yfkye IS NULL OR a.yfkye = '' OR a.yfkye = 0.00) THEN
+		yh.yfkye ELSE a.yfkye END ptye
+		FROM
+		A_WORKER yh
+		LEFT JOIN A_JMS a ON yh.jmsid = a.jmsid
+		<dynamic>
+			WHERE
+			<if name="username">
+				yh.sjhm = :username
+			</if>
+			<if name="password">
+				AND yh.dlmm = :password
+			</if>
+		</dynamic>
+	</sql>
+
+	<!-- 用户APP用户 修改密码 -->
+	<sql id="updateYhPass">
+		UPDATE pt_seller SET
+		<dynamic>
+			<if name="xmm">pass = :xmm</if>
+			<if name="xgr" test="notEmpty">,mid = :xgr</if>
+			<if name="xgsj" test="notEmpty">,mtime = :xgsj</if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="jmm">pass = :jmm</if>
+			<if name="xtid">AND sellerid = :xtid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 加盟商APP用户 修改密码 -->
+	<sql id="updateJmsPass">
+		UPDATE A_WORKER SET
+		<dynamic>
+			<if name="xmm">dlmm = :xmm</if>
+			<if name="xgr" test="notEmpty">,xgr = :xgr</if>
+			<if name="xgsj" test="notEmpty">,xgsj = :xgsj</if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="jmm">dlmm = :jmm</if>
+			<if name="xtid">AND workerid = :xtid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 用户APP用户 找回密码 -->
+	<sql id="findYhPass">
+		UPDATE A_USER SET
+		<dynamic>
+			<if name="xmm">dlmm = :xmm</if>
+			<if name="xgr" test="notEmpty">,xgr = :xgr</if>
+			<if name="xgsj" test="notEmpty">,xgsj = :xgsj</if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="sjhm">sjhm = :sjhm</if>
+		</dynamic>
+	</sql>
+
+	<!-- 加盟商APP用户 找回密码 -->
+	<sql id="findJmsPass">
+		UPDATE A_WORKER SET
+		<dynamic>
+			<if name="xmm">dlmm = :xmm</if>
+			<if name="xgr" test="notEmpty">,xgr = :xgr</if>
+			<if name="xgsj" test="notEmpty">,xgsj = :xgsj</if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="sjhm">sjhm = :sjhm</if>
+		</dynamic>
+	</sql>
+
+	<!-- 检察用户APP用户手机号码是否已经注册 -->
+	<sql id="selectYhDlzh">
+		SELECT count(1) nums FROM A_USER t
+		<dynamic>
+			WHERE
+			<if name="sjhm">t.sjhm = :sjhm</if>
+		</dynamic>
+	</sql>
+
+	<!-- 用户APP用户注册 -->
+	<sql id="insertYh">
+		INSERT INTO
+		A_USER(userid,sjhm,dlmm,zfmm,zsxm,xmpy,cjr,cjsj,xgr,xgsj)
+		VALUES(?,?,?,?,?,?,?,?,?,?)
+	</sql>
+
+	<!-- 检察加盟商APP用户手机号码是否已经注册 -->
+	<sql id="selectFwDlzh">
+		SELECT count(1) nums FROM A_WORKER t
+		<dynamic>
+			WHERE
+			<if name="zt" test="notEmpty">t.zt = :zt</if>
+			<if name="sjhm">AND t.sjhm = :sjhm</if>
+		</dynamic>
+	</sql>
+
+	<!-- 加盟商APP用户注册 -->
+	<sql id="insertFw">
+		INSERT INTO
+		A_WORKER(workerid,sjhm,dlmm,zsxm,xmpy,cjr,cjsj,xgr,xgsj,tx,jmsid,sfzh,sfzzp)
+		VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)
+	</sql>
+
+	<!-- 检察加盟商名称是否已经注册 -->
+	<sql id="selectJmsmc">
+		SELECT count(1) nums FROM A_JMS t
+		<dynamic>
+			WHERE
+			<if name="mc">t.jmsmc = :mc</if>
+		</dynamic>
+	</sql>
+
+	<!-- 写入加盟商图片 -->
+	<sql id="insertJmstp">
+		INSERT INTO
+		A_JMSTP(jmstpid,jmsid,tpurl,sflog,tpxh,cjr,cjsj,xgr,xgsj)
+		VALUES(?,?,?,?,?,?,?,?,?)
+	</sql>
+
+	<!-- 加盟商机构信息 -->
+	<sql id="insertJms">
+		INSERT INTO
+		A_JMS(jmsid,jmsmc,jmslog,lxr,lxdh,dz,jj,cjr,cjsj,xgr,xgsj,pym)
+		VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
+	</sql>
+
+	<!-- 用户APP用户 修改个人信息 -->
+	<sql id="updateYhInfo">
+		UPDATE A_USER SET
+		<dynamic>
+			<if name="name" test="notEmpty">zsxm = :name</if>
+			<if name="spell" test="notEmpty">,xmpy = :spell</if>
+			<if name="tx" test="notEmpty">,tx = :tx</if>
+			<if name="xb" test="notEmpty">,xb = :xb</if>
+			<if name="age" test="notEmpty">,age = :age</if>
+			<if name="jg" test="notEmpty">,jg = :jg</if>
+			<if name="szdq" test="notEmpty">,szdq = :szdq</if>
+			<if name="xxdz" test="notEmpty">,xzdz = :xxdz</if>
+			<if name="xtid" test="notEmpty">,xgr = :xtid</if>
+			<if name="xgsj" test="notEmpty">,xgsj = :xgsj</if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="xtid">userid = :xtid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 删除公益服务项目 -->
+	<sql id="deleteGyxm">
+		DELETE FROM A_GYXM
+		<dynamic>
+			WHERE
+			<if name="xtid">userid = :xtid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 写入公益服务项目 -->
+	<sql id="insertGyxm">
+		INSERT INTO A_GYXM(gyxmid,userid,xmid,cjr,cjsj,xgr,xgsj)
+		VALUES(?,?,?,?,?,?,?)
+	</sql>
+
+	<!-- 查询用户APP用户个人信息 -->
+	<sql id="selectYhInfo">
+		SELECT
+		a.sjhm,
+		a.zsxm name,
+		a.tx,
+		a.xb,
+		a.age,
+		a.jg,
+		a.szdq,
+		x.xzqhmc szdqName,
+		a.xzdz xxdz,
+		a.sfzyz
+		FROM
+		a_user a
+		LEFT JOIN pt_xzqh x ON a.szdq = x.xzqhid
+		<dynamic>
+			WHERE
+			<if name="xtid">a.userid = :xtid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 查询用户APP用户 所提供的公益服务 -->
+	<sql id="selectYhGyfw">
+		SELECT
+		p.gyrwxmid xmid,
+		p.xmmc xmmc,
+		p.fxmid,
+		p2.xmmc fxmmc
+		FROM
+		A_GYXM a,
+		PT_GYRWXM p,
+		pt_gyrwxm p2
+		WHERE
+		a.xmid = p.gyrwxmid
+		AND p.fxmid = p2.gyrwxmid
+		<dynamic>
+			<if name="xtid">AND a.userid = :xtid ORDER BY p.fxmid ASC,p.xh DESC</if>
+		</dynamic>
+	</sql>
+
+	<!-- 加盟商APP用户 修改个人信息 -->
+	<sql id="updateWorkerInfo">
+		UPDATE A_WORKER SET
+		<dynamic>
+			<if name="name" test="notEmpty">zsxm = :name</if>
+			<if name="spell" test="notEmpty">,xmpy = :spell</if>
+			<if name="tx" test="notEmpty">,tx = :tx</if>
+			<if name="xb" test="notEmpty">,xb = :xb</if>
+			<if name="age" test="notEmpty">,age = :age</if>
+			<if name="jg" test="notEmpty">,jg = :jg</if>
+			<if name="jj" test="notEmpty">,jj = :jj</if>
+			<if name="szdq" test="notEmpty">,szdq = :szdq</if>
+			<if name="xxdz" test="notEmpty">,xzdz = :xxdz</if>
+			<if name="xtid" test="notEmpty">,xgr = :xtid</if>
+			<if name="xgsj" test="notEmpty">,xgsj = :xgsj</if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="xtid">workerid = :xtid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 删除服务人员提供的服务项目 -->
+	<sql id="deleteWorkerFwxm">
+		DELETE FROM A_WORKERXM
+		<dynamic>
+			WHERE
+			<if name="xtid">workerid = :xtid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 写入服务人员提供的服务项目 -->
+	<sql id="insertWorkerFwxm">
+		INSERT INTO
+		A_WORKERXM(workerxmid,jmsid,workerid,xmid,lx,dj,sl,dw,ms,cjr,cjsj,xgr,xgsj)
+		VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)
+	</sql>
+
+	<!-- 查询加盟商APP用户个人信息 -->
+	<sql id="selectWorkerInfo">
+		SELECT
+		a.sjhm,
+		a.zsxm name,
+		a.tx,
+		a.xb,
+		a.age,
+		a.jg,
+		a.jj,
+		a.szdq,
+		x.xzqhmc szdqName,
+		a.xzdz xxdz,
+		a.sfzh,
+		a.sfzzp
+		FROM
+		A_WORKER a
+		LEFT JOIN pt_xzqh x ON a.szdq = x.xzqhid
+		<dynamic>
+			WHERE
+			<if name="xtid">a.workerid = :xtid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 查询加盟商APP用户 所提供的家政服务项目 -->
+	<sql id="selectWorkerJzfw">
+		SELECT
+		p.xmid xmid,
+		p.xmmc xmmc,
+		p.fxmid,
+		p2.xmmc fxmmc
+		FROM
+		A_WORKERXM a,
+		PT_FWXM p,
+		PT_FWXM p2
+		WHERE
+		a.xmid = p.xmid
+		AND p.fxmid = p2.xmid
+		<dynamic>
+			<if name="xtid">AND a.workerid = :xtid ORDER BY p.fxmid ASC,p.xh DESC
+			</if>
+		</dynamic>
+	</sql>
+
+	<!-- 保存反馈意见 -->
+	<sql id="insertSuggest">
+		INSERT INTO
+		PT_SUGGEST(suggid,suggnr,fksj,fkrid,fkrlx,cjr,cjsj,xgr,xgsj)
+		VALUES(?,?,?,?,?,?,?,?,?)
+	</sql>
+
+	<!-- 修改支付密码 -->
+	<sql id="updateZfmm">
+		UPDATE a_user SET
+		<dynamic>
+			<if name="xmm" test="notEmpty">,zfmm = :xmm</if>
+			<if name="xtid" test="notEmpty">,xgr = :xtid</if>
+			<if name="xgsj" test="notEmpty">,xgsj = :xgsj</if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="jmm">zfmm = :jmm</if>
+			<if name="xtid">AND userid = :xtid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 修改服务人员示忙状态 -->
+	<sql id="updateFwrySmzt">
+		UPDATE a_worker SET
+		<dynamic>
+			<if name="smzt" test="notEmpty">smzt = :smzt</if>
+			<if name="xtid" test="notEmpty">,xgr = :xtid</if>
+			<if name="xgsj" test="notEmpty">,xgsj = :xgsj</if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="xtid">workerid = :xtid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 修改加盟商示忙状态 -->
+	<sql id="updateJmsSmzt">
+		UPDATE a_jms SET
+		<dynamic>
+			<if name="smzt" test="notEmpty">smzt = :smzt</if>
+			<if name="xtid" test="notEmpty">,xgr = :xtid</if>
+			<if name="xgsj" test="notEmpty">,xgsj = :xgsj</if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="jmsid">jmsid = :jmsid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 充值 -->
+	<sql id="insertCzjl">
+		INSERT INTO
+		A_HYCZJL(czjlid,czlx,jmsid,czje,czye,cssj,czfs,czzt,cjr,cjsj,xgr,xgsj)
+		VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
+	</sql>
+
+	<!-- 修改充值状态 -->
+	<sql id="updateCzjlZt">
+		UPDATE A_HYCZJL SET
+		<dynamic>
+			<if name="newzt">czzt = :newzt</if>
+			<if name="xtid" test="notEmpty">,xgr = :xtid</if>
+			<if name="xgsj" test="notEmpty">,xgsj = :xgsj</if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="czzt">czzt = :czzt</if>
+			<if name="czjlid">AND czjlid = :czjlid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 查询充值金额 -->
+	<sql id="selectCzjeById">
+		SELECT cjr,czje FROM A_HYCZJL
+		<dynamic>
+			WHERE
+			<if name="czjlid">czjlid = :czjlid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 查询是否有充值还处在未完成或异常状态 -->
+	<sql id="selectWwcCzjl">
+		SELECT count(1) FROM A_HYCZJL h WHERE h.czzt in('待完成','异常')
+		<dynamic>
+			<if name="userid">AND h.cjr = :userid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 记录登录日志 -->
+	<sql id="insertLoginLog">
+		INSERT INTO
+		PT_LOGINLOG(logid,userid,usertype,logintimes,autotimes,lasttime,sid)
+		VALUES(?,?,?,?,?,?,?)
+	</sql>
+
+	<!-- 查询登录日志 -->
+	<sql id="selectLoginLog">
+		SELECT userid xtid,usertype yhlx FROM PT_LOGINLOG
+		<dynamic>
+			WHERE
+			<if name="sid">sid = :sid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 修改登录日志 -->
+	<sql id="updateLoginLog">
+		UPDATE PT_LOGINLOG SET logintimes = (logintimes + 1),autotimes =
+		(autotimes + 1)
+		<dynamic>
+			<if name="lasttime">,lasttime = :lasttime</if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="xtid">userid = :xtid</if>
+			<if name="sid">AND sid = :sid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 用户APP用户 -->
+	<sql id="checkyhBySid">
+		SELECT
+		yh.userid yhid,
+		yh.sjhm userName,
+		yh.zsxm yhnc,
+		yh.xb,
+		yh.tx,
+		yh.jzjf,
+		yh.ptye,
+		yh.dlmm yhmm,
+		yh.zyzzzid,
+		yh.sfzyz,
+		yh.zyzlx,
+		yh.szzzfzr sfzzfzr,
+		yh.yhlx
+		FROM
+		A_USER yh
+		<dynamic>
+			WHERE
+			<if name="xtid">
+				yh.userid = :xtid AND yh.zt = '启用'
+			</if>
+		</dynamic>
+	</sql>
+
+	<!-- 加盟商用户 -->
+	<sql id="checkjmsBySid">
+		SELECT
+		yh.workerid yhid,
+		yh.sjhm userName,
+		yh.zsxm yhnc,
+		yh.tx,
+		yh.dlmm yhmm,
+		yh.jmsid,
+		yh.smzt,
+		yh.zt,
+		CASE WHEN (a.yfkye IS NULL OR a.yfkye = '' OR a.yfkye = 0.00) THEN
+		yh.yfkye ELSE a.yfkye END ptye
+		FROM
+		A_WORKER yh
+		LEFT JOIN A_JMS a ON yh.jmsid = a.jmsid
+		<dynamic>
+			WHERE
+			<if name="xtid">
+				yh.workerid = :xtid AND yh.zt = '启用'
+			</if>
+		</dynamic>
+	</sql>
+
+	<!-- 售票员 -->
+	<sql id="checkSpy">
+		SELECT
+		b.payboxid,
+		t.username dlzh,
+		t.pass,
+		t.tele,
+		t.realname,
+		t.txurl,
+		t.sellerid xtid
+		FROM
+		pt_seller t
+		LEFT JOIN pt_paybox b ON b.payboxid = t.payboxid
+		<dynamic>
+		 WHERE
+		 <if name="username" test="notEmpty">t.username = :username</if>
+		 <if name="password" test="notEmpty">AND t.pass = :password</if>
+		</dynamic>
+	</sql>
+</sqls>

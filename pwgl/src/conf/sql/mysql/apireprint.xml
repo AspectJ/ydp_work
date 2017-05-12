@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com"
+	namespace="apireprint">
+
+	<sql id="insertReprint">
+		INSERT INTO
+		OD_REPRINT(reprintid,orderid,ordercode,detailid,applyid,
+		applytime,auditid,audittime,restatus,isreprint,des,
+		vid,cid,ctime,mid,mtime)VALUES(?,?,?,?,?,
+		?,?,?,?,?,
+		?,?,?,?,?,?)
+	</sql>
+
+	<!-- 根据订单ID，查询订单编号 -->
+	<sql id="queryOrderCode">
+		SELECT t.ordercode FROM OD_ORDER t
+		<dynamic>
+			WHERE
+			<if name="orderid" test="notEmpty">t.orderid=:orderid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 修改重打 -->
+	<sql id="updateReprint">
+		UPDATE OD_REPRINT SET isreprint='2'
+		<dynamic>
+			<if name="mid" test="notEmpty">,mid=:mid</if>
+			<if name="mtime" test="notEmpty">,mtime=:mtime</if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="reprintid" test="notEmpty">reprintid=:reprintid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 查询 -->
+	<sql id="queryPrint">
+		SELECT DISTINCT
+		p.reprintid,
+		p.orderid,
+		p.ordercode,
+		p.detailid,
+		x.itemid,
+		x.itemname,
+		dd.sessionsid,
+		dd.sessionsname,
+		yct.venueid,
+		yct.venuename,
+		yc.hallid,
+		yc.hallname,
+		cp.producttypeid,
+		cp.typename producttypename,
+		DATE_FORMAT(o.odtime,'%Y-%m-%d %h:%i:%s') odtime,
+		fq.sessnzoneid zoneid,
+		fq.zonename,
+		zw.pewid,
+		zw.pewname,
+		zw.price zwprice,
+		pj.pricelevelid,
+		pj.pricelevelname,
+		d.price,
+		b.payboxid,
+		b.payboxname,
+		sp.sellerid,
+		sp.realname sellername,
+		p.restatus,
+		CASE p.restatus
+		WHEN '1' THEN
+		'待审核'
+		WHEN '2' THEN
+		'审核通过'
+		WHEN '3' THEN
+		'审核未通过'
+		END restatusname,
+		p.isreprint,
+		CASE p.isreprint
+		WHEN '1' THEN
+		'未重打'
+		WHEN '2' THEN
+		'已重打'
+		END isreprintname
+		FROM
+		OD_REPRINT p
+		LEFT JOIN OD_DETAIL d ON d.detailid = p.detailid
+		LEFT JOIN od_order o ON o.orderid = p.orderid
+		AND d.orderid = p.orderid
+		LEFT JOIN pt_item x ON x.itemid = o.itemid
+		AND o.orderid = p.orderid
+		LEFT JOIN pt_sessions dd ON dd.sessionsid = o.sessionsid
+		AND o.orderid = p.orderid
+		LEFT JOIN pt_venue yct ON yct.venueid = o.venueid
+		AND o.orderid = p.orderid
+		LEFT JOIN PT_HALL yc ON yc.hallid = o.hallid
+		AND o.orderid = p.orderid
+		LEFT JOIN pt_producttype cp ON cp.producttypeid = o.producttypeid
+		AND o.orderid = p.orderid
+		LEFT JOIN pt_sessnzone fq ON fq.sessnzoneid = d.zoneid
+		AND d.orderid = p.orderid
+		LEFT JOIN pt_sessnpew zw ON zw.pewid = d.pewid
+		AND d.orderid = p.orderid
+		LEFT JOIN pt_pricelevel pj ON pj.pricelevelid = o.producttypeid
+		AND o.orderid = p.orderid
+		LEFT JOIN pt_paybox b ON b.payboxid = o.payboxid
+		AND o.orderid = p.orderid
+		LEFT JOIN pt_seller sp ON sp.sellerid = o.sellerid
+		AND o.orderid = p.orderid
+		<dynamic>
+			WHERE o.odstatus='4' AND o.outstatus='2'
+			<if name="itemid" test="notEmpty">AND x.itemid=:itemid</if>
+			<if name="sessionsname" test="notEmpty">AND <![CDATA[ dd.sessionsname like CONCAT('%',:sessionsname,'%') ]]></if>
+			<if name="venueid" test="notEmpty">AND yct.venueid=:venueid</if>
+			<if name="ordercode" test="notEmpty">AND p.ordercode=:ordercode</if>
+		</dynamic>
+		<dynamic>
+			<if> ORDER BY p.mtime DESC</if>
+		</dynamic>
+	</sql>
+
+	<!-- 根据订单id和座位IDs查询出明细ID -->
+	<sql id="queryRepeatPrint">
+		SELECT t.detailid,t.ordercode FROM od_detail t
+		<dynamic>
+			WHERE
+			<if name="orderid" test="notEmpty">t.orderid=:orderid</if>
+			<if name="pewids" test="notEmpty">AND t.pewid IN(:pewids)</if>
+		</dynamic>
+	</sql>
+
+</sqls>

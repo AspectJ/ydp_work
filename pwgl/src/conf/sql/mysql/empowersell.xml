@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com" namespace="empowersell">
+	
+	<!-- 新增关系表 -->
+	<sql id="insertEmpowerSell">
+	 INSERT INTO pt_sellpolicy(sellpolicyid,sessionsid,payboxid,sellerid,setpolicyid,
+	 prefpolicyid,cid,ctime,mid,mtime)
+	 VALUES(?,?,?,?,?,
+	 ?,?,?,?,?)
+	</sql>
+	
+	<!-- 场次名称 -->
+	<sql id="queryCcmc">
+	  SELECT sessionsid,sessionsname FROM pt_sessions 
+	</sql>
+	
+	<!-- 查询售票点 -->
+	<sql id="querySpd">
+	  SELECT payboxid, payboxname FROM pt_paybox
+	</sql>
+	
+	<!-- 查询售票员 -->
+	<sql id="querySpy">
+	 SELECT sellerid,realname FROM pt_seller
+	 <dynamic>
+	   <if name="payboxid" test="notEmpty">WHERE payboxid=:payboxid</if>
+	 </dynamic>
+	</sql>
+	
+	<!-- 套票政策 -->
+	<sql id="queryTpzc">
+	 SELECT setpolicyid,policyname FROM pt_setpolicy
+	</sql>
+	
+	<!-- 查询优惠政策 -->
+	<sql id="queryYhzc">
+	 SELECT prefpolicyid,policyname FROM pt_prefpolicy
+	</sql>
+</sqls>

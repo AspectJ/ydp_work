@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com"
+	namespace="sellempower">
+	<sql id="spjg">
+		SELECT
+		distinct t.payboxid id,
+		t.payboxname NAME,
+		t.fpayboxid pId,
+		if(p.payboxid is NULL, 'false','true') checked,
+		'true' OPEN
+		FROM
+		pt_paybox t
+		LEFT JOIN pt_seller_power p ON p.payboxid=t.payboxid
+		<dynamic>
+			<if name="sessionsid" test="">AND p.sessionsid=:sessionsid</if>
+			<if>WHERE t.STATUS = '1'</if>
+		</dynamic>
+		<dynamic>
+			ORDER BY T.payboxname
+		</dynamic>
+	</sql>
+
+	<sql id="selectSpy">
+		SELECT
+		DISTINCT t.sellerid id,
+		t.realname NAME,
+		t.payboxid pId,
+		IF (
+		s.sellerid IS NULL,
+		'false',
+		'true'
+		) checked,
+		'true' OPEN
+		FROM
+		pt_seller T
+		LEFT JOIN pt_seller_power s ON s.sellerid=t.sellerid
+		<dynamic>
+			<if name="sessionsid"> AND s.sessionsid=:sessionsid</if>
+			<if name="sessionsid">
+				WHERE
+				STATUS = '1'
+				UNION ALL
+				SELECT
+				DISTINCT p.payboxid id,
+				p.payboxname NAME,
+				p.fpayboxid pId,
+				IF (
+				l.payboxid IS NULL,
+				'false',
+				'true'
+				) checked,
+				'true' OPEN
+				FROM
+				pt_paybox p
+				LEFT JOIN pt_seller_power
+				l ON l.payboxid=p.payboxid
+				AND l.sessionsid=:sessionsid
+				WHERE
+				STATUS =
+				'1'
+			</if>
+		</dynamic>
+
+
+	</sql>
+
+	<sql id="selectSpqx">
+		SELECT DISTINCT t.sellpowerid,t.powername ,IF (
+		p.sellpowerid IS NULL,
+		'false',
+		'true'
+		) checked FROM pt_sellpower t
+		LEFT JOIN pt_seller_power p
+		ON p.sellpowerid=t.sellpowerid
+		<dynamic>
+			<if name="sessionsid" test="">AND p.sessionsid=:sessionsid AND
+				p.sellerid IS not null</if>
+			<if>WHERE status='1'</if>
+		</dynamic>
+	</sql>
+
+	<sql id="selectSjg">
+		SELECT DISTINCT t.sellpowerid,t.powername ,IF (
+		p.sellpowerid IS NULL,
+		'false',
+		'true'
+		) checked FROM pt_sellpower t
+		LEFT JOIN pt_seller_power p
+		ON p.sellpowerid=t.sellpowerid
+		<dynamic>
+			<if name="sessionsid" test="">AND p.sessionsid=:sessionsid AND
+				p.payboxid IS not null</if>
+			<if>WHERE status='1'</if>
+		</dynamic>
+	</sql>
+
+	<sql id="deleteJgspsq">
+		DELETE FROM pt_seller_power
+		<dynamic>
+			<if name="jgids">WHERE sellerid IS NULL</if>
+			<if name="sessionsid">AND sessionsid=:sessionsid</if>
+		</dynamic>
+	</sql>
+
+	<sql id="saveJgspsq">
+		INSERT INTO
+		pt_seller_power(sellerpowerid,sessionsid,payboxid,sellpowerid,cid,ctime,mid,mtime)
+		VALUES(?,?,?,?,?,?,?,?)
+	</sql>
+
+	<sql id="selectSellerByIds">
+		SELECT sellerid,payboxid FROM pt_seller
+		<dynamic>
+			<if name="spyids">WHERE sellerid IN(:spyids) </if>
+		</dynamic>
+	</sql>
+
+	<sql id="deleteSpyspsq">
+		DELETE FROM pt_seller_power
+		<dynamic>
+			<if name="spyids">WHERE payboxid is NULL</if>
+			<if name="sessionsid">AND sessionsid=:sessionsid</if>
+		</dynamic>
+	</sql>
+
+	<sql id="saveSpyspsq">
+		INSERT INTO
+		pt_seller_power(sellerpowerid,sessionsid,sellerid,sellpowerid,cid,ctime,mid,mtime)
+		VALUES(?,?,?,?,?,?,?,?)
+	</sql>
+
+	<sql id="selectJg">
+		SELECT pb.payboxid,pb.payboxname FROM pt_paybox pb LEFT JOIN pt_area a
+		ON pb.areaid=a.areaid WHERE pb.status='1'
+
+
+		<dynamic>
+			<if name="payboxname" test="notEmpty">AND <![CDATA[ pb.payboxname LIKE CONCAT('%',:payboxname,'%') ]]></if>
+			<if name="areaname" test="notEmpty">AND <![CDATA[ a.areaname LIKE CONCAT('%',:areaname,'%') ]]></if>
+		</dynamic>
+	</sql>
+
+	<sql id="selectXszc">
+		SELECT distinct t.setpolicyid zcid,t.policyname zcmc,'tpzc' zclx,
+		if(s.setpolicyid is NULL, 'false','true') checked
+		 FROM pt_setpolicy t
+		LEFT JOIN pt_sellpolicy s ON s.setpolicyid=t.setpolicyid AND s.sessionsid =t.sessionsid
+		<dynamic>
+			<if name="sessionsid">WHERE  t.sessionsid=:sessionsid</if>
+			<if name="sessionsid">UNION ALL SELECT distinct a.prefpolicyid zcid,a.policyname zcmc,'yhzc'
+				zclx,if(a.prefpolicyid is NULL, 'false','true') checked FROM pt_prefpolicy a
+				LEFT JOIN pt_sellpolicy f ON f.prefpolicyid=a.prefpolicyid AND f.sessionsid =a.sessionsid
+				 WHERE   a.sessionsid=:sessionsid
+			</if>
+		</dynamic>
+	</sql>
+
+	<sql id="selectJgyh">
+		SELECT
+		distinct t.sellerid,
+		t.realname,
+		IF (
+		s.sellerid IS NULL,
+		'false',
+		'true'
+		) checked
+		FROM
+		pt_seller t
+		LEFT JOIN pt_sellpolicy s ON s.sellerid=t.sellerid
+		<dynamic>
+			<if name="sessionsid">AND s.sessionsid=:sessionsid</if>
+			<if name="payboxid">WHERE t.payboxid=:payboxid</if>
+		</dynamic>
+	</sql>
+
+	<sql id="deleteXszcsq">
+		DELETE FROM pt_sellpolicy
+		<dynamic>
+			<if name="spyids">WHERE sellerid IN(:spyids)</if>
+			<if name="prefpolicyid">AND prefpolicyid=:prefpolicyid</if>
+			<if name="setpolicyid">AND setpolicyid=:setpolicyid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 删除销售政策关系表的数据 -->
+	<sql id="deleteXszcgx">
+		DELETE FROM pt_sellpolicy
+		<dynamic>
+			<if name="sessionsid">WHERE sessionsid IN(:sessionsid)</if>
+			<if name="setpolicyid" test="notEmpty">AND setpolicyid IN(:setpolicyid)</if>
+			<if name="prefpolicyid" test="notEmpty">AND prefpolicyid IN(:prefpolicyid)
+			</if>
+		</dynamic>
+	</sql>
+
+	<sql id="saveXszcsq">
+		INSERT INTO
+		pt_sellpolicy(sellpolicyid,sessionsid,payboxid,sellerid,setpolicyid,prefpolicyid,cid,ctime,mid,mtime)
+		VALUES(?,?,?,?,?,?,?,?,?,?)
+	</sql>
+
+	<sql id="queryZtree">
+     SELECT
+		DISTINCT t.sellerid id,
+		t.realname NAME,
+		t.payboxid pId,
+		IF (
+		s.sellerid IS NULL,
+		'false',
+		'true'
+		) checked,
+		'true' OPEN
+		FROM
+		pt_seller T
+		LEFT JOIN pt_sellpolicy s ON s.sellerid=t.sellerid
+		<dynamic>
+			<if name="sessionsid"> AND s.sessionsid=:sessionsid</if>
+			<if name="sessionsid">
+				WHERE
+				STATUS = '1'
+				UNION ALL
+				SELECT
+				DISTINCT p.payboxid id,
+				p.payboxname NAME,
+				p.fpayboxid pId,
+				IF (
+				l.payboxid IS NULL,
+				'false',
+				'true'
+				) checked,
+				'true' OPEN
+				FROM
+				pt_paybox p
+				LEFT JOIN pt_sellpolicy
+				l ON l.payboxid=p.payboxid
+				AND l.sessionsid=:sessionsid
+				WHERE
+				STATUS =
+				'1'
+			</if>
+		</dynamic>
+
+	</sql>
+</sqls>

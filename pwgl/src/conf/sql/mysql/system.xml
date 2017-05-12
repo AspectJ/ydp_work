@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqls namespace="system">
+	<sql id="selectXzqh">
+		SELECT z.areaname xzqhmc,z.areaid xzqhid,z.lev cj,z.fareaid sjxzqhid,f.areaname sjxzqhmc 
+		FROM pt_area z LEFT JOIN pt_area f ON z.fareaid=f.areaid
+		<dynamic>
+			WHERE
+			<if name="dqmc" test="notEmpty"> <![CDATA[ z.areaname like CONCAT('%',:dqmc,'%') ]]></if>
+		</dynamic>
+		<dynamic>
+			ORDER BY z.areaid
+		</dynamic>
+	</sql>
+
+	<sql id="getXzqhByDm">
+		SELECT t.areaid xzqhid,t.areaname xzqhmc,t.fareaid sjxzqhid,t.lev cj FROM pt_area t
+		<dynamic>
+			<if name="xzqhdm" test="notEmpty">
+				WHERE t.areaid = :xzqhdm
+			</if>
+		</dynamic>
+	</sql>
+
+	<sql id="getChildXzqh">
+		SELECT t.areaid xzqhid,t.areaname xzqhmc,t.fareaid sjxzqhid,t.lev cj FROM pt_area t
+		<dynamic>
+			<if name="xzqhdm" test="notEmpty">
+				WHERE t.fareaid = :xzqhdm
+			</if>
+		</dynamic>
+	</sql>
+	
+	<!-- 查询最大的排序号 -->
+	<sql id="selectMaxpxh">
+	  SELECT MAX(CAST(pxh AS SIGNED)) FROM pt_area
+	</sql>
+	
+	<sql id="insertXzqh">
+		INSERT INTO pt_area(areaid,areaname,fareaid,lev,pxh,ctime,mtime) VALUES(?,?,?,?,?,?,?)
+	</sql>
+
+	<sql id="updateXzqh">
+		UPDATE pt_area
+		<dynamic>
+			SET
+			<if name="xzqhdm" test="notEmpty">
+				areaid = :xzqhdm
+			</if>
+			<if name="xzqhmc" test="notEmpty">
+				,areaname = :xzqhmc
+			</if>
+			<if name="sjxzqhdm" test="notEmpty">
+				,fareaid = :sjxzqhdm
+			</if>
+			<if name="cj" test="notEmpty">
+				,lev = :cj
+			</if>
+			<if name="oldxzqhid" test="notEmpty">
+				WHERE areaid = :oldxzqhid
+			</if>
+		</dynamic>
+	</sql>
+
+	<sql id="deleteXzqh">
+		DELETE FROM pt_area
+		<dynamic>
+			WHERE
+			<if name="xzqhdm">
+				areaid = :xzqhdm
+			</if>
+		</dynamic>
+	</sql>
+
+
+	<!--查询参数设置 -->
+	<sql id="selectCssz">
+		SELECT szid,xzqhid,txma,txmb,txmxlws,dzzha,dzzhb,dzzhxlws,zurls FROM
+		C_CSSZ
+		<dynamic>
+			WHERE
+			<if name="szid" test="notEmpty">and szid =:szid</if>
+			<!-- 根据名称模糊查询 -->
+			<if name="csszmc" test="notEmpty">and <![CDATA[ csszmc like '%'||:csszmc||'%' ]]></if>
+		</dynamic>
+	</sql>
+	<!--新增参数设置 -->
+	<sql id="insertCssz">
+		INSERT INTO C_CSSZ(szid ,xzqhid ,txma ,txmb ,txmxlws ,dzzha
+		,dzzhb ,dzzhxlws ,zurls )
+		VALUES(?,?,?,?,?,?,?,?,?)
+	</sql>
+	<!--更新参数设置 -->
+	<sql id="updateCssz">
+		UPDATE C_CSSZ SET
+		<dynamic>
+			<if name="xzqhid" test="notNull">xzqhid =:xzqhid </if>
+			<if name="txma" test="notNull">,txma =:txma </if>
+			<if name="txmb" test="notNull">,txmb =:txmb </if>
+			<if name="txmxlws" test="notNull">,txmxlws =:txmxlws </if>
+			<if name="dzzha" test="notNull">,dzzha =:dzzha </if>
+			<if name="dzzhb" test="notNull">,dzzhb =:dzzhb </if>
+			<if name="dzzhxlws" test="notNull">,dzzhxlws =:dzzhxlws </if>
+			<if name="zurls" test="notNull">,zurls =:zurls </if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="szid">szid =:szid</if>
+		</dynamic>
+	</sql>
+
+	<sql id="getTsgNums">
+		SELECT count(1) from d_tsg t WHERE
+		<dynamic>
+			<if name="dwdm">t.dwdm =:dwdm</if>
+		</dynamic>
+	</sql>
+
+	<sql id="getGcdzNums">
+		SELECT count(1) FROM d_gcdz t WHERE
+		<dynamic>
+			<if name="dwdm">t.dwdm =:dwdm</if>
+		</dynamic>
+	</sql>
+
+	<sql id="getJygzNums">
+		SELECT count(1) FROM c_jygz t WHERE
+		<dynamic>
+			<if name="dwdm">t.dwdm =:dwdm</if>
+		</dynamic>
+	</sql>
+
+	<sql id="getJygzNums2">
+		SELECT nvl(jt.js,0) - dt.dzlbs gzs
+		FROM (SELECT count(1) js FROM c_jygz t WHERE
+		<dynamic>
+			<if name="dwdm">t.dwdm =:dwdm</if>
+		</dynamic>
+		<dynamic>
+			) jt,
+			(SELECT count(1) dzlbs FROM e_ptdm e WHERE e.flid = '26') dt
+		</dynamic>
+	</sql>
+
+</sqls>

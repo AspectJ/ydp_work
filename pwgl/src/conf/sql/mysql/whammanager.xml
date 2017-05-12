@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<sqls namespace="whammanager">
+	<!--查询 -->
+	<sql id="selectWhamManager">
+	SELECT
+	GROUP_CONCAT(t.reprintid) reprintid ,
+    count(1) cs,
+		t.orderid,
+		t.ordercode,
+		p.itemname,
+		s.sessionsname,
+		v.venuename,
+		h.hallname,
+		z.zonename,
+		u.username sqr,
+		ptu.username shr,
+		GROUP_CONCAT(DISTINCT w.pewname) pewname,
+		CASE
+		t.isreprint
+		WHEN '1' THEN '未重打'
+		WHEN '2' THEN
+		'已重打'
+		END isreprintname,
+		t.restatus,
+		t.audittime,
+		t.applytime
+		FROM
+		OD_REPRINT t
+		LEFT JOIN OD_DETAIL o ON
+		o.orderid = t.orderid AND
+		O.detailid=t.detailid
+		LEFT JOIN pt_item p ON
+		p.itemid = o.itemid
+		LEFT
+		JOIN pt_sessions s ON s.sessionsid =
+		o.sessionsid
+		LEFT JOIN PT_VENUE v
+		ON v.venueid = o.venueid
+		LEFT JOIN
+		pt_hall h ON h.hallid = o.hallid
+		LEFT JOIN pt_sessnzone z ON
+		z.sessnzoneid = o.zoneid
+		AND z.sessionsid =
+		o.sessionsid
+		LEFT JOIN
+		pt_sessnpew w ON w.pewid = o.pewid
+		AND
+		w.sessionsid = o.sessionsid
+		LEFT
+		JOIN PT_USER u ON u.userid = t.applyid
+		LEFT JOIN PT_USER ptu ON
+		ptu.userid = t.auditid 
+		<dynamic>
+		 WHERE
+		    <if name="ordercode" test="notEmpty"><![CDATA[ t.ordercode like CONCAT('%',:ordercode,'%') ]]></if>
+		    <if name="itemname" test="notEmpty">AND <![CDATA[ p.itemname like CONCAT('%',:itemname,'%') ]]></if>
+		</dynamic>
+		<dynamic>
+		  GROUP BY t.orderid
+		</dynamic>
+	</sql>
+	
+	<!-- 修改 -->
+	<sql id="updateStatus">
+	 UPDATE OD_REPRINT SET
+	 <dynamic>
+	   <if name="restatus" test="notEmpty">restatus=:restatus</if>
+	 </dynamic>
+	 <dynamic>
+	  WHERE
+	  <if name="reprintid" test="notEmpty">reprintid IN(:reprintid)</if>
+	 </dynamic>
+	</sql>
+</sqls>

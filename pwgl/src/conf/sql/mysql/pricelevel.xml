@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<sqls namespace="pricelevel">
+	<!--查询 -->
+	<sql id="selectPricelevel">
+		SELECT t.pricelevelid,t.pricelevelname,t.color,t.pic,t.pxh,t.defaultchar,t.des,t.status,t.delstatus,t.vid,t.cid,t.ctime,t.mid,t.mtime FROM pt_pricelevel t
+		<dynamic>
+			WHERE
+			<if name="status" test="notEmpty">and t.status = :status</if>
+			<!-- 根据名称模糊查询 -->
+			<if name="pricelevelname" test="notEmpty">and <![CDATA[ t.pricelevelname like CONCAT('%',:pricelevelname,'%') ]]></if>
+		</dynamic>
+		<dynamic>
+		  ORDER BY t.pricelevelname
+		</dynamic>
+	</sql>
+	
+	<!--新增 -->
+	<sql id="insertPricelevel">
+		INSERT INTO pt_pricelevel(pricelevelid ,pricelevelname ,color ,pic ,pxh ,defaultchar ,des ,status ,delstatus ,vid ,cid ,ctime ,mid ,mtime )
+		VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+	</sql>
+	
+	<!--更新 -->
+	<sql id="updatePricelevel">
+		UPDATE pt_pricelevel SET
+		<dynamic>
+		<if name="pricelevelname" test="notEmpty">pricelevelname = :pricelevelname </if>
+		<if name="color" test="notEmpty">,color = :color </if>
+		<if name="pic" test="notEmpty">,pic = :pic </if>
+		<if name="pxh" test="notEmpty">,pxh = :pxh </if>
+		<if name="defaultchar" test="notEmpty">,defaultchar = :defaultchar </if>
+		<if name="des" test="notEmpty">,des = :des </if>
+		<if name="status" test="notEmpty">,status = :status </if>
+		<if name="delstatus" test="notEmpty">,delstatus = :delstatus </if>
+		<if name="vid" test="notEmpty">,vid = :vid </if>
+		<if name="cid" test="notEmpty">,cid = :cid </if>
+		<if name="ctime" test="notEmpty">,ctime = :ctime </if>
+		<if name="mid" test="notEmpty">,mid = :mid </if>
+		<if name="mtime" test="notEmpty">,mtime = :mtime </if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="pricelevelid">pricelevelid = :pricelevelid</if>
+		</dynamic>
+	</sql>
+	
+	<!-- 禁用启用 -->
+	<sql id="updateStatus">
+		UPDATE pt_pricelevel
+		<dynamic>
+			SET
+			<if name="status">
+				status = :status
+			</if>
+			<if name="mid">
+				,mid = :mid
+			</if>
+			<if name="mtime">
+				,mtime = :mtime
+			</if>
+			<if name="pricelevelid">
+				WHERE pricelevelid = :pricelevelid
+			</if>
+		</dynamic>
+	</sql>
+	
+	<!--删除 -->
+	<sql id="deletePricelevel">
+		DELETE FROM pt_pricelevel
+		<dynamic>
+			WHERE
+			<if name="pricelevelid">pricelevelid = :pricelevelid</if>
+		</dynamic>
+	</sql>
+</sqls>

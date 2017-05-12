@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com"
+	namespace="apipaybox">
+	<sql id="queryApiPayBox">
+		SELECT
+		p.payboxid,
+		p.payboxname
+		FROM
+		pt_paybox p
+		<dynamic>
+		  	WHERE
+		  <if name="status">p.`status` =:status</if>
+		</dynamic>
+	</sql>
+</sqls>

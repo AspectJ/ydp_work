@@ -1,0 +1,49 @@
+.contextMenu {
+	position: absolute;
+	z-index: 999;
+	border: 1px solid #999;
+	padding: 0px;
+	margin: 0px;
+	display: none;
+}
+
+.contextMenu li {
+	list-style: none;
+	padding: 0px;
+	position: relative;
+	white-space: nowrap;
+	line-height: 24px;
+	height: 24px;
+	cursor: pointer;
+	background-color: #BBB;
+	color: #EEE;
+	font-size: 12px;
+}
+
+.contextMenu li .icon {
+	margin: 4px;
+}
+
+.contextMenu span.title {
+	margin-right: 24px;
+}
+
+.contextMenu li ul {
+	position: absolute;
+	display: none;
+	padding: 0px;
+	margin: 0px;
+	border: 1px solid #999;
+	z-index: 999;
+}
+
+.contextMenu li.hover {
+	color: #FFF;
+	background-color: #AAA;
+}
+
+.contextMenu li.disabled {
+	color: #AAA;
+	cursor: default;
+	background-color: #DDD;
+}

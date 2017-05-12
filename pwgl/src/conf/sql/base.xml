@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqls namespace="base">
+
+	<sql id="selectService">
+		SELECT serviceId,beanId,times FROM service
+		<dynamic>
+			WHERE flag = '1'
+			<if name="serviceId" test="notNull,notEmpty">
+				AND serviceId = :serviceId
+			</if>
+		</dynamic>
+	</sql>
+	
+	<sql id="selectRemoteService">
+		SELECT serviceId,beanId,times,serviceUrl FROM service
+		<dynamic>
+			WHERE flag = '1' AND isremote = '1'
+			<if name="serviceId" test="notNull,notEmpty">
+				AND serviceId = :serviceId
+			</if>
+		</dynamic>
+	</sql>
+
+	<sql id="selectEx">
+		SELECT errorCode,errorMsg FROM exinfo
+		<dynamic>
+			WHERE
+			<if name="errorCode" test="notNull,notEmpty">
+				errorCode = :errorCode
+			</if>
+		</dynamic>
+	</sql>
+
+</sqls>

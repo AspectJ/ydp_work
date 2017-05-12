@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>票务系统(项目管理)</title>
+<script language="JavaScript" src="js/public/import.js"></script>
+<link href="css/new/base.css" rel="stylesheet" />
+<link href="css/new/style.css" rel="stylesheet" />
+<script src="js/page/login/index.js" type="text/javascript"></script>
+<script src="js/page/login/dbsx.js" type="text/javascript"></script>
+</head>
+
+<body>
+<div id="rightDiv" style="bottome:0px;left:230px;right:0px;top:78px;">
+     <div id="workMainDiv" style="width: auto;height:auto;"></div>
+</div>
+
+<div class="aside" id="leftDiv">
+     <ul  id="leftMenu">
+         <li class="on"><a href="#" class="pt15" onclick="openUrl('pages/sessions/index.html','首页','首页')"><span class="dnb m-bg1"></span><p class="pt5 pl10">首页</p></a></li>
+         <li ><a href="#" class="pt15" onclick="openUrl('pages/item/indexItem.html','项目管理','项目管理')"><span class="dnb m-bg2"></span><p class="pt5">项目管理</p></a></li>
+         <li><a href="#" class="pt15" onclick="openUrl('pages/sessions/indexSessions.html','场次管理','场次管理')"><span class="dnb m-bg3"></span><p class="pt5">场次管理</p></a></li>
+         <li><a href="#" class="pt15" onclick="openUrl('pages/sessions/indexAuditSessions.html','场次审核','场次审核')"><span class="dnb m-bg4"></span><p class="pt5">场次审核</p></a></li>
+         <li><a href="#" class="pt15" onclick=""><span class="dnb m-bg5"></span><p class="pt5">票房统计</p></a></li>
+     </ul>
+</div>
+<div class="top bgf clearfix" id="current_location_div">
+     
+</div>
+<div class="contion" id="main_div"  >
+     <div class="pl30 pr30 pt10 pb10">
+          <h3 class="bgf pl20 pt15 pb15 f14">待办事项</h3>
+          <div class="bgf mt17 pt30 pb30 pl30 pr30 clearfix t_c">
+               <div id="ccsh" class="block db l c_f pt30 pb30"><img src="images/page/1_13.png" width="25%" class="v_m" /> <span class="v_m pl15">场次待审核（0）</span></div>
+               <div class="block db r c_f pt30 pb30"><img src="images/page/1_13.png" width="25%" class="v_m" style="float: left; margin-left: 15px;"/><span class="v_m pl15"></span></div>
+          </div>
+     </div>
+</div>
+
+</body>
+</html>

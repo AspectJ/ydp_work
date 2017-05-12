@@ -1,0 +1,12 @@
+@charset "utf-8";
+
+.table_ol{width:582px; float:left; padding:9px 10px 20px 10px; overflow:auto;}
+.table_ol li{width:100%; float:left; margin:12px 0 0 ;}
+.table_ol li label{float:left; width:100px; height:24px; line-height:24px; text-align:right; margin-left:0;}
+.table_ol li input{float:left; width:265px; height:22px; line-height:22px; padding:0 5px; border:1px #ccc solid; margin-right:0px;}
+.table_ol li .inp{width:102px;}
+.table_ol li .inp2{width:100px;}
+.table_ol li .redcolor{color:red;}
+.table_ol li select{float:left; width:112px; height:22px; line-height:22px;}
+.table_ol .li_btn{width:405px;}
+.table_ol .li_btn button{float:right; margin:8px 6px 0px 0px;}

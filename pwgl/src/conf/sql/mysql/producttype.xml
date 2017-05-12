@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<sqls namespace="producttype">
+	<!--查询 -->
+	<sql id="selectProducttype">
+    SELECT
+	t.producttypeid,
+	t.typename,
+	t.pxh,
+	CASE t.fprodtypeid
+    WHEN 'ROOT' THEN
+	NULL
+    ELSE
+	t.fprodtypeid
+    END fprodtypeid,
+    CASE t.fprodtypeid
+    WHEN 'ROOT' THEN
+	0
+    ELSE
+	1
+    END LEVEL,
+    CASE t.fprodtypeid
+    WHEN 'ROOT' THEN
+	FALSE
+    ELSE
+	TRUE
+    END isLeaf,
+    TRUE loaded,
+    FALSE expanded,
+    t.des,
+    t. STATUS `status`,
+    CASE
+    WHEN P.typename IS NULL THEN
+	'ROOT'
+    ELSE
+	P.typename
+    END ftypename
+    FROM
+	pt_producttype t
+    LEFT JOIN pt_producttype p ON P.producttypeid = T.fprodtypeid
+	<dynamic>
+			WHERE
+			<if name="status" test="notEmpty">and t.status = :status</if>
+			<!-- 根据名称模糊查询 -->
+			<if name="typename" test="notEmpty">and <![CDATA[ t.typename like CONCAT('%',:typename,'%') ]]></if>
+	</dynamic>
+	</sql>
+	
+	<!--查询是否存在子类  -->
+	<sql id="queryProduct">
+	SELECT COUNT(1) C FROM pt_producttype  T 
+	<dynamic>
+	  WHERE 
+        <if name="prodtypeid" test="notEmpty">T.fprodtypeid=:prodtypeid</if>
+	</dynamic>
+	</sql>
+	
+	
+	<!-- 查询上级产品分类 -->
+	<sql id="sjcplb">
+	SELECT 	t.producttypeid,t.typename FROM pt_producttype t 
+	<dynamic>	
+	 <if>WHERE t.fprodtypeid='ROOT'</if>
+	 <if name="producttypeid" test="notEmpty">AND t.producttypeid!=:producttypeid</if>
+	</dynamic>
+	
+	</sql>
+	<!--新增 -->
+	<sql id="insertProducttype">
+		INSERT INTO pt_producttype(producttypeid ,typename ,pxh ,fprodtypeid ,des ,status ,delstatus ,vid ,cid ,ctime ,mid ,mtime )
+		VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
+	</sql>
+	
+	<!--更新 -->
+	<sql id="updateProducttype">
+		UPDATE pt_producttype SET
+		<dynamic>
+		<if name="typename" test="notEmpty">typename = :typename </if>
+		<if name="pxh" test="notEmpty">,pxh = :pxh </if>
+		<if name="fprodtypeid" test="notEmpty">,fprodtypeid = :fprodtypeid </if>
+		<if name="des" test="notEmpty">,des = :des </if>
+		<if name="status" test="notEmpty">,status = :status </if>
+		<if name="delstatus" test="notEmpty">,delstatus = :delstatus </if>
+		<if name="vid" test="notEmpty">,vid = :vid </if>
+		<if name="cid" test="notEmpty">,cid = :cid </if>
+		<if name="ctime" test="notEmpty">,ctime = :ctime </if>
+		<if name="mid" test="notEmpty">,mid = :mid </if>
+		<if name="mtime" test="notEmpty">,mtime = :mtime </if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="producttypeid">producttypeid = :producttypeid</if>
+		</dynamic>
+	</sql>
+	
+	<!-- 禁用启用 -->
+	<sql id="updateStatus">
+		UPDATE pt_producttype
+		<dynamic>
+			SET
+			<if name="status">
+				status = :status
+			</if>
+			<if name="mid">
+				,mid = :mid
+			</if>
+			<if name="mtime">
+				,mtime = :mtime
+			</if>
+			<if name="producttypeid">
+				WHERE producttypeid = :producttypeid
+			</if>
+		</dynamic>
+	</sql>
+	
+	<!--删除 -->
+	<sql id="deleteProducttype">
+		DELETE FROM pt_producttype
+		<dynamic>
+			WHERE
+			<if name="producttypeid">producttypeid = :producttypeid</if>
+		</dynamic>
+	</sql>
+</sqls>

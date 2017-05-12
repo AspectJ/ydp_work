@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<sqls namespace="quotasmanager">
+
+	<!--查询 -->
+	<sql id="selectQuotasmanager">
+  SELECT
+	p.itemid,
+	p.itemname,
+	s.sessionsid,
+	s.sessionsname,
+	v.venuename,
+	h.hallname,
+	CONCAT(
+		s.playtime,
+		'-',
+		date_add(
+			s.playtime,
+			INTERVAL (s.length / 60) HOUR
+		)
+	) time,
+	IFNULL(a.quata, 0) ccpe,
+	IFNULL(th.quota, 0) sxjgpe
+FROM
+	pt_item p
+LEFT JOIN pt_sessions s ON p.itemid = s.itemid
+LEFT JOIN PT_VENUE v ON v.venueid = s.venueid
+LEFT JOIN pt_hall h ON h.hallid = s.hallid
+LEFT JOIN PT_SESSIONSQUOTA a ON a.sessionsid = s.sessionsid
+LEFT JOIN (
+	SELECT
+		sum(a.quota) quota,
+		s.sessionsid
+	FROM
+		PT_PAYBOXQUOTA a,
+		pt_sessions s
+	WHERE
+		s.sessionsid = a.sessionsid
+    GROUP BY s.sessionsid
+) th ON th.sessionsid = s.sessionsid
+		<dynamic>
+		 WHERE
+		   <if name="xmm" test="notEmpty"><![CDATA[ p.itemname like CONCAT('%',:xmm,'%') ]]></if>
+		   <if name="ccmc" test="notEmpty">AND <![CDATA[ s.sessionsname like CONCAT('%',:ccmc,'%') ]]></if>
+		</dynamic>
+		<dynamic>
+		  GROUP BY s.sessionsid
+		</dynamic>
+	</sql>
+
+	<!-- 删除 -->
+	<sql id="deleteQuotasManager">
+		DELETE FROM PT_SESSIONSQUOTA
+		<dynamic>
+			WHERE
+			<if name="sessionsid" test="notEmpty">sessionsid=:sessionsid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 写入 -->
+	<sql id="insertQuotasManager">
+		INSERT INTO PT_SESSIONSQUOTA(squotaid,sessionsid,quata) VALUES(?,?,?)
+	</sql>
+
+	<!-- 查询售票机构 -->
+	<sql id="queryXsjg">
+		SELECT a.payboxid,
+		a.payboxname,
+		b.quota FROM pt_paybox a
+		LEFT JOIN PT_PAYBOXQUOTA b ON a.payboxid=b.payboxid
+		<dynamic>
+		 <if name="sessionsid" test="notEmpty">AND b.sessionsid=:sessionsid</if>
+		</dynamic>
+	</sql>
+	
+	<!-- 删除场次对应的销售机构 -->
+	<sql id="deleteCcxsjg">
+	 DELETE FROM PT_PAYBOXQUOTA
+	 <dynamic>
+	  WHERE 
+	  <if name="sessionsid" test="notEmpty">sessionsid=:sessionsid</if>
+	 </dynamic>
+	</sql>
+	
+	<!-- 写入场次对应的销售机构 -->
+	<sql id="insertCcxsjg">
+	 INSERT INTO PT_PAYBOXQUOTA(pquotaid,sessionsid,payboxid,quota) VALUES(?,?,?,?)
+	</sql>
+
+</sqls>

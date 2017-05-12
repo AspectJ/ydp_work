@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com"
+	namespace="interface">
+	<!-- 查询 -->
+	<sql id="selectInterface">
+	  SELECT interid,domain,type,surl,serviceid,opertype,dataformat,isremote,times,des,inexample,outexample FROM pt_interface
+	  <dynamic>
+		WHERE
+		<if name="serviceid" test="notEmpty">AND <![CDATA[ serviceid LIKE CONCAT('%',:serviceid,'%') ]]></if>
+		<if name="opertype" test="notEmpty">AND <![CDATA[ opertype LIKE CONCAT('%',:opertype,'%') ]]></if>
+	  </dynamic>
+	</sql>
+	
+	<!-- 查询接口是否重复 -->
+	<sql id="selectInterfacesfcf">
+	  SELECT COUNT(*) FROM pt_interface
+	  <dynamic>
+	    WHERE
+	    <if name="serviceid">serviceid=:serviceid</if>
+	    <if name="opertype">AND opertype=:opertype</if>
+	  </dynamic>
+	</sql>
+	
+	<!-- 增加 -->
+	<sql id="insertInterface">
+	  INSERT INTO pt_interface(interid,domain,type,surl,serviceid,opertype,dataformat,isremote,des) VALUES(?,?,?,?,?,?,?,?,?)
+	</sql>
+	
+	<!-- 修改 -->
+    <sql id="updateInterface">
+	  UPDATE pt_interface SET
+	  <dynamic>
+	    <if name="domain" test="notNull">,domain=:domain</if>
+	    <if name="type" test="notNull">,type=:type</if>
+	    <if name="surl" test="notNull">,surl=:surl</if>
+	    <if name="serviceid" test="notNull">,serviceid=:serviceid</if>
+	    <if name="opertype" test="notNull">,opertype=:opertype</if>
+	    <if name="dataformat" test="notNull">,dataformat=:dataformat</if>
+	    <if name="isremote" test="notNull">,isremote=:isremote</if>
+	    <if name="des" test="notNull">,des=:des</if>
+	    <if name="inexample" test="notNull">,inexample=:inexample</if>
+	    <if name="outexample" test="notNull">,outexample=:outexample</if>
+	  </dynamic>
+	  <dynamic>
+        WHERE
+        <if name="interid">interid=:interid</if>
+      </dynamic> 
+    </sql>
+    
+    <!-- 删除 -->
+	<sql id="deleteInterface">
+	  DELETE FROM pt_interface
+	  <dynamic>
+		WHERE
+		<if name="interid">interid=:interid</if>
+	  </dynamic>
+	</sql>
+	
+	<!-- 查询接口参数 -->
+	<sql id="selectParam">
+	  SELECT paramid,pkey,ptype,interid,pdesc,pxh FROM pt_interparam
+	  <dynamic>
+		WHERE
+		<if name="interid">interid=:interid</if>
+	  </dynamic>
+	</sql>
+	
+	<!-- 查询接口参数是否重复 -->
+	<sql id="selectParamsfcf">
+	  SELECT COUNT(*) FROM pt_interparam
+	  <dynamic>
+	    WHERE
+	    <if name="interid">interid=:interid</if>
+	    <if name="pkey">AND pkey=:pkey</if>
+	  </dynamic>
+	</sql>
+	
+	<!-- 增加 -->
+	<sql id="insertParam">
+	  INSERT INTO pt_interparam(paramid,interid,pkey,ptype,pdesc,pxh) VALUES(?,?,?,?,?,?)
+	</sql>
+	
+	<!-- 修改 -->
+    <sql id="updateParam">
+	  UPDATE pt_interparam SET
+	  <dynamic>
+	    <if name="pkey" test="notNull">,pkey=:pkey</if>
+	    <if name="ptype" test="notNull">,ptype=:ptype</if>
+	    <if name="pdesc" test="notNull">,pdesc=:pdesc</if>
+	    <if name="pxh" test="notNull">,pxh=:pxh</if>
+	  </dynamic>
+	  <dynamic>
+        WHERE
+        <if name="paramid">paramid=:paramid</if>
+      </dynamic> 
+    </sql>
+    
+    <!-- 删除 -->
+	<sql id="deleteParam">
+	  DELETE FROM pt_interparam
+	  <dynamic>
+		WHERE
+		<if name="paramid">paramid=:paramid</if>
+	  </dynamic>
+	</sql>
+</sqls>

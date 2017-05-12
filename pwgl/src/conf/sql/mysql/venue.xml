@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<sqls namespace="venue">
+	<!--查询 -->
+	<sql id="selectVenue">
+		SELECT
+	    t.venueid,
+	    t.venuename,
+	    t.address,
+	    t.areaid,
+	    t.introduction,
+	    t. STATUS,
+        a.areaname
+        FROM
+	    PT_VENUE t
+        LEFT JOIN pt_area a ON a.areaid=t.areaid
+		<dynamic>
+			WHERE
+			<!-- 根据名称模糊查询 -->
+			<if name="venuename" test="notEmpty"><![CDATA[ t.venuename like CONCAT('%',:venuename,'%') ]]></if>
+			<if name="status" test="notEmpty">AND t.status=:status</if>
+		</dynamic>
+	</sql>
+	
+	<!--新增 -->
+	<sql id="insertVenue">
+		INSERT INTO PT_VENUE(venueid ,venuename ,address ,areaid ,introduction ,status ,delstatus ,vid ,cid ,ctime ,mid ,mtime )
+		VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
+	</sql>
+	
+	<!--更新 -->
+	<sql id="updateVenue">
+		UPDATE PT_VENUE SET
+		<dynamic>
+		<if name="venuename" test="notEmpty">venuename = :venuename </if>
+		<if name="address" test="notEmpty">,address = :address </if>
+		<if name="areaid" test="notEmpty">,areaid = :areaid </if>
+		<if name="introduction" test="notEmpty">,introduction = :introduction </if>
+		<if name="status" test="notEmpty">,status = :status </if>
+		<if name="delstatus" test="notEmpty">,delstatus = :delstatus </if>
+		<if name="vid" test="notEmpty">,vid = :vid </if>
+		<if name="cid" test="notEmpty">,cid = :cid </if>
+		<if name="ctime" test="notEmpty">,ctime = :ctime </if>
+		<if name="mid" test="notEmpty">,mid = :mid </if>
+		<if name="mtime" test="notEmpty">,mtime = :mtime </if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="venueid">venueid = :venueid</if>
+		</dynamic>
+	</sql>
+	
+	<!-- 禁用启用 -->
+	<sql id="updateStatus">
+		UPDATE PT_VENUE
+		<dynamic>
+			SET
+			<if name="status">
+				status = :status
+			</if>
+			<if name="mid">
+				,mid = :mid
+			</if>
+			<if name="mtime">
+				,mtime = :mtime
+			</if>
+			<if name="venueid">
+				WHERE venueid = :venueid
+			</if>
+		</dynamic>
+	</sql>
+	
+	<!--删除 -->
+	<sql id="deleteVenue">
+		DELETE FROM PT_VENUE
+		<dynamic>
+			WHERE
+			<if name="venueid">venueid = :venueid</if>
+		</dynamic>
+	</sql>
+</sqls>

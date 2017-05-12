@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com"
+	namespace="user">
+
+	<!-- 查询平台用户 -->
+	<sql id="selectUser">
+		SELECT
+		t.userid,
+		t.username,
+		t.pass,
+		t.realname,
+		t.sex,
+		t.telephone,
+		s.rolename,
+		t.`status`,
+		t.age,
+		t.email,
+		s.roleid,
+        a.areaname,
+        a.areaid,
+        t.addr
+		FROM
+		pt_user t
+    LEFT JOIN PT_AREA a ON a.areaid=t.xzqh
+		LEFT JOIN(SELECT ur.roleid,ur.userid,r.rolename FROM pt_user_role ur
+		LEFT JOIN PT_ROLE r ON ur.roleid=r.roleid
+		WHERE r.roletype='1'
+		)s ON t.userid=s.userid
+	 <dynamic>
+			WHERE	
+			 <if name="realname" test="notEmpty"><![CDATA[t.realname like CONCAT('%',:realname,'%') ]]></if>
+			 <if name="telephone" test="notEmpty">AND <![CDATA[ t.telephone like CONCAT('%',:telephone,'%')]]></if>
+             <if name="status" test="notEmpty"> <![CDATA[t.`status` =:status]]></if>			
+		</dynamic>
+	</sql>
+
+	<!-- 查询部门 -->
+	<sql id="selectDeptname">
+		SELECT dept.deptid,CONCAT(fdept.deptname,'->',dept.deptname) deptname FROM
+		pt_dept dept LEFT JOIN pt_dept fdept ON dept.fdeptid=fdept.deptid
+		WHERE dept.status='1' AND dept.type='部门'
+	</sql>
+
+	<!-- 查询账号是否重复 -->
+	<sql id="selectZhsfcf">
+		SELECT COUNT(*) FROM pt_user
+		<dynamic>
+			WHERE
+			<if name="username">username=:username</if>
+		</dynamic>
+	</sql>
+
+	<!-- 新增 -->
+	<sql id="insertUser">
+		INSERT INTO
+		pt_user(userid,username,pass,realname,spell,
+		sex,age,telephone,email,addr,
+		xzqh,lasttime,lastip,times,yhjf,
+		yhye,status,delstatus,vid,cid,
+		ctime,mid,mtime)
+		VALUES(?,?,?,?,?,
+		?,?,?,?,?,
+		?,?,?,?,?,
+		?,?,?,?,?,
+		?,?,?)
+	</sql>
+
+	<!-- 修改 -->
+	<sql id="updateUser">
+		UPDATE pt_user SET
+		<dynamic>
+			<if name="username" test="notNull">,username=:username</if>
+			<if name="realname" test="notNull">,realname=:realname</if>
+			<if name="spell" test="notNull">,spell=:spell</if>
+			<if name="sex" test="notNull">,sex=:sex</if>
+			<if name="age" test="notNull">,age=:age</if>
+			<if name="telephone" test="notNull">,telephone=:telephone</if>
+			<if name="email" test="notNull">,email=:email</if>
+			<if name="areaid" test="notNull">,xzqh=:areaid</if>
+			<if name="addr" test="notNull">,addr=:addr</if>
+			<if name="mid" test="notNull">,mid=:mid</if>
+			<if name="mtime" test="notNull">,mtime=:mtime</if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="userid">userid=:userid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 修改状态 -->
+	<sql id="updateUserStatus">
+		UPDATE pt_user SET
+		<dynamic>
+			<if name="status" test="notNull">,status=:status</if>
+			<if name="mid" test="notNull">,mid=:mid</if>
+			<if name="mtime" test="notNull">,mtime=:mtime</if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="userid">userid=:userid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 查询登录次数 -->
+	<sql id="selectDlcs">
+		SELECT times FROM pt_user
+		<dynamic>
+			WHERE
+			<if name="userid">userid=:userid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 删除 -->
+	<sql id="deleteUser">
+		DELETE FROM pt_user
+		<dynamic>
+			WHERE
+			<if name="userid">userid=:userid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 修改密码 -->
+	<sql id="updatePass">
+		UPDATE pt_user SET
+		<dynamic>
+			<if name="newpass">,pass=:newpass</if>
+			<if name="mid" test="notNull">,mid=:mid</if>
+			<if name="mtime" test="notNull">,mtime=:mtime</if>
+			<if name="userid">WHERE userid=:userid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 查询功能角色 -->
+	<sql id="selectFunctionRole">
+		SELECT roleid,rolename FROM pt_role WHERE roletype='1'
+	</sql>
+
+	<!-- 删除用户关联的功能角色 -->
+	<sql id="deleteFunctionEmpower">
+		DELETE FROM pt_user_role WHERE roleid IN(SELECT roleid FROM pt_role
+		WHERE roletype='1')
+		<dynamic>
+			<if name="userid">AND userid=:userid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 增加用户角色 -->
+	<sql id="insertEmpower">
+		INSERT INTO pt_user_role(urid,userid,roleid,cid,ctime,mid,mtime)
+		VALUES(?,?,?,?,?,?,?)
+	</sql>
+
+	<!-- 查询所有数据角色 -->
+	<sql id="selectAllDataRole">
+		SELECT roleid,rolename FROM pt_role WHERE roletype='2'
+	</sql>
+
+	<!-- 查询用户关联的数据角色 -->
+	<sql id="selectUserDataRole">
+		SELECT ur.roleid FROM pt_user_role ur LEFT JOIN pt_role r ON
+		ur.roleid=r.roleid WHERE r.roletype='2'
+		<dynamic>
+			<if name="userid">AND ur.userid=:userid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 删除用户关联的数据角色 -->
+	<sql id="deleteDataEmpower">
+		DELETE FROM pt_user_role WHERE roleid IN(SELECT roleid FROM pt_role
+		WHERE roletype='2')
+		<dynamic>
+			<if name="userid">AND userid=:userid</if>
+		</dynamic>
+	</sql>
+
+</sqls>

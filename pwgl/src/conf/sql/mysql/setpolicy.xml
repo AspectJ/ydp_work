@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com"
+	namespace="setpolicy">
+
+	<!-- 查询套票政策 -->
+	<sql id="querySetpolicy">
+		SELECT s.setpolicyid,s.sessionsid,s.policyname,s.numb,
+		s.totalprice,s.des,s.setshow,s.charshow,
+		DATE_FORMAT(s.begintime,'%Y-%m-%d %H:%i') begintime,
+	    DATE_FORMAT(s.endtime,'%Y-%m-%d %H:%i') endtime
+		FROM
+		pt_setpolicy s
+        <dynamic>
+        	WHERE
+        	<if name="sessionsid" test="notEmpty">s.sessionsid=:sessionsid</if>
+			<if name="name" test="notEmpty">and <![CDATA[ s.policyname like CONCAT('%',:name,'%') ]]></if>
+          </dynamic>
+	</sql>
+
+	<!-- 查询票价优惠政策 -->
+	<sql id="queryPrefpolicy">
+		SELECT p.prefpolicyid,p.sessionsid,p.policyname
+		,p.prefprice,p.agio,p.charshow,p.origshow,p.agioshow,
+		DATE_FORMAT(p.begintime,'%Y-%m-%d %H:%i') begintime,
+		DATE_FORMAT(p.endtime,'%Y-%m-%d %H:%i') endtime
+		FROM pt_prefpolicy p
+	    <dynamic>
+        	WHERE
+			<if name="name" test="notEmpty">and <![CDATA[ p.policyname like CONCAT('%',:name,'%') ]]></if>
+          </dynamic>
+	</sql>
+
+    <!-- 查询场次名称 -->
+    <sql id="queryCcmc">
+      SELECT t.sessionsid,t.sessionsname FROM pt_sessions t
+    </sql>
+    
+    <!-- 查询票价等级 -->
+    <sql id="queryPjdj">
+     SELECT l.pricelevelid,l.pricelevelname FROM pt_pricelevel L
+    </sql>
+    
+    <!-- 新增套票政策 -->
+    <sql id="insertTpzc">
+      INSERT INTO pt_setpolicy(setpolicyid,
+      sessionsid,
+      policyname,     
+      numb,
+      totalprice,
+      des,
+      setshow,
+      charshow,
+      begintime,
+      endtime,
+      cid,ctime,mid,mtime)VALUES(?,?,?,?,?,?,?,?,?,?,
+      ?,?,?,?)      
+    </sql>
+    
+    <!-- 新增优惠政策 -->
+    <sql id="insertYhzc">
+      INSERT INTO pt_prefpolicy(prefpolicyid,
+      sessionsid,
+      policyname,      
+      prefprice,
+      agio,
+      charshow,
+      origshow,
+      agioshow,
+      begintime,
+      endtime,
+      cid,ctime,mid,mtime)VALUES(?,?,?,?,?,?,?,?,?,?,
+      ?,?,?,?)
+    </sql>
+    
+    <!-- 修改套票政策 -->
+    <sql id="updateTpzc">
+      UPDATE pt_setpolicy  SET
+      <dynamic>
+      <if name="sessionsid" test="notEmpty">sessionsid=:sessionsid</if>
+      <if name="policyname" test="notEmpty">,policyname=:policyname</if>
+      <if name="numb" test="notEmpty">,numb=:numb</if>
+      <if name="totalprice" test="notEmpty">,totalprice=:totalprice</if>
+      <if name="des" test="notEmpty">,des=:des</if>
+      <if name="setshow" test="notEmpty">,setshow=:setshow</if>
+      <if name="charshow" test="notEmpty">,charshow=:charshow</if>
+      <if name="begintime" test="notEmpty">,begintime=:begintime</if>
+      <if name="endtime" test="notEmpty">,endtime=:endtime</if>
+      <if name="setpolicyid" test="notEmpty">WHERE setpolicyid=:setpolicyid</if>
+    </dynamic>
+    </sql>
+    
+    <!-- 删除 -->
+    <sql id="deleteTpzc">
+      DELETE FROM pt_setpolicy
+      <dynamic>
+         <if name="setpolicyid" test="notEmpty">WHERE setpolicyid=:setpolicyid</if>
+      </dynamic>
+    </sql>   
+    
+    <!-- 修改优惠政策 -->
+    <sql id="updateYhzc">
+      UPDATE pt_prefpolicy  SET
+      <dynamic>
+      <if name="sessionsid" test="notEmpty">sessionsid=:sessionsid</if>
+      <if name="policyname" test="notEmpty">,policyname=:policyname</if>
+      <if name="prefprice" test="notEmpty">,prefprice=:prefprice</if>
+      <if name="agio" test="notEmpty">,agio=:agio</if>
+      <if name="charshow" test="notEmpty">,charshow=:charshow</if>
+      <if name="origshow" test="notEmpty">,origshow=:origshow</if>
+      <if name="agioshow" test="notEmpty">,agioshow=:agioshow</if>
+      <if name="begintime" test="notEmpty">,begintime=:begintime</if>
+      <if name="endtime" test="notEmpty">,endtime=:endtime</if>
+      <if name="prefpolicyid" test="notEmpty">WHERE prefpolicyid=:prefpolicyid</if>
+      </dynamic>
+    </sql>
+    
+    <!-- 删除 -->
+    <sql id="deleteYhzc">
+      DELETE FROM pt_prefpolicy
+      <dynamic>
+         <if name="prefpolicyid" test="notEmpty">WHERE prefpolicyid=:prefpolicyid</if>
+      </dynamic>
+    </sql> 
+    
+    <!-- 查询明细 --> 
+    <sql id="queryTpDetail">    
+    SELECT 
+    d.detailid,
+    d.pricelevelid,
+    p.pricelevelname,
+    d.price 
+    FROM pt_setpolicy_detail d 
+    LEFT JOIN pt_pricelevel p ON p.pricelevelid=d.pricelevelid
+    <dynamic>
+      WHERE
+      <if name="policyid" test="notEmpty">d.policyid=:policyid</if>      
+    </dynamic>
+    </sql> 
+    
+    
+    
+    <!-- 写入明细 -->
+    <sql id="insertDetail">
+      INSERT INTO pt_setpolicy_detail(detailid,policyid,pricelevelid,price,opertype,cid,ctime,mid,mtime,oldprice)VALUES(
+      ?,?,?,?,?,?,?,?,?,?)
+    </sql>
+
+    
+    <!-- 修改明细 -->
+    <sql id="updateDetail">
+       UPDATE pt_setpolicy_detail SET
+       <dynamic>
+         <if name="pricelevelid" test="notEmpty">pricelevelid=:pricelevelid</if>
+         <if name="price" test="notEmpty">,price=:price</if>
+         <if name="detailid" test="notEmpty">WHERE detailid=:detailid</if>
+       </dynamic>    
+    </sql>
+    
+     <!-- 修改套票政策 的数量和总价-->
+    <sql id="updateTpSumPrice">
+      UPDATE pt_setpolicy  SET
+      <dynamic>
+      <if name="numb" test="notEmpty">,numb=numb+(:numb)</if>
+      <if name="totalprice" test="notEmpty">,totalprice=totalprice+(:totalprice)</if>
+      <if name="setpolicyid" test="notEmpty">WHERE setpolicyid=:setpolicyid</if>
+    </dynamic>
+    </sql>
+    
+    <!-- 修改优惠政策的总价-->
+    <sql id="updateYhzcSumPrice">
+      UPDATE pt_prefpolicy  SET
+      <dynamic>
+      <if name="prefprice" test="notEmpty">,prefprice=prefprice+(:prefprice)</if>
+      <if name="prefpolicyid" test="notEmpty">WHERE prefpolicyid=:prefpolicyid</if>
+    </dynamic>
+    </sql>
+    
+    <!-- 修改套票政策 的数量和总价-->
+    <sql id="updatexgTpSumPrice">
+      UPDATE pt_setpolicy  SET
+      <dynamic>
+      <if name="numb" test="notEmpty">,numb=numb+(:numb)</if>
+      <if name="totalprice" test="notEmpty">,totalprice=(:totalprice)</if>
+      <if name="setpolicyid" test="notEmpty">WHERE setpolicyid=:setpolicyid</if>
+    </dynamic>
+    </sql>
+    
+    <!-- 删除明细 -->
+    <sql id="deleteDetail">
+      DELETE FROM pt_setpolicy_detail
+      <dynamic>
+         <if name="detailid" test="notEmpty">WHERE detailid=:detailid</if>
+         <if name="policyid" test="notEmpty">AND  policyid=:policyid</if>
+      </dynamic>
+    </sql>
+    
+    <!-- 删除明细 -->
+    <sql id="deleteSDetail">
+      DELETE FROM pt_setpolicy_detail
+      <dynamic>
+         <if name="policyid" test="notEmpty">WHERE  policyid=:policyid</if>
+      </dynamic>
+    </sql>
+    
+     <!-- 修改套票政策 的减少数量和总价-->
+    <sql id="updateReduceSumPrice">
+      UPDATE pt_setpolicy  SET
+      <dynamic>
+      <if name="numb" test="notEmpty">,numb=numb-(:numb)</if>
+      <if name="totalprice" test="notEmpty">,totalprice=totalprice-(:totalprice)</if>
+      <if name="setpolicyid" test="notEmpty">WHERE setpolicyid=:setpolicyid</if>
+    </dynamic>
+    </sql>    
+         
+    <!-- 修改优惠政策的优惠价格-->
+    <sql id="updateReduceYhzcPrice">
+      UPDATE pt_prefpolicy  SET
+      <dynamic>
+      <if name="prefprice" test="notEmpty">,prefprice=prefprice-(:prefprice)</if>
+      <if name="prefpolicyid" test="notEmpty">WHERE prefpolicyid=:prefpolicyid</if>
+    </dynamic>
+    </sql>
+</sqls>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com"
+	namespace="notice">
+	<!-- 查询通知 -->
+	<sql id="selectNotice">
+	  SELECT noticeid,title,content,reltime,relplatform,status FROM pt_notice
+	  <dynamic>
+		WHERE
+		<if name="title" test="notEmpty">AND <![CDATA[ title LIKE CONCAT('%',:title,'%') ]]></if>
+		<if name="starttime" test="notEmpty" ><![CDATA[AND DATE_FORMAT(reltime,'%Y-%m-%d') >=:starttime]]></if>
+        <if name="endtime" test="notEmpty" ><![CDATA[AND DATE_FORMAT(reltime,'%Y-%m-%d') <=:endtime]]></if>
+		<if name="relplatform" test="notEmpty">AND relplatform =:relplatform</if>
+		<if name="status" test="notEmpty">AND status =:status</if>
+	  </dynamic>
+	  <dynamic>
+	    ORDER BY reltime DESC
+	  </dynamic>
+	</sql>
+	
+	<!-- 增加通知 -->
+	<sql id="insertNotice">
+	  INSERT INTO pt_notice(noticeid,title,content,reltime,relplatform,status,cid,ctime,mid,mtime) VALUES(?,?,?,?,?,?,?,?,?,?)
+	</sql>
+	
+	<!-- 修改通知 -->
+    <sql id="updateNotice">
+	  UPDATE pt_notice SET title=?,content=?,reltime=?,relplatform=?,mid=?,mtime=? WHERE noticeid=? AND status='2'
+    </sql>
+    
+    <!-- 修改通知状态 -->
+    <sql id="updateStatus">
+      UPDATE pt_notice SET
+      <dynamic>
+        <if name="status" test="notNull">,status=:status</if>
+        <if name="mid" test="notNull">,mid=:mid</if>
+        <if name="mtime" test="notNull">,mtime=:mtime</if>
+      </dynamic>
+      <dynamic>
+        WHERE
+        <if name="noticeid">noticeid=:noticeid</if>
+      </dynamic>
+    </sql>
+    
+    <!-- 删除通知 -->
+	<sql id="deleteNotice">
+	  DELETE FROM pt_notice
+	  <dynamic>
+		WHERE
+		<if name="noticeid">noticeid=:noticeid AND status='2'</if>
+	  </dynamic>
+	</sql>
+</sqls>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com"
+	namespace="apiseller">
+	<sql id="queryApiSeller">
+		SELECT t.sellerid,
+		t.realname FROM pt_seller t
+		<dynamic>
+		  WHERE
+		  <if name="payboxid" test="notEmpty">t.payboxid=:payboxid</if>
+		</dynamic>
+	</sql>
+</sqls>

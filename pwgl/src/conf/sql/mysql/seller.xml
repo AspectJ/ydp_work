@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<sqls namespace="seller">
+	<!--查询 -->
+	<sql id="selectSeller">
+	 SELECT
+		t.sellerid,
+		t.payboxid,
+		t.username,
+		t.pass,
+		t.lasttime,
+		t.lastip,
+		t.times,
+		t.realname,
+		t.sex,
+		t.age,
+		t.tele,
+		t.txurl,
+		t. STATUS status
+		FROM
+		pt_seller t
+		<dynamic>
+			WHERE
+			<if name="status" test="notEmpty">and t.status = :status</if>
+			<!-- 根据名称模糊查询 -->
+			<if name="username" test="notEmpty">and <![CDATA[ t.username like CONCAT('%',:username,'%') ]]></if>
+		</dynamic>
+	</sql>
+	
+	<!-- 售票点名称 -->
+	<sql id="querySjspmc">
+	SELECT 	t.payboxid,t.payboxname FROM pt_paybox t 	
+	</sql>
+	
+	<!--新增 -->
+	<sql id="insertSeller">
+		INSERT INTO pt_seller(sellerid ,payboxid ,username ,pass ,lasttime ,lastip ,times ,realname ,sex ,age ,tele ,txurl ,status ,delstatus ,vid ,cid ,ctime ,mid ,mtime )
+		VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+	</sql>
+	
+	<!--更新 -->
+	<sql id="updateSeller">
+		UPDATE pt_seller SET
+		<dynamic>
+		<if name="payboxid" test="notEmpty">payboxid = :payboxid </if>
+		<if name="username" test="notEmpty">,username = :username </if>
+		<if name="pass" test="notEmpty">,pass = :pass </if>
+		<if name="lasttime" test="notEmpty">,lasttime = :lasttime </if>
+		<if name="lastip" test="notEmpty">,lastip = :lastip </if>
+		<if name="times" test="notEmpty">,times = :times </if>
+		<if name="realname" test="notEmpty">,realname = :realname </if>
+		<if name="sex" test="notEmpty">,sex = :sex </if>
+		<if name="age" test="notEmpty">,age = :age </if>
+		<if name="tele" test="notEmpty">,tele = :tele </if>
+		<if name="txurl" test="notEmpty">,txurl = :txurl </if>
+		<if name="status" test="notEmpty">,status = :status </if>
+		<if name="delstatus" test="notEmpty">,delstatus = :delstatus </if>
+		<if name="vid" test="notEmpty">,vid = :vid </if>
+		<if name="cid" test="notEmpty">,cid = :cid </if>
+		<if name="ctime" test="notEmpty">,ctime = :ctime </if>
+		<if name="mid" test="notEmpty">,mid = :mid </if>
+		<if name="mtime" test="notEmpty">,mtime = :mtime </if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="sellerid">sellerid = :sellerid</if>
+		</dynamic>
+	</sql>
+	
+	<!-- 禁用启用 -->
+	<sql id="updateStatus">
+		UPDATE pt_seller
+		<dynamic>
+			SET
+			<if name="status">
+				status = :status
+			</if>
+			<if name="mid">
+				,mid = :mid
+			</if>
+			<if name="mtime">
+				,mtime = :mtime
+			</if>
+			<if name="sellerid">
+				WHERE sellerid = :sellerid
+			</if>
+		</dynamic>
+	</sql>
+	
+	<!--删除 -->
+	<sql id="deleteSeller">
+		DELETE FROM pt_seller
+		<dynamic>
+			WHERE
+			<if name="sellerid">sellerid = :sellerid</if>
+		</dynamic>
+	</sql>
+</sqls>

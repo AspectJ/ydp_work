@@ -1,0 +1,219 @@
+﻿@charset "utf-8";
+/* CSS Document */
+
+@import url(icocss.css);
+
+.margintop5{margin-top:5px;}
+
+.wenbankuang{ width:200px; height:18px; _height:20px; float:left; border:1px #b3b3b3 solid; border-radius:2px; margin-top:3px;}
+/*下拉树*/
+.xialashu{width:160px;height:20px;}
+.xialashu li{width:auto;height:20px; float:left;}
+.xaladis {width:420px; border:1px #cccccc solid;position: absolute; height: auto; z-index: 1; left: 0px; top: 19px;padding:5px 5px 5px 5px ; background:#f7f7f7;}
+.xaladis ul.xalaxiang {width:auto;height:auto;float:left;margin:2px 2px 2px 2px ; cursor:pointer;}
+.xaladis ul.xalaxiang:hover{ background:#3399ff}
+.xaladis ul.xalacheck,.xaladis ul.xalacheck:hover{ background:#3399ff}
+.xaladis ul li {float:left;}
+.xaladis ul.xalaxiang li{line-height:22px;}
+.xaladis ul.xalaxiang li.xalacb {width:20px;}
+.xaladis ul.xalaxiang li.xalatle {width:auto;}
+.xaladis ul.xalabnt{width:auto ;height:26px; background:#dddddd;}
+.xaladis ul.xalabnt li{width:50px; float:right;margin:2px 2px auto auto;}
+.xalabox {border:none;}
+.xialaku {border:1px #b3b3b3 solid;height:16px; }
+
+.ico-shanchu,.ico-bianji,.ico-chakan,.ico-tianjia,.ico-queding,.ico-baocun,.ico-201,.ico-202,.ico-203,.ico-204,
+.ico-205,.ico-300,.ico-301,.ico-302,.ico-303,.ico-304,.ico-305,.ico-400,.ico-401,.ico-402,.ico-403,.ico-404,.ico-405
+,.ico-500,.ico-501,.ico-502,.ico-503,.ico-504,.ico-505,.ico-600,.ico-601,.ico-602,.ico-603,.ico-604,.ico-605,.ico-606,.ico-607,.ico-608,.ico-609,.ico-610
+,.ico-611,.ico-612,.ico-506,.ico-406,.ico-701,.ico-print,.ico-daoru2,.ico-daochu2
+{width:16px;height:16px;float:left;cursor:pointer; margin-right:3px;}
+
+.ico-tianjia{background:url('../../../images/index/images/ico1225.png') 1px 0px;}
+.ico-chakan{background:url('../../../images/index/images/ico1225.png') 0px -16px;}
+.ico-bianji{background:url('../../../images/index/images/ico1225.png') 0px -32px;}
+.ico-queding{background:url('../../../images/index/images/ico1225.png')  0px -48px;}
+.ico-shanchu{background:url('../../../images/index/images/ico1225.png') 0px -64px;}
+.ico-105{background:url('../../../images/index/images/ico1225.png') 0px -80px;}
+
+.ico-baocun{background:url('../../../images/index/images/ico1225.png') -16px 0px;}
+.ico-201{background:url('../../../images/index/images/ico1225.png') -16px -16px;}
+.ico-202{background:url('../../../images/index/images/ico1225.png') -16px -32px;}
+.ico-203{background:url('../../../images/index/images/ico1225.png') -16px -48px;}
+.ico-204{background:url('../../../images/index/images/ico1225.png') -16px -64px;}
+.ico-205{background:url('../../../images/index/images/ico1225.png') -16px -80px;}
+
+
+.ico-300{background:url('../../../images/index/images/ico1225.png') -32px -0px;}
+.ico-301{background:url('../../../images/index/images/ico1225.png') -32px -16px;}
+.ico-302{background:url('../../../images/index/images/ico1225.png') -32px -32px;}
+.ico-303{background:url('../../../images/index/images/ico1225.png') -32px -48px;}
+.ico-304{background:url('../../../images/index/images/ico1225.png') -32px -64px;}
+.ico-305{background:url('../../../images/index/images/ico1225.png') -32px -80px;}
+
+
+.ico-400{background:url('../../../images/index/images/ico1225.png') -48px -0px;}
+.ico-401{background:url('../../../images/index/images/ico1225.png') -48px -16px;}
+.ico-402{background:url('../../../images/index/images/ico1225.png') -48px -32px;}
+.ico-403{background:url('../../../images/index/images/ico1225.png') -48px -48px;}
+.ico-404{background:url('../../../images/index/images/ico1225.png') -48px -64px;}
+.ico-405{background:url('../../../images/index/images/ico1225.png') -48px -80px;}
+/*导入*/
+.ico-406{background:url('../../../images/index/images/ico1225.png') -98px -81px;}
+
+
+.ico-500{background:url('../../../images/index/images/ico1225.png') -64px -0px;}
+.ico-501{background:url('../../../images/index/images/ico1225.png') -64px -16px;}
+.ico-502{background:url('../../../images/index/images/ico1225.png') -64px -32px;}
+.ico-503{background:url('../../../images/index/images/ico1225.png') -64px -48px;}
+.ico-504{background:url('../../../images/index/images/ico1225.png') -64px -64px;}
+.ico-505{background:url('../../../images/index/images/ico1225.png') -64px -80px;}
+/*导出*/
+.ico-506{background:url('../../../images/index/images/ico1225.png') -114px -81px;}
+
+.ico-600{background:url('../../../images/index/images/ico1225.png') -80px -0px;}
+.ico-601{background:url('../../../images/index/images/ico1225.png') -80px -16px;}
+/*返回*/
+.ico-602{background:url('../../../images/index/images/ico1225.png') -80px -32px;}
+.ico-603{background:url('../../../images/index/images/ico1225.png') -80px -48px;}
+.ico-604{background:url('../../../images/index/images/ico1225.png') -80px -64px;}
+.ico-605{background:url('../../../images/index/images/ico1225.png') -80px -80px;}
+
+.ico-606{background:url('../../../images/index/images/ico1225.png') 0px -96px;}
+.ico-607{background:url('../../../images/index/images/ico1225.png') -15px -96px;}
+.ico-608{background:url('../../../images/index/images/ico1225.png') -32px -98px;}
+.ico-609{background:url('../../../images/index/images/ico1225.png') -48px -98px;}
+.ico-610{background:url('../../../images/index/images/ico1225.png') -65px -98px;}
+.ico-611{background:url('../../../images/index/images/ico1225.png') -82px -98px;}
+.ico-612{background:url('../../../images/index/images/ico1225.png') -98px -98px;}
+
+.ico-701{background:url('../../../images/index/images/ico1225.png') -114px -98px;}
+.ico-print{background:url('../../../images/index/images/ico1225.png') -34px -113px;}
+
+.gpyou,.gpzuo{width:14px;height:19px;float:left;cursor:pointer;}
+.gpyou{background:url('../../../images/index/images/gunpingbg.gif') 0px 0px;}
+.gpzuo{background:url('../../../images/index/images/gunpingbg.gif') -14px 0px;}
+
+/*公共启用按钮*/
+.anniu{
+	_width:70px;cursor:pointer; height:22px; border:1px #a0c0d7 solid;border-radius:3px; background:url('../../../images/index/images/anniu_bg.gif') repeat-x ; 
+	font-size:12px; text-align:left;white-space:nowrap;
+}
+.anniu span{float:left;}
+.anniu span.anniuico{width:16px; height:16px; margin:2px 1px auto 2px;}
+.anniu span.anniutxt{height:22px;line-height:20px; margin:0px 3px;}
+
+/*公共禁用按钮*/
+.anniu_disable{
+	_width:70px;cursor:pointer; height:22px; border:1px #b3b3b3 solid;border-radius:3px; background:url('../../../images/index/images/anniu_bg.gif') repeat-x ; 
+	font-size:12px; text-align:left;white-space:nowrap;
+	filter:gray;-moz-opacity:3;opacity:0.6;
+}
+.anniu_disable span{float:left;}
+.anniu_disable span.anniuico{width:16px; height:16px; margin:2px 1px auto 2px;}
+.anniu_disable span.anniutxt{height:22px;line-height:20px; margin:0px 3px;}
+
+/*
+.anniu{cursor:pointer; width:auto;_width:80px; height:22px; border:1px #b3b3b3 solid;border-radius:3px; background:url('../../images/page/anniu_bg.gif') repeat-x ; color:#333333; font-size:12px; text-align:left;}
+.anniu span{float:left; margin:0px 2px 0px 0px;}
+.anniu span.anniuico{width:16px; height:16px;}
+.anniu span.anniutxt{width:auto; height:22px;line-height:20px;}
+*/
+
+.2wid66{width:66px}
+.3wid78{width:78px}
+.4wid90{width:90px}
+.5wid102{width:102px}
+.6wid114{width:114px}
+
+.xuxian{ background:url('../../../images/index/images/xuxian.gif') repeat-x center}
+.width80{ width:80px;}
+.width100{ width:100px;}
+.width120{ width:120px;}
+.width160{ width:160px;}
+.width180{ width:180px;}
+.width200{ width:200px;}
+.width300{ width:300px;}
+
+
+/*下拉树**/
+.dropdownTree{ 
+	padding: 0px; 
+	margin: 5px 0px 0px; 
+	border: 0px; 
+	word-break: break-all;
+	}
+.dropdownTree-select{
+	padding: 0px 20px 0px 10px; 
+	margin: 0px; 
+	border: 1px solid #cccccc; 
+	word-break: break-all;
+	cursor: default; 
+	color:#333333; 
+	height: 20px; 
+	line-height: 21px; 
+	background:#ffffff url('../../../images/page/dropdowntree/downarrow.gif') no-repeat 100% 50%; 
+	overflow: hidden; 
+	width: 150px;
+}
+
+/* 分页 */
+.Main_page{min_width:158px; margin:0 auto; font-size:12px; overflow:auto; text-align:center;}
+.Main_page a{min-width:12px; border:1px #fff solid ; color:#555; padding:2px 7px; height:18px; line-height:20px; margin-top:8px; border-radius:3px; margin-left:5px; text-decoration:none}
+.Main_page a:hover{ border:1px #ddd solid ; color:#f96700; height:18px; line-height:20px; margin-top:8px; border-radius:3px;}
+.Main_page .hover{ border:1px #ddd solid; color:#f96700; padding:2px 7px; height:18px; line-height:20px; margin-top:8px; border-radius:3px; font-weight:bold;}
+.Main_page .Main_page1{ border:1px solid #ddd; color:#555; padding:2px 7px 2px 15px; height:18px; line-height:20px; margin-top:5px; border-radius:3px; background:url(../../../images/page/jt-s.jpg) no-repeat 6px 4px;}
+.Main_page .Main_page4{ border:1px solid #ddd; color:#555; padding:2px 15px 2px 7px; height:18px; line-height:20px; margin-top:8px; border-radius:3px; margin-left:5px; background:url(../../../images/page/jt-x.jpg) no-repeat 47px 4px;}
+
+/* public分页 */
+.public_page{ width:30%; float:right; font-size:12px;}
+.public_page1{ border:1px solid #ddd; color:#555; padding:2px 7px 2px 15px; height:18px; line-height:20px; margin-top:8px; border-radius:3px; float:left; background:url(../../../images/page/jt-s.jpg) no-repeat 6px 7px;cursor:pointer;}
+.public_page2{ color:#f96700; padding:2px 7px; height:18px; line-height:20px; margin-top:8px; border-radius:3px; float:left; margin-left:5px; font-weight:bold; cursor:pointer;}
+.public_page3{ border:1px solid #ddd; color:#555; padding:2px 7px; height:18px; line-height:20px; margin-top:8px; border-radius:3px; float:left; margin-left:8px; cursor:pointer;}
+.public_page4{ border:1px solid #ddd; color:#555; padding:2px 15px 2px 7px; height:18px; line-height:20px; margin-top:8px; border-radius:3px; float:left; margin-left:8px; background:url(../../../images/page/jt-x.jpg) no-repeat 47px 7px;cursor:pointer;}
+
+.noedit {color:#333333; border:0; background:0;}
+
+.margintop3{margin-top:3px;}
+
+/*公共日期样式 */
+.dateInput{background:#fff url(../../../images/page/54.png) no-repeat right;}
+.dropdownTree{float:left;}
+.dropdownlist{float:left;}
+
+.readonlytext{color:#005298; border:none; background:none;}
+
+.ico-daoru2{background:url('../../../images/index/mindex/ico1225.png') -96px 0px;}
+.ico-daochu2{background:url('../../../images/index/mindex/ico1225.png') -96px -16px;}
+
+/*提示样式*/
+.tc1010{float:left; padding:23px 35px 25px 35px; overflow:auto;}
+.tc1010 ul{ overflow:auto;}
+.tc1010 ul li{width:100%; float:left; line-height:26px; color:#666; text-align:left;}
+.tc1010 ul li img{margin-top:20px;}
+
+/*自定义列弹出层的样式*/
+.pub_role_tab{width:455px; float:left; padding:8px 12px 12px 16px; overflow:hidden;}
+
+.pub_role_tab .role_h1{background:url(../../../images/page/role_h1bg.jpg) no-repeat; width:448px; height:27px;}
+.pub_role_tab .role_h1 span{float:left; height:27px; line-height:29px;}
+.pub_role_tab .role_h1 .spa1{width:176px; text-align:center; margin-left:8px; color:#fff; font-weight:bold;}
+.pub_role_tab .role_h1 .spa2{width:190px; text-align:center; margin-left:57px;}
+
+.pub_role_tab .role_h1_2{background:url(../../../images/page/role_h1bg2.jpg) no-repeat; width:448px; height:27px;}
+.pub_role_tab .role_h1_2 span{float:left; height:27px; line-height:29px;}
+.pub_role_tab .role_h1_2 .spa1{width:176px; text-align:center; margin-left:8px;}
+.pub_role_tab .role_h1_2 .spa2{width:190px; text-align:center; margin-left:57px; color:#fff; font-weight:bold;}
+
+.pub_role_tab .caption{margin:10px 0; padding:0 5px; width:442px; line-height:18px; color:#999;}
+.pub_role_tab .caption b{float:left; width:39px; height:50px;}
+.pub_role_tab .caption span{float:left; width:400px;}
+.pub_role_tab ul li{width:100%; float:left;}
+.pub_role_tab ul li label{float:left; height:32px; line-height:32px;}
+.pub_role_tab ul li select,.pub_role_tab ul li input{float:left; margin-top:10px; margin-top:6px\9\0;}
+.pub_role_tab ul li .role_list{width:450px; float:left; margin:0 0 0 -2px; overflow:hidden; border:1px #ccc solid;}
+.pub_role_tab ul li .role_list dl{float:left; margin:0 25px 0 5px; padding-bottom:5px;}
+.pub_role_tab ul li .role_list dd{ overflow:hidden; color:#000; font-size:12px; height:28px; line-height:28px;}
+.pub_role_tab ul li .role_list dd label{margin-left:2px;}
+.pub_role_tab ul li .role_list dd label:hover{color:red}
+.pub_role_tab ul .ri{width:450px;}
+.pub_role_tab ul .ri button{float:right; margin:8px 0 6px 7px;}

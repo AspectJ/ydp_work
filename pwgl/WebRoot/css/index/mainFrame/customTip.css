@@ -1,0 +1,34 @@
+﻿@charset "utf-8";
+/* CSS Document */
+
+.tishixx{height:auto; position:absolute; z-index:99; top:50px; left:300px;}
+.tishixxm1{width:auto;height:5px; background: url('../../../images/index/mainFrame/customTip/tishixx_04.png') repeat-x;}
+.tishixxm1 li.tishixxm1a{width:5px; height:5px; float:left; background: url('../../../images/index/mainFrame/customTip/tishixx_bg.png') 0px 0px; overflow:hidden;}
+.tishixxm1 li.tishixxm1b{width:5px; height:5px;float:right; background: url('../../../images/index/mainFrame/customTip/tishixx_bg.png') -5px 0px; overflow:hidden;}
+
+.tishixxm1u{width:auto;height:42px; background: url('../../../images/index/mainFrame/customTip/tishixx_04.png') repeat-x 0px 37px;}
+.tishixxm1u li.tishixxm1ua{width:5px; height:42px; float:left; background: url('../../../images/index/mainFrame/customTip/tishixx_bg.png') no-repeat 0px 37px; overflow:hidden;}
+.tishixxm1u li.tishixxm1ub{width:5px; height:42px;float:right; background: url('../../../images/index/mainFrame/customTip/tishixx_bg.png') no-repeat -5px 37px; overflow:hidden;}
+.tishixxm1u li.tishixxm1uc{width:36px; height:42px;float:left;background: url('../../../images/index/mainFrame/customTip/tishixx_22c.png') no-repeat;}
+.tishixxm1u li.tishixxm1ud{width:36px; height:42px;float:right;background: url('../../../images/index/mainFrame/customTip/tishixx_22d.png') no-repeat;}
+
+
+.tishixxm{background: url('../../../images/index/mainFrame/customTip/bgs1.png')}
+.tishixxm2{background: url('../../../images/index/mainFrame/customTip/tishixx_08.png') repeat-y left;height:auto;width:auto;}
+.tishixxm2a{background: url('../../../images/index/mainFrame/customTip/tishixx_11.png') repeat-y right;height:auto;width:auto;}
+.tishixxm2b{width:auto;background: url('../../../images/index/mainFrame/customTip/tishixx_10.png') no-repeat 100% 0%; cursor:pointer;}
+
+.tishixxm3{width:auto;height:42px; background: url('../../../images/index/mainFrame/customTip/tishixx_20.png') repeat-x;}
+.tishixxm3 li.tishixxm3a{width:5px; height:5px; float:left; background: url('../../../images/index/mainFrame/customTip/tishixx_bg.png') 0px -5px; overflow:hidden;}
+.tishixxm3 li.tishixxm3b{width:5px; height:5px;float:right; background: url('../../../images/index/mainFrame/customTip/tishixx_bg.png') -5px -5px; overflow:hidden;}
+.tishixxm3 li.tishixxm3c{width:36px; height:42px;float:left;background: url('../../../images/index/mainFrame/customTip/tishixx_22.png') no-repeat;}
+.tishixxm3 li.tishixxm3d{width:36px; height:42px;float:right;background: url('../../../images/index/mainFrame/customTip/tishixx_22b.png') no-repeat;}
+
+.tsxxcont{margin:0px 10px;width:auto;background: url('../../../images/index/mainFrame/customTip/tishixx_16.png') no-repeat left center;}
+.tsxxcont li{margin-left:30px; line-height:20px;color:#666666;}
+.tsxxcontb{margin:0px 10px;width:auto;background: url('../../../images/index/mainFrame/customTip/tishixx_16b.png') no-repeat left center;}
+.tsxxcontb li{margin-left:30px; line-height:20px;color:#666666;}
+.tsxxcontc{margin:0px 10px;width:auto;background: url('../../../images/index/mainFrame/customTip/tishixx_16c.png') no-repeat left center;}
+.tsxxcontc li{margin-left:30px; line-height:20px;color:#666666;}
+.tsxxcontd{margin:0px 10px;width:auto;background: url('../../../images/index/mainFrame/customTip/tishixx_16d.png') no-repeat left center;}
+.tsxxcontd li{margin-left:30px; line-height:20px;color:#666666;}

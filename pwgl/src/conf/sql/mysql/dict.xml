@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com" 
+	namespace="dict">
+	
+	<!-- 查询平台用户 -->	
+	<sql id="selectDict">
+	  SELECT d.dictid,d.dvalue,d.dicttypeid,d.pxh,d.des,d.status,t.typename FROM pt_dict d LEFT JOIN pt_dicttype t ON d.dicttypeid=t.dicttypeid
+	  <dynamic>
+	    WHERE
+	    <if name="dvalue" test="notEmpty"><![CDATA[d.dvalue LIKE CONCAT('%',:dvalue,'%') ]]></if>
+	    <if name="typename" test="notEmpty"><![CDATA[t.typename LIKE CONCAT('%',:typename,'%') ]]></if>
+	    <if name="status" test="notEmpty">AND d.status=:status</if>
+	  </dynamic>
+	  <dynamic>
+	    ORDER BY d.ctime DESC
+	  </dynamic>
+	</sql>
+	
+	<!-- 查询代码分类 -->
+	<sql id="selectDicttype">
+	  SELECT dicttypeid,typename FROM pt_dicttype WHERE istree='2'
+	</sql>
+	
+	<!-- 检查代码id是否重复 -->
+	<sql id="selectSfcf">
+	  SELECT COUNT(*) FROM pt_dict
+	  <dynamic>
+	    WHERE
+	    <if name="dictid">dictid=:dictid</if>
+	  </dynamic>
+	</sql>
+	
+	<!-- 新增 -->
+	<sql id="insertDict">
+	  INSERT INTO pt_dict(dictid,dvalue,dicttypeid,pxh,des,status,cid,ctime,mid,mtime) VALUES(?,?,?,?,?,?,?,?,?,?)
+	</sql>
+	
+	<!-- 修改 -->
+	<sql id="updateDict">
+	  UPDATE pt_dict SET
+	  <dynamic>
+	    <if name="dictid" test="notNull">,dictid=:dictid</if>
+	    <if name="dvalue" test="notNull">,dvalue=:dvalue</if>
+	    <if name="dicttypeid" test="notNull">,dicttypeid=:dicttypeid</if>
+	    <if name="pxh" test="notNull">,pxh=:pxh</if>
+	    <if name="des" test="notNull">,des=:des</if>
+	    <if name="mid" test="notNull">,mid=:mid</if>
+	    <if name="mtime" test="notNull">,mtime=:mtime</if>
+	  </dynamic>
+	  <dynamic>
+	    WHERE
+	    <if name="ydictid">dictid=:ydictid AND status='2'</if>
+	  </dynamic>
+	</sql>
+	
+	<!-- 修改 -->
+	<sql id="updateStatus">
+	  UPDATE pt_dict SET
+	  <dynamic>
+	    <if name="status" test="notNull">,status=:status</if>
+	    <if name="mid" test="notNull">,mid=:mid</if>
+	    <if name="mtime" test="notNull">,mtime=:mtime</if>
+	  </dynamic>
+	  <dynamic>
+	    WHERE
+	    <if name="dictid">dictid=:dictid</if>
+	  </dynamic>
+	</sql>
+	
+	<!-- 删除 -->
+	<sql id="deleteDict">
+	  DELETE FROM pt_dict WHERE status='2'
+	  <dynamic>
+	    <if name="dictid">AND dictid=:dictid</if>
+	  </dynamic>
+	</sql>
+</sqls>

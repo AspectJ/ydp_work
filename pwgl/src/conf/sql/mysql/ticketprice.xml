@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls namespace="ticketprice">
+	<!--查询 -->
+	<sql id="selectTicketprice">
+		SELECT
+	    t.sessntkprid,
+	    t.sessionsid,
+	    t.pricelevelid,
+	    t.pricelevelname,
+	    t.color,
+	    t.price,
+	    t.mark,
+        p.sessionsname
+        FROM
+	    pt_ticketprice t
+        LEFT JOIN pt_sessions p ON p.sessionsid=t.sessionsid
+		<dynamic>
+			WHERE
+			<if name="sessionsid" test="">t.sessionsid=:sessionsid</if>
+			<if name="ccmc" test="notEmpty">and  <![CDATA[ p.sessionsname like CONCAT('%',:ccmc,'%') ]]></if>
+			<!-- 根据名称模糊查询 -->
+			<if name="pjdj" test="notEmpty">and <![CDATA[ t.pricelevelname like CONCAT('%',:pjdj,'%') ]]></if>
+		</dynamic>
+		<dynamic>
+		  ORDER BY   t.pricelevelname
+		</dynamic>
+	</sql>
+	
+	<!-- 查询场馆名称 -->
+	<sql id="queryCgmc">
+	  SELECT T.sessionsid,T.sessionsname FROM pt_sessions T
+	</sql>
+	
+	<!-- 用于判断唯一性 -->
+	<sql id="queryUniquePjdj">
+	  SELECT COUNT(1) FROM pt_ticketprice t
+	  <dynamic>
+	    WHERE
+	    <if name="pricelevelid" test="">t.pricelevelid IN(:pricelevelid)</if>
+	    <if name="sessionsid" test="">AND t.sessionsid=:sessionsid</if>
+	  </dynamic>
+	</sql>
+	
+	<!--新增 -->
+	<sql id="insertTicketprice">
+		INSERT INTO pt_ticketprice(sessntkprid ,
+		sessionsid ,
+		pricelevelid ,
+		pricelevelname ,
+		color ,
+		price ,
+		mark ,
+		delstatus ,
+		vid ,
+		cid ,
+		ctime ,
+		mid ,
+		mtime )
+		VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)
+	</sql>
+	
+	<!--更新 -->
+	<sql id="updateTicketprice">
+		UPDATE pt_ticketprice SET
+		<dynamic>
+		<if name="sessionsid" test="notEmpty">sessionsid = :sessionsid </if>
+		<if name="pricelevelid" test="notEmpty">,pricelevelid = :pricelevelid </if>
+		<if name="pricelevelname" test="notEmpty">,pricelevelname = :pricelevelname </if>
+		<if name="color" test="notEmpty">,color = :color </if>
+		<if name="price" test="notEmpty">,price = :price </if>
+		<if name="mark" test="notEmpty">,mark = :mark </if>
+		<if name="delstatus" test="notEmpty">,delstatus = :delstatus </if>
+		<if name="vid" test="notEmpty">,vid = :vid </if>
+		<if name="cid" test="notEmpty">,cid = :cid </if>
+		<if name="ctime" test="notEmpty">,ctime = :ctime </if>
+		<if name="mid" test="notEmpty">,mid = :mid </if>
+		<if name="mtime" test="notEmpty">,mtime = :mtime </if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="sessntkprid">sessntkprid = :sessntkprid</if>
+		</dynamic>
+	</sql>	
+	
+	<!-- 删除 -->
+	<sql id="deleteTicketPrice">
+	  DELETE FROM pt_ticketprice 
+	  <dynamic>
+	    WHERE 
+	    <if name="sessntkprid" >sessntkprid = :sessntkprid</if>
+	  </dynamic>	  
+	</sql>
+	
+	<!-- 查询票价等级 -->
+	<sql id="queryPjdj">
+	  SELECT pricelevelid,pricelevelname FROM pt_pricelevel
+	  ORDER BY pricelevelname
+	</sql>
+	
+     <!-- 查询票价等级 -->
+	<sql id="queryPjdjData">
+	  SELECT pricelevelid,pricelevelname,color,pic,pxh,defaultchar,des FROM pt_pricelevel
+	  <dynamic>
+	      WHERE
+	      <if name="pricelevelid"  test="notEmpty">pricelevelid IN(:pricelevelid)</if>
+	  </dynamic>
+	</sql>
+</sqls>

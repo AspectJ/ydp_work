@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqls namespace="oracle">
+
+	<sql id="selectCount">
+		SELECT count(1) FROM (:forPageSql)
+	</sql>
+	
+	<sql id="selectPage">
+		<![CDATA[
+		SELECT oraclePage.*
+		  FROM (
+		  	select oracleRm.*, rownum oracleNum from (:forPageSql) oracleRm WHERE rownum <= ?
+		  ) oraclePage
+		WHERE oraclePage.oracleNum >= ?
+		]]>
+	</sql>
+
+</sqls>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<sqls namespace="item">
+	<!--查询 -->
+	<sql id="selectItem">
+		SELECT 
+		t.itemid,
+		t.itemname,
+		t.introduction,
+		t.status,
+        COUNT(IF(s.itemid='','',s.itemid)) sl 
+		FROM pt_item t
+        LEFT JOIN pt_sessions s ON s.itemid=t.itemid  
+		<dynamic>
+			WHERE
+			<if name="itemname" test="notEmpty">and <![CDATA[ t.itemname like CONCAT('%',:itemname,'%') ]]></if>
+			<if name="status" test="notEmpty">and t.status=:status</if>			
+		</dynamic>
+		<dynamic>
+		   <if>GROUP BY t.itemid</if>
+		</dynamic>
+	</sql>
+	
+	<!--新增 -->
+	<sql id="insertItem">
+		INSERT INTO pt_item(itemid ,itemname ,introduction ,delstatus ,vid ,cid ,ctime ,mid ,mtime,status )
+		VALUES(?,?,?,?,?,?,?,?,?,?)
+	</sql>
+	
+	<!--更新 -->
+	<sql id="updateItem">
+		UPDATE pt_item SET
+		<dynamic>
+		<if name="itemname" test="notEmpty">itemname = :itemname </if>
+		<if name="introduction" test="notEmpty">,introduction = :introduction </if>
+		<if name="status" test="notEmpty">,status=:status</if>
+		<if name="delstatus" test="notEmpty">,delstatus = :delstatus </if>
+		<if name="vid" test="notEmpty">,vid = :vid </if>
+		<if name="cid" test="notEmpty">,cid = :cid </if>
+		<if name="ctime" test="notEmpty">,ctime = :ctime </if>
+		<if name="mid" test="notEmpty">,mid = :mid </if>
+		<if name="mtime" test="notEmpty">,mtime = :mtime </if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="itemid">itemid = :itemid</if>
+		</dynamic>
+	</sql>
+	
+	<!-- 删除 -->
+	<sql id="deleteItem">
+	 DELETE FROM pt_item  
+	 <dynamic>
+	   WHERE
+	   <if name="itemid">itemid = :itemid</if>
+	 </dynamic>
+	</sql>
+	
+     <!-- 禁用启用 -->
+	<sql id="updateStatus">
+		UPDATE pt_item
+		<dynamic>
+			SET
+			<if name="status">
+				status = :status
+			</if>
+			<if name="mid">
+				,mid = :mid
+			</if>
+			<if name="mtime">
+				,mtime = :mtime
+			</if>
+			<if name="itemid">
+				WHERE itemid = :itemid
+			</if>
+		</dynamic>
+	</sql>
+</sqls>

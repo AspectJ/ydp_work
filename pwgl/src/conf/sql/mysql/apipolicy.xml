@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com"
+	namespace="apiPolicy">
+
+	<sql id="queryApiPolicy">
+		SELECT
+		t.setpolicyid policyid,
+		t.policyname policyname
+		FROM
+		pt_setpolicy t
+		<dynamic>
+			WHERE
+			<if name="sessionsid">t.sessionsid = :sessionsid</if>
+		</dynamic>
+		<dynamic>
+			UNION ALL
+			SELECT
+			p.prefpolicyid,
+			p.policyname
+			FROM
+			pt_prefpolicy p
+			WHERE
+			<if name="sessionsid">p.sessionsid =:sessionsid</if>
+		</dynamic>
+	</sql>
+</sqls>

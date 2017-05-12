@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com"
+	namespace="suggest">
+	
+	<!-- 查询 -->
+	<sql id="selectSuggest">
+		SELECT s.suggid,s.suggnr,s.userid,s.suggfrom,s.ctime,u.realname,u.telephone FROM pt_suggest s LEFT JOIN pt_user u ON s.userid=u.userid
+		<dynamic>
+			WHERE	
+			 <if name="suggnr" test="notEmpty"><![CDATA[ s.suggnr like CONCAT('%',:suggnr,'%') ]]></if>
+			 <if name="starttime" test="notEmpty">AND <![CDATA[ DATE_FORMAT(s.ctime,'%Y-%m-%d') >=:starttime]]></if>
+             <if name="endtime" test="notEmpty"> <![CDATA[AND DATE_FORMAT(s.ctime,'%Y-%m-%d') <=  :endtime]]></if>			
+		</dynamic>
+		<dynamic>
+			ORDER BY s.ctime DESC
+		</dynamic>
+	</sql>
+	
+</sqls>

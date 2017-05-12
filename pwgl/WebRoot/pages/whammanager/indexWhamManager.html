@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>重打管理</title>
+	
+    <meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+    <meta http-equiv="description" content="this is my page">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    
+    <!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+    <script src="js/page/whammanager/indexWhamManager.js" type="text/javascript"></script>
+  </head>
+  
+  <body>
+     <div class=" f14 pt15 pb15 pl15 bgblue b_blue">
+		<table width="80%">
+			<tr>
+				<td class="pl10 pr10 t_r">订单编号：</td>
+				<td class="pb10"><input id="ddbh" type="text" class="v_m txt" /></td>
+				<td class="pl10 pr10 t_r">项目名称：</td>
+				<td class="pb10"><input id="xmmc" type="text" class="v_m txt" /></td>
+				<td>
+				    <span class="dnb v_m btn">
+				        <input id="query_btn" type="button" value="查询" class="f14 blue c_p btnbg1 btn1" />
+				    </span>
+				   
+				</td>
+			</tr>
+		</table>
+	</div>
+
+	
+	<div class="pt10 pb10 pl10 pr10">
+	  <div class=" f14 t_c">
+		  <table id="whamManager_grid" width="100%"></table>
+		  <div id="whamManager_pager"></div>
+	  </div>
+    </div>
+    
+    
+    	<!-- 新增/修改弹出层 -->
+	<div id="whamManagerDiv" class="zhezhao" style="display:none;">
+		<div class="pt10 pb10 pl10 pr10 bb">
+			<div class="pt15">
+				<table width="100%">
+				  <tr>					
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 审核状态：</td>
+						<td class="pb10"><div id="sh_status" class="dropdownlist"></div></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div class="t_c pt15 pb15">
+			<input id="saveBtn" type="button" value="保存"
+				class="vote v_m c_p c_f f14" /> <input id="cancelBtn" type="button"
+				value="取消" class="vote vote01 v_m c_p blue f14" />
+		</div>
+	</div>
+  </body>
+</html>

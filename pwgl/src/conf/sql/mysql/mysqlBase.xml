@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqls namespace="mysql">
+
+	<sql id="selectCount">
+		SELECT count(1) FROM (:forPageSql) ps
+	</sql>
+	
+	<sql id="selectPage">
+		<![CDATA[
+		  	select mysqlRm.* from (:forPageSql) mysqlRm limit ?,?
+		]]>
+	</sql>
+
+</sqls>

@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width,target-densitydpi=high-dpi,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>1创建场次</title> 
+<script src="js/page/sessions/add_Session.js" type="text/javascript"></script>
+
+</head>
+
+<body class="ff">
+     <div class="pl30 pr30 pt10 pb10">
+          <div class="bgf mt17 pt30 pb30 pl30 pr30 f14" id="indexSession_first_steep_div">
+                <div class=" f_b">
+                     <table width="100%">
+                           <tr >
+                               <td class="t_r pr5"><span class="red">*</span>场次名称</td>
+                               <td><input type="text" class="bod bgcolor txt"  id="addsessionsname" maxlength="80"/></td>
+                               <td class=" t_r pr5">英文名称</td>
+                               <td><input type="text" class="bod bgcolor txt"id="addengname" maxlength="80" /></td>
+                               <td class=" t_r pr5"><span class="red">*</span>上演时间</td>
+                               <td><input type="text" class="bod bgcolor txt data w100 v_m" id="addplaytime"  style="width:140px;" onfocus="ctl_initDate({dateFmt:'yyyy-MM-dd HH:mm',minDate:'#F{\'new Date()\'}'})" />
+                                  
+                               </td>
+                           </tr>
+                           <tr>
+                               <td class="pt15 t_r pr5"><span class="red">*</span>所属项目</td>
+                               <td class="pt15"><div id="xmmc" class="dropdownlist d_ib" style="float:left;"></div></td>
+                               <td class="pt15 t_r pr5"><span class="red">*</span>场馆</td>
+                               <td class="pt15"><div id="cgmc" class="dropdownlist d_ib" style="float:left;"></div></td>
+                               <td class="pt15 t_r pr5"><span class="red">*</span>演出厅</td>
+                               <td class="pt15"><div id="yctmc" class="dropdownlist d_ib" style="float:left;"></div></td>
+                              
+                           </tr>
+                             <tr>
+                               <td class="pt15 t_r pr5"><span class="red">*</span>演出商</td>
+                               <td class="pt15"><div id="ycsmc" class="dropdownlist d_ib" style="float:left;"></div></td>
+                               <td class="pt15 t_r pr5"><span class="red">*</span>售票时间</td>
+                               <td class="pt15"> <input type="text" style="width:140px;" class="bod bgcolor txt data w100 v_m" id="addbegintime" type="text"
+							class="bod bgcolor txt data" 	onclick="ctl_initDate({dateFmt:'yyyy-MM-dd HH:mm',minDate:'#F{\'new Date()\'}',maxDate:'#F{$dp.$D(\'addplaytime\')}'})"  />
+                                   <input type="text" id="addendtime" type="text" style="width:140px;"
+							class="bod bgcolor txt data" style="height:28px;" 
+						 /></td>
+                           </tr>               
+                           <tr>
+                               <td class="pt15 t_r pr5"><span class="red">*</span>场次号</td>
+                               <td class="pt15"><input type="text" class="bod bgcolor txt"  id="addsessionscode" maxlength="80"/></td>
+                               <td class="pt15 t_r pr5">产品类别</td>
+                               <td class="pt15"><div id="cplbmc" class="dropdownlist d_ib" style="float:left;"></div></td>
+                               <td class="pt15 t_r pr5">主办方</td>
+                               <td class="pt15" colspan="2"><input type="text" class="bod bgcolor txt"  id="addsponsor" maxlength="80"/> <span class="pl20">指定主办方</span> <input type="text" id="adddessponsor" maxlength="80" class="bod bgcolor txt" />  </td>
+                           </tr>
+                           <tr>
+                               <td class="pt15 t_r pr5">承办方</td>
+                               <td class="pt15"><input type="text" class="bod bgcolor txt" id="addactualsponsor" maxlength="80" /></td>
+                               <td class="pt15 t_r pr5">网址</td>
+                               <td class="pt15"><input type="text" class="bod bgcolor txt"  id="addwebsite" maxlength="80" /></td>
+                               <td class="pt15 t_r pr5"><span class="red">*</span>片长</td>
+                               <td class="pt15"><input type="text" class="bod bgcolor txt" id="addlength" /></td>
+                           </tr>
+                           <tr>
+                               <td class="pt15 t_r pr5"></td>
+                               <td class="pt15"><input type="checkbox" class="v_m" id="sh" value="是" name="sh" /> 税号标记</td>
+                           </tr>
+                     </table>
+
+                </div>
+               <p class="f16 pt30 pb30 pl30">场次介绍      <textarea cols="40" rows="4"
+								id="addintroduction" /></p>         
+               <div class="t_c pt30 pb30">
+               <input type="button"  id="indexSession_first_save_btn" value="保存并下一步" class="ff c_f f20 c_p bggreen pl30 pr30 pt10 pb10 bod" />
+          </div>
+     </div>
+</body>
+</html>

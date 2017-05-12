@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com"
+	namespace="apiitem">
+	<sql id="queryApiItem">
+		SELECT
+		t.itemid,
+		t.itemname
+		FROM
+		pt_item t
+		WHERE
+		EXISTS (
+		SELECT
+		1
+		FROM
+		pt_sessions s
+		WHERE
+		(s. STATUS = '2' OR s. STATUS = '4')
+		AND t.itemid = s.itemid
+		AND s.sessionsid IN (
+		SELECT
+		p.sessionsid
+		FROM
+		pt_seller_power p
+		WHERE
+		<dynamic>		 
+		  <if name="sellerid" test="">AND p.sellerid = :sellerid))</if>
+		</dynamic>
+	</sql>
+	
+	<!-- 修改订单状态 -->
+	<sql id="updateOrderd">
+	 UPDATE OD_ORDER t SET
+	 <dynamic>
+	   <if name="odstatus" test="notEmpty">t.odstatus=:odstatus</if>
+	   <if name="paystatus" test="notEmpty">,t.paystatus=:paystatus</if>
+	   <if name="outstatus" test="notEmpty">,t.outstatus=:outstatus</if>
+	   <if name="isoutlets" test="notEmpty">,t.isoutlet=:isoutlets</if>
+	   <if name="outlettimes" test="notEmpty">,t.outlettime=:outlettimes</if>
+	   <if name="paytype" test="notEmpty">,t.paytype=:paytype</if>
+	 </dynamic>
+	 <dynamic>
+	  WHERE
+	  <if name="orderid" test="notEmpty">t.orderid=:orderid</if>
+	 </dynamic>
+	</sql>
+</sqls>

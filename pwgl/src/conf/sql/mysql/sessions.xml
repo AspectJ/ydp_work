@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls namespace="sessions">
+	<!--查询 -->
+	<sql id="selectSessions">
+    SELECT
+	t.sessionsid,
+	t.venueid,
+    v.venuename,
+	t.hallid,
+    h.hallname,
+	t.performerid,
+    p.performername,
+	t.itemid,
+    i.itemname,
+	t.sessionscode,
+	t.sessionsname,
+	t.engname,
+	DATE_FORMAT(t.playtime,'%Y/%m/%d %H:%i') playtime,
+	t.length,
+	DATE_FORMAT(t.begintime,'%Y/%m/%d %H:%i') begintime,
+	DATE_FORMAT(t.endtime,'%Y/%m/%d %H:%i') endtime,
+	t.producttypeid,
+    ty.typename,
+	t.sponsor,
+	t.dessponsor,
+	t.actualsponsor,
+	t.website,
+	t.checktimes,
+	t.regnumb,
+	t.introduction,
+	t. STATUS `status`
+    FROM
+	pt_sessions t
+    LEFT JOIN PT_VENUE v ON v.venueid=t.venueid
+    LEFT JOIN pt_hall H ON H.hallid=t.hallid
+    LEFT JOIN pt_performer p ON p.performerid=t.performerid
+    LEFT JOIN pt_item i ON i.itemid=t.itemid
+    LEFT JOIN pt_producttype ty ON ty.producttypeid=t.producttypeid
+		<dynamic>
+			WHERE
+			<if name="sessionsid" test="notEmpty">and t.sessionsid = :sessionsid</if>
+			<if name="sysjkssj" test="notEmpty" ><![CDATA[AND DATE_FORMAT(t.playtime,'%Y-%m-%d %H:%i') >=:sysjkssj]]></if>
+            <if name="sysjjssj" test="notEmpty" ><![CDATA[AND DATE_FORMAT(t.playtime,'%Y-%m-%d %H:%i') <=:sysjjssj]]></if>
+			<!-- 根据名称模糊查询 -->
+			<if name="ccmc" test="notEmpty">and <![CDATA[ t.sessionsname like CONCAT('%',:ccmc,'%') ]]></if>			
+			<!-- 根据名称模糊查询演出商 -->
+			<if name="ycs" test="notEmpty">and <![CDATA[ p.performername like CONCAT('%',:ycs,'%') ]]></if>
+			<!-- 根据名称模糊查询场馆 -->
+			<if name="cg" test="notEmpty">and <![CDATA[ v.venuename like CONCAT('%',:cg,'%') ]]></if>			
+			<!-- 根据名称模糊查询 -->
+			<if name="zt" test="notEmpty">and <![CDATA[ t.status like CONCAT('%',:zt,'%') ]]></if>
+		</dynamic>
+		<dynamic>
+			ORDER BY t.playtime DESC
+		</dynamic>
+	</sql>
+	
+	<sql id="selectAudit">
+    SELECT
+	t.sessionsid,
+	t.venueid,
+    v.venuename,
+	t.hallid,
+    h.hallname,
+	t.performerid,
+    p.performername,
+	t.itemid,
+    i.itemname,
+	t.sessionscode,
+	t.sessionsname,
+	t.engname,
+	DATE_FORMAT(t.playtime,'%Y/%m/%d %H:%i') playtime,
+	t.length,
+	DATE_FORMAT(t.begintime,'%Y/%m/%d %H:%i') begintime,
+	DATE_FORMAT(t.endtime,'%Y/%m/%d %H:%i') endtime,
+	t.producttypeid,
+    ty.typename,
+	t.sponsor,
+	t.dessponsor,
+	t.actualsponsor,
+	t.website,
+	t.checktimes,
+	t.regnumb,
+	t.introduction,
+	t. STATUS `status`
+    FROM
+	pt_sessions t
+    LEFT JOIN PT_VENUE v ON v.venueid=t.venueid
+    LEFT JOIN pt_hall H ON H.hallid=t.hallid
+    LEFT JOIN pt_performer p ON p.performerid=t.performerid
+    LEFT JOIN pt_item i ON i.itemid=t.itemid
+    LEFT JOIN pt_producttype ty ON ty.producttypeid=t.producttypeid
+		<dynamic>
+			WHERE
+			<if name="sessionsid" test="notEmpty">and t.sessionsid = :sessionsid</if>
+			<if name="sysjkssj" test="notEmpty" ><![CDATA[AND DATE_FORMAT(t.playtime,'%Y-%m-%d %H:%i') >=:sysjkssj]]></if>
+            <if name="sysjjssj" test="notEmpty" ><![CDATA[AND DATE_FORMAT(t.playtime,'%Y-%m-%d %H:%i') <=:sysjjssj]]></if>
+			<!-- 根据名称模糊查询 -->
+			<if name="ccmc" test="notEmpty">and <![CDATA[ t.sessionsname like CONCAT('%',:ccmc,'%') ]]></if>			
+			<!-- 根据名称模糊查询演出商 -->
+			<if name="ycs" test="notEmpty">and <![CDATA[ p.performername like CONCAT('%',:ycs,'%') ]]></if>
+			<!-- 根据名称模糊查询场馆 -->
+			<if name="cg" test="notEmpty">and <![CDATA[ v.venuename like CONCAT('%',:cg,'%') ]]></if>			
+			<!-- 根据名称模糊查询 -->
+			<if name="zt" test="notEmpty">and <![CDATA[ t.status like CONCAT('%',:zt,'%') ]]></if>
+		</dynamic>
+		<dynamic>
+			ORDER BY t.playtime DESC
+		</dynamic>
+	</sql>
+	
+	<!-- 查询演出厅的分区信息 -->
+	<sql id="queryhallZone">
+	  SELECT * FROM pt_hall_zone z
+	  <dynamic>
+	    WHERE
+	    <if name="hallid" >z.hallid=:hallid</if>
+	  </dynamic>
+	</sql>
+	
+    <!-- 查询产品类别名称 -->
+	<sql id="querycplbmc">
+	 SELECT i.producttypeid,i.typename FROM pt_producttype I WHERE I.status='1'
+	</sql>
+	
+	<!-- 查询项目名称 -->
+	<sql id="queryxmmc">
+	SELECT i.itemid,i.itemname FROM pt_item I WHERE I.status='1'
+	</sql>
+	
+	<!-- 查询演出商名称 -->
+	<sql id="queryycsmc">
+	 SELECT P.performerid,P.performername FROM pt_performer P WHERE p.status='1'
+	</sql>
+	
+	<!-- 查询场馆名称 -->
+	<sql id="queryCgmc">
+	  SELECT v.venueid,v.venuename FROM PT_VENUE v	WHERE v.status='1'
+	</sql>
+	
+	<!-- 查询演出厅名称 -->
+	<sql id="queryYctmc">
+	  SELECT h.hallid,h.hallname FROM pt_hall h	 WHERE h.status='1'
+	  <dynamic>
+	    <if name="venueid">AND h.venueid=:venueid</if>
+	  </dynamic>
+	</sql>
+	
+	<!--新增 -->
+	<sql id="insertSessions">
+		INSERT INTO pt_sessions(sessionsid ,venueid ,hallid ,performerid ,itemid ,sessionscode ,sessionsname ,engname ,playtime ,length ,begintime ,endtime ,producttypeid ,sponsor ,dessponsor ,actualsponsor ,website ,checktimes ,regnumb ,introduction ,status ,delstatus ,vid ,cid ,ctime ,mid ,mtime )
+		VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+	</sql>
+	
+	
+	<!--更新 -->
+	<sql id="updateSessions">
+		UPDATE pt_sessions SET
+		<dynamic>
+		<if name="venueid" test="notEmpty">venueid = :venueid </if>
+		<if name="hallid" test="notEmpty">,hallid = :hallid </if>
+		<if name="performerid" test="notEmpty">,performerid = :performerid </if>
+		<if name="itemid" test="notEmpty">,itemid = :itemid </if>
+		<if name="sessionscode" test="notEmpty">,sessionscode = :sessionscode </if>
+		<if name="sessionsname" test="notEmpty">,sessionsname = :sessionsname </if>
+		<if name="engname" test="notEmpty">,engname = :engname </if>
+		<if name="playtime" test="notEmpty">,playtime = :playtime </if>
+		<if name="length" test="notEmpty">,length = :length </if>
+		<if name="begintime" test="notEmpty">,begintime = :begintime </if>
+		<if name="endtime" test="notEmpty">,endtime = :endtime </if>
+		<if name="producttypeid" test="notEmpty">,producttypeid = :producttypeid </if>
+		<if name="sponsor" test="notEmpty">,sponsor = :sponsor </if>
+		<if name="dessponsor" test="notEmpty">,dessponsor = :dessponsor </if>
+		<if name="actualsponsor" test="notEmpty">,actualsponsor = :actualsponsor </if>
+		<if name="website" test="notEmpty">,website = :website </if>
+		<if name="checktimes" test="notEmpty">,checktimes = :checktimes </if>
+		<if name="regnumb" test="notEmpty">,regnumb = :regnumb </if>
+		<if name="introduction" test="notEmpty">,introduction = :introduction </if>
+		<if name="status" test="notEmpty">,status = :status </if>
+		<if name="delstatus" test="notEmpty">,delstatus = :delstatus </if>
+		<if name="vid" test="notEmpty">,vid = :vid </if>
+		<if name="cid" test="notEmpty">,cid = :cid </if>
+		<if name="ctime" test="notEmpty">,ctime = :ctime </if>
+		<if name="mid" test="notEmpty">,mid = :mid </if>
+		<if name="mtime" test="notEmpty">,mtime = :mtime </if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="sessionsid">sessionsid = :sessionsid</if>
+		</dynamic>
+	</sql>
+	
+	<!-- 禁用启用 -->
+	<sql id="updateStatus">
+		UPDATE pt_sessions
+		<dynamic>
+			SET
+			<if name="status">
+				status = :status
+			</if>
+			<if name="mid">
+				,mid = :mid
+			</if>
+			<if name="mtime">
+				,mtime = :mtime
+			</if>
+			<if name="sessionsid">
+				WHERE sessionsid = :sessionsid
+			</if>
+		</dynamic>
+	</sql>
+	
+	<!--删除 -->
+	<sql id="deleteSessions">
+		DELETE FROM pt_sessions
+		<dynamic>
+			WHERE
+			<if name="sessionsid">sessionsid = :sessionsid</if>
+		</dynamic>
+	</sql>
+	
+   <!-- 删除 票价-->
+	<sql id="deleteTicketPrice">
+	  DELETE FROM pt_ticketprice 
+	  <dynamic>
+	    WHERE 
+	    <if name="sessionsid" >sessionsid = :sessionsid</if>
+	  </dynamic>	  
+	</sql>
+	
+	<!-- 删除票版 -->
+	<sql id="deleteticketface">
+	  DELETE FROM pt_ticketface 
+	  <dynamic>
+	    WHERE 
+	    <if name="sessionsid" >sessionsid = :sessionsid</if>
+	  </dynamic>	  
+	</sql>
+	
+	<!-- 分区 -->
+   <sql id="deletesessnzone">
+	  DELETE FROM pt_sessnzone 
+	  <dynamic>
+	    WHERE 
+	    <if name="sessionsid" >sessionsid = :sessionsid</if>
+	  </dynamic>	  
+	</sql>
+	
+	<!-- 座位 -->
+	  <sql id="deletesessnpew">
+	  DELETE FROM pt_sessnpew 
+	  <dynamic>
+	    WHERE 
+	    <if name="sessionsid" >sessionsid = :sessionsid</if>
+	  </dynamic>	  
+	</sql>
+	
+	<!-- 默认查询一个票价等级 -->
+	<sql id="queryDefaultPriceLevel">
+	select pricelevelid from pt_pricelevel l ORDER BY l.pricelevelname limit 0,1
+	</sql>
+</sqls>

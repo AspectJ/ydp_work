@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com"
+	namespace="bookedseat">
+
+	<!-- 分区 -->
+	<sql id="queryFq">
+		SELECT s.sessnzoneid,s.zonename FROM pt_sessnzone s
+		<dynamic>
+			WHERE
+			<if name="sessnzoneid" test="notEmpty">s.sessionsid=:sessnzoneid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 汇总票价等级，预留种类，票价等信息 -->
+	<sql id="querySumInfo">
+		SELECT
+		p.pricelevelname,
+		r.reservename,
+		sum(s.price) sumprice,
+		p.color,
+		count(1) zw
+		FROM
+		pt_sessnpew s
+		LEFT JOIN pt_ticketprice p ON p.pricelevelid = s.pricelevelid AND
+		p.sessionsid=s.sessionsid
+		LEFT JOIN pt_reserve r ON r.reserveid = s.reserveid
+		<dynamic>
+			WHERE
+			<if name="ccid"> s.sessionsid=:ccid</if>
+			<if name="fqid">AND s.zoneid=:fqid</if>
+			<if> GROUP BY
+				P.pricelevelname,p.color,
+				R.reservename
+			</if>
+		</dynamic>
+	</sql>
+
+	<!-- 根据分区查询座位 -->
+	<sql id="queryZw">
+		SELECT t.pewid,t.pewname,t.reserveid,t.pricelevelid FROM pt_sessnpew t
+		<dynamic>
+			WHERE
+			<if name="zoneid" test="notEmpty">t.zoneid=:zoneid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 查询票价等级 -->
+	<sql id="queryPjdj">
+		SELECT
+		t.pricelevelid,
+		t.pricelevelname,
+		CONCAT(
+		t.pricelevelname,
+		'(',
+		t.price,
+		'元',
+		')'
+		) djpjstr
+		FROM
+		pt_ticketprice t
+		<dynamic>
+			<if name="ccid">WHERE t.sessionsid=:ccid</if>
+		</dynamic>
+		<dynamic>
+			ORDER BY djpjstr
+		</dynamic>
+	</sql>
+
+	<!-- 查询预留种类 -->
+	<sql id="queryYlzlz">
+		SELECT distinct r.reserveid,r.reservename, IF (
+		s.reserveid IS NULL,
+		'false',
+		'true'
+		) checked FROM pt_reserve r
+		LEFT JOIN pt_reserveallot s ON s.reserveid=r.reserveid
+		<dynamic>
+			<if name="sessionsid">AND s.sessionsid=:sessionsid</if>
+			<if name="reservename" test="notEmpty">WHERE<![CDATA[ r.reservename like CONCAT('%',:reservename,'%') ]]></if>
+		</dynamic>
+		<dynamic>
+			ORDER BY r.reservename
+		</dynamic>
+	</sql>
+
+	<!-- 修改 -->
+	<sql id="update">
+		UPDATE pt_sessnpew t SET t.pewstatus='1'  <!-- 设置过的座位不会在显示 -->
+		<dynamic>
+
+			<if name="pricelevelid" test="notEmpty">,t.pricelevelid=:pricelevelid</if>
+			<if name="price" test="notEmpty">,t.price=:price</if>
+			<if name="reserveid" test="notEmpty">,t.reserveid=:reserveid</if>
+			<if name="ispresell" test="notEmpty">,t.ispresell=:ispresell</if>
+			<if name="issale" test="notEmpty">,t.issale=:issale</if>
+			<if name="pewstatus" test="notEmpty">,t.pewstatus=:pewstatus</if>
+			<if name="iscancel" test="notEmpty">,t.iscancel=:iscancel</if>
+			<if name="pewid" test="notEmpty">WHERE t.pewid IN(:pewid)</if>
+		</dynamic>
+	</sql>
+
+	<!--查询项目名称 -->
+	<sql id="queryXmmc">
+		SELECT p.itemid,p.itemname FROM pt_item p
+	</sql>
+
+	<!--根据项目查询场次名称 -->
+	<sql id="queryCcmc">
+		SELECT t.sessionsid,t.sessionsname FROM pt_sessions t
+		<dynamic>
+			<if name="itemid" test="notEmpty">WHERE t.itemid=:itemid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 查询预留种类 首页 -->
+	<sql id="queryYlzl">
+		SELECT DISTINCT
+		t.reserveid,
+		R.reservename
+		FROM
+		pt_sessnpew t,
+		pt_reserve r
+		WHERE
+		t.reserveid != ''
+		AND r.reserveid = t.reserveid
+		<dynamic>
+			<if name="ccid" test="notEmpty">AND t.sessionsid=:ccid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 新增关系表 -->
+	<sql id="insertReserveallot">
+		INSERT INTO
+		pt_reserveallot(allotid,itemid,sessionsid,payboxid,reserveid,ispresell,issale,iscancel,
+		cid,ctime,mid,mtime)
+		VALUES(?,?,?,?,?,
+		?,?,?,?,?,?,?)
+	</sql>
+
+	<sql id="deleteReserveallot">
+		DELETE FROM pt_reserveallot
+		<dynamic>
+			WHERE
+			<if name="itemid" test="notEmpty">itemid=:itemid</if>
+			<if name="sessionsid" test="notEmpty">AND sessionsid=:sessionsid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 查询售票点 -->
+	<sql id="querySpd">
+		SELECT DISTINCT t.payboxid,t.payboxname,
+		IF (
+		r.payboxid IS NULL,
+		'false',
+		'true'
+		) checked
+		FROM pt_paybox t
+		LEFT JOIN pt_reserveallot r ON r.payboxid=t.payboxid
+		<dynamic>
+			<if name="sessionsid">AND r.sessionsid=:sessionsid</if>
+			<if name="payboxname" test="notEmpty">WHERE<![CDATA[ t.payboxname like CONCAT('%',:payboxname,'%') ]]></if>
+		</dynamic>
+		<dynamic>
+			ORDER BY t.payboxname
+		</dynamic>
+	</sql>
+
+	<!-- 根据场次和分区查询座位 -->
+	<sql id="querySeat">
+		SELECT t.pewid,
+		t.pewname,
+		t.ispresell,
+		t.issale,
+		t.iscancel,
+		p.color,
+		t.`row`,
+        t.col,
+        t.pxh
+		FROM pt_sessnpew t
+		LEFT JOIN pt_ticketprice p ON p.pricelevelid=t.pricelevelid
+		AND p.sessionsid=t.sessionsid
+		<dynamic>
+			WHERE
+			<if name="ccid" test="">t.sessionsid=:ccid</if>
+			<if name="fqid" test="">AND t.zoneid=:fqid</if>
+			<if>ORDER BY t.row+0,t.col+0</if>
+		</dynamic>
+	</sql>
+
+	<!-- 删除座位 -->
+	<sql id="deletePewids">
+		DELETE FROM pt_sessnpew
+		<dynamic>
+			WHERE
+			<if name="pewids" test="notEmpty">pewid IN(:pewids)</if>
+		</dynamic>
+	</sql>
+
+	<!-- 根据场次,查出演出厅 -->
+	<sql id="querySessionHall">
+		SELECT t.hallid FROM pt_sessions t
+		<dynamic>
+			WHERE
+			<if name="sessionsid" test="notEmpty">t.sessionsid=:sessionsid</if>
+		</dynamic>
+	</sql>
+
+	<!-- 针对场次，查询座位是否存在 -->
+	<sql id="querySessionExistsPew">
+		SELECT
+		count(1)
+		FROM
+		pt_sessnpew t
+		<dynamic>
+		  WHERE
+		  <if name="sessionsid" test="notEmpty">t.sessionsid = :sessionsid</if>
+		  <if name="zoneid" test="notEmpty">AND t.zoneid = :zoneid</if>
+		  <if name="hallid" test="notEmpty">AND t.hallid = :hallid</if>
+		  <if name="row" test="notEmpty">AND t.`row` = :row</if>
+		  <if name="col" test="notEmpty">AND t.col = :col</if>
+		</dynamic>
+	</sql>
+</sqls>

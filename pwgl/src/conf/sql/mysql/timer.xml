@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqls namespace="timer">
+    
+    <!-- 查询大于30分钟，且订单状态为锁座，自动释放座位状态 -->
+	<sql id="selectQrshByTime">
+		SELECT t.orderid FROM OD_ORDER t WHERE t.odstatus='1'
+		<dynamic>
+			<if name="sc">
+			AND HOUR(TIMEDIFF(SYSDATE(),t.mtime)) > :sc
+			</if>
+		</dynamic>
+	</sql>
+	
+	<!-- 根据订单ID，查询座位ID -->
+	<sql id="queryZws">
+	SELECT
+	t.pewid
+    FROM
+	OD_DETAIL t
+    <dynamic>
+       WHERE
+       <if name="orderid" test="notEmpty">	t.orderid = :orderid</if>
+    </dynamic>
+	</sql>
+</sqls>

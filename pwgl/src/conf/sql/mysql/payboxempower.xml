@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com" namespace="payboxempower">
+	
+	<!-- 查询授权 -->
+	<sql id="querySellpower">
+	  SELECT sellpowerid,powername FROM pt_sellpower
+	</sql>
+	
+	<!-- 新增 -->
+	<sql id="insertSellpower">
+	  INSERT INTO pt_seller_power(sellerpowerid,sessionsid,payboxid,sellerid,sellpowerid,
+	  delstatus,vid,cid,ctime,mid,mtime)VALUES(?,?,?,?,?,
+	  ?,?,?,?,?,?)
+	</sql>
+	
+</sqls>

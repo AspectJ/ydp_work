@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com" 
+	namespace="dicttype">
+	
+	<!-- 查询平台用户 -->	
+	<sql id="selectType">
+	  SELECT dicttypeid,typename,istree,status FROM pt_dicttype
+	  <dynamic>
+	    WHERE
+	    <if name="typename" test="notEmpty"><![CDATA[typename LIKE CONCAT('%',:typename,'%') ]]></if>
+	    <if name="status" test="notEmpty">AND status=:status</if>
+	  </dynamic>
+	  <dynamic>
+	    ORDER BY ctime DESC
+	  </dynamic>
+	</sql>
+	
+	<!-- 检查分类名称是否重复 -->
+	<sql id="selectSfcf">
+	  SELECT COUNT(*) FROM pt_dicttype
+	  <dynamic>
+	    WHERE
+	    <if name="typename">typename=:typename</if>
+	  </dynamic>
+	</sql>
+	
+	<!-- 查询最大id -->
+	<sql id="selectMaxid">
+	  SELECT MAX(CAST(dicttypeid AS SIGNED)) FROM pt_dicttype
+	</sql>
+	
+	<!-- 新增 -->
+	<sql id="insertType">
+	  INSERT INTO pt_dicttype(dicttypeid,typename,istree,status,cid,ctime,mid,mtime) VALUES(?,?,?,?,?,?,?,?)
+	</sql>
+	
+	<!-- 修改 -->
+	<sql id="updateType">
+	  UPDATE pt_dicttype SET
+	  <dynamic>
+	    <if name="typename" test="notNull">,typename=:typename</if>
+	    <if name="istree" test="notNull">,istree=:istree</if>
+	    <if name="mid" test="notNull">,mid=:mid</if>
+	    <if name="mtime" test="notNull">,mtime=:mtime</if>
+	  </dynamic>
+	  <dynamic>
+	    WHERE
+	    <if name="dicttypeid">dicttypeid=:dicttypeid AND status='2'</if>
+	  </dynamic>
+	</sql>
+	
+	<!-- 修改 -->
+	<sql id="updateStatus">
+	  UPDATE pt_dicttype SET
+	  <dynamic>
+	    <if name="status" test="notNull">,status=:status</if>
+	    <if name="mid" test="notNull">,mid=:mid</if>
+	    <if name="mtime" test="notNull">,mtime=:mtime</if>
+	  </dynamic>
+	  <dynamic>
+	    WHERE
+	    <if name="dicttypeid">dicttypeid=:dicttypeid</if>
+	  </dynamic>
+	</sql>
+	
+	<!-- 查询分类是否已使用 -->
+	<sql id="selectSfysy">
+	  SELECT COUNT(*) FROM (SELECT dicttypeid FROM pt_dict WHERE
+	  <dynamic>
+	    <if name="dicttypeid">dicttypeid=:dicttypeid</if>
+	    <if name="dicttypeid">UNION ALL SELECT dicttypeid FROM pt_dicttree WHERE dicttypeid=:dicttypeid) s</if>
+	  </dynamic>
+	</sql>
+	
+	<!-- 删除 -->
+	<sql id="deleteType">
+	  DELETE FROM pt_dicttype WHERE status='2'
+	  <dynamic>
+	    <if name="dicttypeid">AND dicttypeid=:dicttypeid</if>
+	  </dynamic>
+	</sql>
+</sqls>

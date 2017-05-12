@@ -1,0 +1,72 @@
+/* shared CSS for widgets, required */
+.fl { float: left; }
+.fr { float: right; }
+.clear { clear: both; }
+.hidden { display: none; }
+
+/* icons from JQueryUI, required by widgets */
+.icon {
+	overflow: hidden; float: left; width: 16px; height: 16px;
+	background-image: url(images/icons.png);
+}
+.icon-none { background: none; }
+.icon-triangle-1-e { background-position: -32px -16px; }
+.icon-triangle-1-n { background-position: 0 -16px; }
+.icon-triangle-1-s { background-position: -64px -16px; }
+.icon-minus { background-position: -48px -128px; }
+.icon-plus { background-position: -16px -128px; }
+
+
+/*----------------------------------------------------------------------*/
+
+.magicTabs>.head {
+	height: 24px; overflow: hidden; white-space: nowrap;
+}
+.magicTabs>.hbar {
+	width: 100%; height: 2px; position: relative;
+	background-color: #DDD; z-index: 2; top: 24px;
+}
+.magicTabs>.head>.sbtn {
+	width: 24px; height: 24px; float: left;
+	background: url(images/btn_bg.jpg) repeat-x left bottom;
+}
+.magicTabs>.head>.sbtn span {
+	overflow: hidden; float: left; width: 16px; height: 16px;
+	margin: 4px; background-image: url(images/icons.png);
+}
+.magicTabs>.head>.left span { background-position: -96px -48px; }
+.magicTabs>.head>.right span { background-position: -32px -48px; }
+.magicTabs>.head>.main { height: 24px; overflow: hidden; float: left; }
+.magicTabs>.head>.main>.tt { white-space: nowrap; display: inline-block; }
+.magicTabs>.body {
+	border: 1px solid #DDD; border-top: 0px; background-color: #FFF; padding: 1px;
+}
+.magicTabs>.body>.main { padding: 0px; margin: 0px; overflow: auto; }
+.magicTabs>.head .item {
+	-moz-user-select: none; cursor: pointer;
+	height: 26px; position: relative;
+	white-space: nowrap; display: inline-block;
+	font-size: 14px;
+}
+.magicTabs>.head .item>.main {
+	float: left; color: #FFF; height: 26px;	line-height: 26px;
+	text-align: center; padding-left: 2px; font-weight: bold; min-width: 100px;
+}
+.magicTabs>.head .item.closeable>.main { min-width: 88px; }
+.magicTabs>.head .item>.xbtn {
+	float: left; height: 26px; width: 8px; overflow: hidden;
+}
+.magicTabs>.head .item>.xbtn>.icon { margin-left: -4px; }
+.magicTabs>.head .item>.xbtn>.icon:hover { background-position: -96px -128px; }
+.magicTabs>.head .item>.left { float: left; width: 6px; height: 26px; }
+.magicTabs>.head .item>.right { float: left; width: 6px; height: 26px; }
+.magicTabs>.head .normal { z-index: 1; }
+.magicTabs>.head .normal>.main { background: url(images/tm-bg.png) repeat-x; color: #FFF; }
+.magicTabs>.head .normal>.left { background: url(images/tm-l.png) no-repeat; }
+.magicTabs>.head .normal>.right { background: url(images/tm-r.png) no-repeat; }
+.magicTabs>.head .normal>.xbtn { background: url(images/tm-bg.png) repeat-x; }
+.magicTabs>.head .selected { z-index: 3; }
+.magicTabs>.head .selected>.left { background: url(images/tm-l-s.png) no-repeat; }
+.magicTabs>.head .selected>.main { background: url(images/tm-bg-s.png) repeat-x; color: #CC6601; }
+.magicTabs>.head .selected>.right { background: url(images/tm-r-s.png) no-repeat;}
+.magicTabs>.head .selected>.xbtn { background: url(images/tm-bg-s.png) repeat-x; }

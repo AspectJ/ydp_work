@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="xq.xsd" xsi:schemaLocation="www.xq.com"
+	namespace="apivenue">
+	<sql id="queryApiVenue">
+		SELECT
+		t.venueid,
+		t.venuename
+		FROM
+		PT_VENUE t
+		WHERE
+		EXISTS (
+		SELECT
+		1
+		FROM
+		pt_sessions s
+		WHERE
+		s. STATUS = '2'
+		AND t.venueid = s.venueid
+		AND s.sessionsid IN (
+		SELECT
+		p.sessionsid
+		FROM
+		pt_seller_power p
+		WHERE
+		<dynamic>
+			<if name="sellerid" test="notEmpty"> AND p.sellerid = :sellerid))</if>
+		</dynamic>
+	</sql>
+</sqls>

@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+<head>
+<title>售票点
+销售机构-->销售点模式</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<script src="js/page/paybox/indexPaybox.js" type="text/javascript"></script>
+<script src="js/page/common/xzqhUtil.js" type="text/javascript"></script>
+<style type="text/css">
+
+</style>
+</head>
+
+<body>	
+	  <div class=" f14 pt15 pb15 pl15 bgblue b_blue">
+	  <table width="80%">
+		<tr>
+			<td class="pl10 pr10 t_r">售票点名称：</td>
+			<td class="pb10"><input id="payboxname" type="text" class="v_m txt" /></td>
+			<td class="pl10 pr10 t_r">状态：</td>
+			<td class="pb10"><div id="status" class="dropdownlist"></div></td>
+			<td>
+			    <span class="dnb v_m btn">
+			        <input id="paybox_query" type="button" value="查询" class="f14 blue c_p btnbg1 btn1" />
+			    </span>
+			    <span class="dnb v_m btn">
+			        <input id="paybox_add" type="button" value="新增" class="f14 blue c_p btnbg2" />
+			    </span>
+			</td>
+		</tr>
+	</table>
+   </div>	
+	
+	<div class="pt10 pb10 pl10 pr10">
+	  <div class=" f14 t_c">
+		  <table id="paybox_grid" width="100%"></table>
+		  <div id="paybox_pager"></div>
+	  </div>
+    </div>
+    
+    <!-- 新增/修改弹出层 -->
+	<div id="addpaybox_div" class="zhezhao" style="display:none;">
+		<div class="pt10 pb10 pl10 pr10 bb">
+			<div class="pt15">
+				<table width="100%">
+					<tr>
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 售票点名称：</td>
+						<td class="pb10">
+							<input id="addpayboxid" maxlength="20" type="hidden" class="I_txt v_m bod w140" />
+							<input id="addpayboxname" maxlength="80" type="text" class="I_txt v_m bod w140" />
+						</td>
+						<td class="pb10 pr10 t_r">上级售票点名称：</td>
+						<td class="pb10">	<div id="sjspdmc" class="dropdownlist d_ib" style="float:left;"></div></td>
+					</tr>
+					 <tr>
+				       <td class="pb10 pr10 t_r">
+						<span class="red">*</span> 行政区划：	</td>
+						<td  class="pb10">					
+						  <div id="xzqh_sheng" class="dropdownlist d_ib" style="float:left;"></div>
+					      <div id="xzqh_shi" class="dropdownlist d_ib"  style="float:left;"></div>
+					      <div id="xzqh_xian" class="dropdownlist d_ib"  style="float:left;"></div>
+					    </td>
+					</tr>
+					<tr>
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 地址：</td>
+						<td class="pb10">
+							<input id="addaddress" maxlength="80" type="text"  style="width:300px;" class="I_txt v_m bod w140" />
+						</td>						
+					</tr>
+                    <tr>
+						<td class="pb10 pr10 t_r">介绍：</td>
+						<td class="pb10">
+							<textarea  cols="40" rows="4" id="addintroduction" />
+						</td>						
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div class="t_c pt15 pb15">
+			<input id="addpaybox_save" type="button" value="保存" class="vote v_m c_p c_f f14" /> 
+			<input id="addpaybox_close" type="button" value="取消" class="vote vote01 v_m c_p blue f14" />
+		</div>
+	</div>
+
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>销售授权</title>
+<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+<meta http-equiv="description" content="this is my page">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<script src="js/page/empowersell/indexSellEmpower.js" type="text/javascript"></script>
+<script type="text/javascript">
+	$(function() {
+		$('.add').click(function() {
+			$('.zhezhao').show();
+		});
+
+		$('.qx').click(function() {
+			$('.zhezhao').hide();
+		});
+
+		$('.click-t a').click(function() {
+			$('.w845').slideDown();
+			$('.click-t').hide();
+		});
+
+		$('.up').click(function() {
+			$('.w845').slideUp();
+			$('.click-t').show();
+		});
+
+		$(".tab-title span").click(function() {
+			$('.tab-title span').removeClass('on');
+			$(this).addClass("on");
+			var index = $(".tab-title span").index($(this));
+			$(".tab-box").css("display", "none");
+			$(".tab-box").eq(index).css("display", "block");
+		});
+	});
+</script>
+</head>
+<body>
+		<div class="pr30 pt10 pb10">
+			<div class="bgf mt17 pr30 f14">
+
+				<div class="tab-title f_b">
+					<span class="c_p dnb bod on">售票授权</span><span class="c_p dnb bod" id="xszcsq_btn">销售政策授权</span>
+				</div>
+				<div class="tab-box bod">
+					<h3 class="pl20 pt15 pb15 green f_b">设定售票权限</h3>
+					<p>
+						<input type="radio" name="tj" class="ml20" value="jg" checked="checked"/> 按机构添加 <input
+							type="radio" name="tj" class="ml20" value="yh"/> 按用户添加
+					</p>
+					<div class="clearfix pl20 pr20 mt15">
+						<div class="bod ylfp l pt10" style="height:300px;overflow:auto;">
+							<div id="jg_div" class="pl20">
+								<div id="menu_div" style="height:100%;overflow: auto;">
+					            	<div id="menu" class="ztree" style="padding: 0;"></div>
+		     	                </div>
+							</div>
+							<div id="yh_div" class="pl20" style="display:none;">
+								<div id="yh_menu_div" style="height:100%;overflow: auto;">
+					            	<div id="yh_menu" class="ztree" style="padding: 0;"></div>
+		     	                </div>
+							</div>
+						</div>
+						<div class="bod ylfp r pt10" style="height:300px;overflow:auto;">
+							<div id="spqx_div" class="pl20">
+								<h3 class="f_b">售票权限选择</h3>
+							</div>
+						</div>
+					</div>
+					<div class="t_c pt20 pb20">
+						<input id="spsq_save_btn" type="button" value="提交审核"
+							class="ff c_f f20 c_p bggreen pl30 pr30 pt10 pb10 bod" />
+					</div>
+				</div>
+				<div class="tab-box bod d_n">
+					<h3 class=" pl20 pt15 pb15 green f_b">销售权限分配</h3>
+					<p class="pl20">
+						<input id="payboxname" type="text" class="bod bgcolor txt v_m" placeholder="请输入机构名称/用户名称"/>
+					</p>
+					<div class="clearfix pl20 pr20 mt15">
+						<div class="bod ylfp l pt10"  style="height:300px;overflow:auto;">											
+								<div id="jgyh_div" style="height:100%;overflow: auto;">
+					            	<div id="jgyh_ztree" class="ztree" style="padding: 0;"></div>
+		     	                </div>
+						</div>
+						<div class="bod ylfp r pt10">
+							<div class="pl20">
+								<h3 class="f_b">
+									销售政策选择 
+									<!--  
+									<select id="zc_sel" class="bod bgcolor txt ff">
+									</select>-->
+									<div  id="zc_sel_div"></div>
+									
+								</h3>
+
+							</div>
+						</div>
+					</div>
+					<div class="t_c pt20 pb20">
+						<input id="zcsq_save_btn" type="button" value="提交审核"
+							class="ff c_f f20 c_p bggreen pl30 pr30 pt10 pb10 bod" />
+					</div>
+				</div>
+			</div>
+		</div>
+</body>
+</html>

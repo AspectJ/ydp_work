@@ -1,0 +1,723 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width,target-densitydpi=high-dpi,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>6、场次管理新增</title>
+<script src="js/page/sessions/indexSession_add.js" type="text/javascript"></script>
+<style>
+ .pb10{
+  padding-bottom:10px;
+ }
+</style>
+<script>
+$(function() {
+
+		$('.add').click(function() {
+		$('.zhezhao').show();
+		});
+
+		$('.qx').click(function() {
+			$('.zhezhao').hide();
+		});
+
+		$('.click-t a').click(function() {
+			$('.w845').slideDown();
+			$('.click-t').hide();
+		});
+
+		$('.up').click(function() {
+			$('.w845').slideUp();
+			$('.click-t').show();
+		});
+
+		$(".tab-title span").click(function() {
+			$('.tab-title span').removeClass('on');
+			$(this).addClass("on");
+			var index = $(".tab-title span").index($(this));
+			$(".tab-box").css("display", "none");
+			$(".tab-box").eq(index).css("display", "block");
+		});
+
+});
+
+</script>
+
+</head>
+
+<body class="ff">
+<div class="contion">
+     <div class="pl30 pr30 pt10 pb10">
+          <h3 class="bgf pl20 pt15 pb15 f14 clearfix"><span class="l">待办事项</span>              
+          </h3>
+          <div class="bgf mt17 f14">
+               <div class="w845 pt10 pb10 t_c">
+                     <table width="100%" id="indexSession_add_table">
+                            <tr>
+                                <td><span class="dnb bod bgcolor pl30 pr30 pt10 pb10">第一步（场次）</span></td>
+                                <td><span class="dnb bod bgcolor pl30 pr30 pt10 pb10">第二步（票务）</span></td>
+                                <td><span class="dnb bod bgcolor pl30 pr30 pt10 pb10">第三步（座位）</span></td>
+                                <td><span class="dnb bod bgcolor pl30 pr30 pt10 pb10">第四步（销售）</span></td>
+                            </tr>
+                            <tr>
+                                <td class="pt10 p_r"  id="indexSession_first_td_id"><img src="images/page/4_07.png" class="p-img01" /><span id="indexSession_divId" class="dnb bod c_9 pl10 pr10 pt10 pb10  bggreen1" >1、创建场次</span></td>
+                                <td class="pt10 p_r" id="indexSession_two_td_id"><span class="dnb bod c_9 pl10 pr10 pt10 pb10" id="indexSession_divId">2、票价定制</span></td>
+                                <td class="pt10 p_r" id="indexSession_five_td_id"><img src="images/page/4_04.png" class="p-img02" /><span class="dnb bod c_9 pl10 pr10 pt10 pb10">5、优惠政策</span></td>
+                            </tr>
+                            <tr>
+                                <td class="pt20"></td>
+                                <td class="pt20" id="indexSession_fqzw_td_id"><span class="dnb bod_c pl20 pr20 pt10 pb10 c_9">分区座位</span></td>                                 
+                                <td class="pt20 p_r" id="indexSession_four_td_id"><img src="images/page/4_04.png" class="p-img02" /><span class="dnb bod c_9 pl10 pr10 pt10 pb10">4、销售政策</span></td>
+                                <td class="pt20 p_r" id="indexSession_seven_td_id"><img src="images/page/4_04.png" class="p-img02" /><span class="dnb bod c_9 pl10 pr10 pt10 pb10">7、提交审核</span></td>
+                            </tr>
+                            <tr>
+                                <td class="pt20"></td>
+                                <td class="pt20" id="indexSession_zwyl_td_id"><span class="dnb bod_c pl20 pr20 pt10 pb10 c_9">座位预留</span></td>
+                                <td class="pt20 p_r" id="indexSession_three_td_id"><span class="dnb bod c_9 pl10 pr10 pt10 pb10">3、票面制作</span></td>
+                                <td class="pt20" id="indexSession_six_td_id"><span class="dnb bod c_9 pl10 pr10 pt10 pb10">6、售票授权</span></td>
+                            </tr>
+                     </table>
+               </div>
+          </div>
+          <div class="bgf mt17 pt30 pb30 pl30 pr30 f14" id="indexSession_first_steep_div">
+                <div class=" f_b">
+                     <table width="100%">
+                           <tr >
+                               <td class="t_r pr5">场次名称</td>
+                               <td><input type="text" class="bod bgcolor txt"  id="addsessionsname" maxlength="80"/></td>
+                               <td class=" t_r pr5">英文名称</td>
+                               <td><input type="text" class="bod bgcolor txt data"id="addengname" maxlength="80" /></td>
+                               <td class=" t_r pr5">上演时间</td>
+                               <td><input type="text" class="bod bgcolor txt data w100 v_m" id="addplaytime" onfocus="ctl_initDate({dateFmt:'yyyy-MM-dd HH:mm',minDate:'#F{\'new Date()\'}'})" />
+                                  
+                               </td>
+                           </tr>
+                           <tr>
+                               <td class="pt15 t_r pr5">所属项目</td>
+                               <td class="pt15"><div id="xmmc" class="dropdownlist d_ib" style="float:left;"></div></td>
+                               <td class="pt15 t_r pr5">场馆</td>
+                               <td class="pt15"><div id="cgmc" class="dropdownlist d_ib" style="float:left;"></div></td>
+                               <td class="pt15 t_r pr5">演出厅</td>
+                               <td class="pt15"><div id="yctmc" class="dropdownlist d_ib" style="float:left;"></div></td>
+                              
+                           </tr>
+                             <tr>
+                               <td class="pt15 t_r pr5">演出商</td>
+                               <td class="pt15"><div id="ycsmc" class="dropdownlist d_ib" style="float:left;"></div></td>
+                               <td class="pt15 t_r pr5">售票时间</td>
+                               <td class="pt15"> <input type="text" class="bod bgcolor txt data w100 v_m" id="addbegintime" type="text"
+							class="bod bgcolor txt data" 	onclick="ctl_initDate({dateFmt:'yyyy-MM-dd HH:mm',minDate:'#F{$dp.$D(\'addplaytime\')}'})"  />
+                                   <input type="text" id="addendtime" type="text"
+							class="bod bgcolor txt data" style="height:28px;" 
+							onclick="ctl_initDate({dateFmt:'yyyy-MM-dd HH:mm',minDate:'#F{$dp.$D(\'addbegintime\')}'})"  /></td>
+                           </tr>               
+                           <tr>
+                               <td class="pt15 t_r pr5">场次号</td>
+                               <td class="pt15"><input type="text" class="bod bgcolor txt"  id="addsessionscode" maxlength="80"/></td>
+                               <td class="pt15 t_r pr5">产品类别</td>
+                               <td class="pt15"><div id="cplbmc" class="dropdownlist d_ib" style="float:left;"></div></td>
+                               <td class="pt15 t_r pr5">主办方</td>
+                               <td class="pt15" colspan="2"><input type="text" class="bod bgcolor txt"  id="addsponsor" maxlength="80"/> <span class="pl20">指定主办方</span> <input type="text" id="adddessponsor" maxlength="80" class="bod bgcolor txt" />  </td>
+                           </tr>
+                           <tr>
+                               <td class="pt15 t_r pr5">承办方</td>
+                               <td class="pt15"><input type="text" class="bod bgcolor txt" id="addactualsponsor" maxlength="80" /></td>
+                               <td class="pt15 t_r pr5">网址</td>
+                               <td class="pt15"><input type="text" class="bod bgcolor txt"  id="addwebsite" maxlength="80" /></td>
+                               <td class="pt15 t_r pr5">片长</td>
+                               <td class="pt15"><input type="text" class="bod bgcolor txt" id="addlength" /></td>
+                           </tr>
+                           <tr>
+                               <td class="pt15 t_r pr5"></td>
+                               <td class="pt15"><input type="checkbox" class="v_m" id="sh" value="是" name="sh" /> 税号标记</td>
+                           </tr>
+                     </table>
+
+                </div>
+               <p class="f16 pt30 pb30 pl30">场次介绍      <textarea cols="40" rows="4"
+								id="addintroduction" /></p>         
+               <div class="t_c pt30 pb30">
+               <input type="button"  id="indexSession_first_save_btn" value="保存" class="ff c_f f20 c_p bggreen pl30 pr30 pt10 pb10 bod" />
+               <input type="button"  id="indexSession_first_next_btn" value="下一步" class="ff c_f f20 c_p bggreen pl30 pr30 pt10 pb10 bod" /></div>
+          </div>
+          
+          <!-- 票价制定 -->
+          <div class="bgf mt17 pt30 pb30 pl30 pr30 f14" id="indexSession_two_steep_div" style="display:none;">
+               <h3 class="f18 f_b green pt30 pl30">票价制定</h3>
+               <div class="clearfix pl30 pt20">
+                    <span class="l"  id="indexSession_two_ccbh"> <span class="pl30" id="indexSession_two_ccmc_txt"></span></span>
+                    <input type="button"  id="ticketprice_add"  value="新增票价等级" class="ff c_f c_p btn-green btn-green-add bod_r f14 r" />
+               </div>
+                
+                <div class="bod mt17 t_c table">
+                      <table id="ticketprice_grid" width="100%"></table>
+		              <div id="ticketprice_pager"></div>
+                </div>
+               
+               <div class="t_c pt30 pb30"><input type="button" value="下一步" id="indexSession_second_next_btn" class="ff c_f f20 c_p bggreen pl30 pr30 pt10 pb10 bod" /> </div>
+          </div>
+          
+          <!-- 票面制作 -->
+          <div class="bgf mt17 pt30 pb30 pl30 pr30 f14" id="indexSession_three_div" style="display:none;">
+                <h3 class="f18 f_b green pt30 pl30">新增票面</h3>
+                <div class="  bod mt17 pt20 pb20 pl20 pr20">
+                     <table width="100%">
+                           <tr>
+                               <td class=" t_r pr5">票面名称</td>
+                               <td><input type="text" class="bod bgcolor txt" /></td>
+                               <td class=" t_r pr5">场次名称</td>
+                               <td><select class="bod bgcolor txt ff"><option></option></select></td>
+                               <td class=" t_r pr5">票版</td>
+                               <td><select class="bod bgcolor txt ff"><option></option></select>
+                               </td>
+                               <td><span class="v_m pr5">票面底图</span> <input type="text" class="bod bgcolor txt w100" /> <a href="#" class="dnb v_m" ><img src="images/9_03.png" /></a> <input type="button" value="设置票面" class="ff c_f ml15 c_p btn-green02 bod_r f14 v_m" /></td>
+                           </tr>
+                           <tr>
+                               <td class=" t_r pr5 pt15">副券位置</td>
+
+                               <td class="pt15" colspan="3">
+                                    <input type="radio" class="v_m" /> 左边
+                                    <span class="ml20"><input type="radio" class="v_m" /> 左边</span>
+                                    <span class="ml20"><input type="radio" class="v_m" /> 左边</span>
+                               </td>
+                               <td class="pt15 t_r pr5">副券张数</td>
+                               <td class="   pt15"><select class="bod bgcolor txt ff w100"><option></option></select></td>                               <td class="pt15"><span class="v_m pr5">副券宽度</span> <input type="text" class="bod bgcolor txt w100" /> cm</td>
+                           </tr>
+                     </table>
+
+                     <textarea class="width bod_c mt15" rows="12"></textarea>
+                     <p class="mt15">
+                         <input type="button" value="新增文本" class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl20 pr20" />
+                         <input type="button" value="数据库字段" class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl20 pr20" />
+                         <input type="button" value="图片" class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl30 pr30" />
+                         <select class="bod w100 txt ff txt-h"><option>水平条码</option></select>
+                         <select class="bod w100 txt ff txt-h"><option>二维条码</option></select>
+                         <select class="bod w100 txt ff txt-h"><option>左对齐</option></select>
+                         <input type="button" value="对齐" class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl30 pr30" />
+                         <input type="button" value="删除" class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl30 pr30" />
+                         <input type="button" value="打印" class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl30 pr30" />
+                     </p>
+                </div>
+
+        <div class="t_c pt30 pb30"><input type="button" value="保存" class="ff c_f f20 c_p bggreen pl30 pr30 pt10 pb10 bod" /> <input type="button" value="取消" class="ff c_9 f20 c_p bgcolor pl30 pr30 pt10 pb10 bod ml30" />
+        <input type="button" value="下一步" id="indexSession_three_next_btn" class="ff c_f f20 c_p bggreen pl30 pr30 pt10 pb10 bod" />
+        </div>  
+     </div>
+     
+     <!-- 销售政策 -->
+     <div class="bgf mt17 pt30 pb30 pl30 pr30 f14" style="display:none;" id="indexSession_four_div">
+                 <div class=" f_b pb30">
+                     <table width="100%">
+                           <tr>
+                               <td class=" t_r pr5"><span style="color:red;">*</span>套票政策名称</td>
+                               <td><input type="text" class="bod bgcolor txt"  id="indexTpz_yhzcmc"/></td>                               
+                           </tr>
+                           <tr>
+                               <td class="pt15 t_r pr5"><span style="color:red;">*</span>数量</td>
+                               <td class="pt15"><input type="text" class="bod bgcolor txt w100" id="indexTpz_sl" /></td>                               
+                           </tr>
+                           <tr>
+                               <td class="pt15 t_r pr5"><span style="color:red;">*</span>售票开始时间</td>
+                               <td class="pt15">
+                               <input type="text" style="with:150px;" class="bod bgcolor txt w100 data v_m" id="indexTpz_kssj" onfocus="ctl_initDate({dateFmt:'yyyy-MM-dd HH:mm:ss',maxDate:'#F{$dp.$D(\'indexTpz_jssj\')}'})" />
+                               <span class="v_m ml30 pr10"><span style="color:red;">*</span>售票结束时间</span>
+                               <input type="text"  style="with:150px;" class="bod bgcolor txt w100 data v_m"  id="indexTpz_jssj" onfocus="ctl_initDate({dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'#F{$dp.$D(\'indexTpz_kssj\')}'})"  />
+                               </td>
+                           </tr>
+                           <tr>
+                               <td class="pt15 t_r pr5">票面标记</td>
+                               <td class="pt15"><input type="text" class="bod bgcolor txt" id="indexTpz_bj" /> 
+                           </tr>                          
+                     </table>
+                </div>         
+               <p class="f16 pt30 pb30 red">*制定套票政策（只能同时制定一种套票政策）</p>
+               <div class="tab-title f_b"><span class="c_p dnb bod on">套票政策</span></div>
+               <div class="tab-box">
+                   <div class="bod pl20 pb20 w50">
+                        <p class="pt15"><span class="v_m" style="float:left;"><span style="color:red;">*</span>票价等级</span> 
+                         <div id="indexTpz_pjdj" class="dropdownlist d_ib" ></div>
+                         <input type="hidden" id="indexTpz_pjdj_name"/>
+                        </p>
+                        <p class="pt15"><span class="v_m">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:red;">*</span>总票价</span>
+                        <input type="text" class="bod bgcolor txt"  id="indexTpz_pj" readonly="readonly"/></p> 
+                   </div>
+               </div>                
+               <div class="t_c pt30 pb30"><input type="button" id="indexTpz_ok_btn" value="保存" class="ff c_f f20 c_p bggreen pl30 pr30 pt10 pb10 bod" />
+               <input type="button"  id="indexSession_four_next_btn" value="下一步" class="ff c_f f20 c_p bggreen pl30 pr30 pt10 pb10 bod" />
+               </div>
+               <div id="indexTpz_yhzc_grid_div"></div>   
+               
+          </div>
+          
+          <!-- 优惠政策 -->
+           <div class="bgf mt17 pt30 pb30 pl30 pr30 f14" style="display:none;" id="indexSession_five_div">
+                             <div class=" f_b pb30">
+                            <table width="100%">
+                           <tr>
+                               <td class=" t_r pr5"><span style="color:red;">*</span>优惠政策名称</td>
+                               <td><input type="text" class="bod bgcolor txt"  id="indexFavourable_yhzcmc"/></td>                               
+                           </tr>
+                           <tr>
+                               <td class="pt15 t_r pr5"><span style="color:red;">*</span>折扣比例</td>
+                               <td class="pt15"><input type="text" class="bod bgcolor txt w100" id="indexFavourable_zkbl" /></td>                               
+                           </tr>
+                           <tr>
+                               <td class="pt15 t_r pr5"><span style="color:red;">*</span>数量</td>
+                               <td class="pt15"><input type="text" class="bod bgcolor txt w100" id="indexFavourable_sl" /></td>                               
+                           </tr>
+                           <tr>
+                               <td class="pt15 t_r pr5"><span style="color:red;">*</span>售票开始时间</td>
+                               <td class="pt15">
+                               <input type="text" style="with:150px;" class="bod bgcolor txt w100 data v_m" id="indexFavourable_kssj" onfocus="ctl_initDate({dateFmt:'yyyy-MM-dd HH:mm:ss',maxDate:'#F{$dp.$D(\'indexFavourable_jssj\')}'})" />
+                               <span class="v_m ml30 pr10"><span style="color:red;">*</span>售票结束时间</span>
+                               <input type="text"  style="with:150px;" class="bod bgcolor txt w100 data v_m"  id="indexFavourable_jssj" onfocus="ctl_initDate({dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'#F{$dp.$D(\'indexFavourable_kssj\')}'})"  />
+                               </td>
+                           </tr>
+                           <tr>
+                               <td class="pt15 t_r pr5">票面标记</td>
+                               <td class="pt15"><input type="text" class="bod bgcolor txt" id="indexFavourable_bj" /> 
+                           </tr>                          
+                     </table>
+
+                </div>         
+               <p class="f16 pt30 pb30 red">*制定优惠政策（只能同时制定一种优惠政策）</p>
+               <div class="tab-title f_b"><span class="c_p dnb bod on">优惠政策</span></div>
+               <div class="tab-box">
+                   <div class="bod pl20 pb20 w50">
+                        <p class="pt15"><span class="v_m" style="float:left;"><span style="color:red;">*</span>票价等级</span> 
+                         <div id="indexFavourable_pjdj" class="dropdownlist d_ib" ></div>
+                         <input type="hidden" id="indexFavourable_pjdj_name"/>
+                        </p>
+                        <p class="pt15"><span class="v_m">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:red;">*</span>总票价</span>
+                        <input type="text" class="bod bgcolor txt"  id="indexFavourable_pj" readonly="readonly"/></p> 
+                   </div>
+               </div> 
+               
+               <div class="t_c pt30 pb30"><input type="button" id="indexFavourable_ok_btn" value="保存" class="ff c_f f20 c_p bggreen pl30 pr30 pt10 pb10 bod" />
+               <input type="button"  id="indexSession_five_btn" value="下一步" class="ff c_f f20 c_p bggreen pl30 pr30 pt10 pb10 bod" />
+               </div>
+               <div id="indexFavourable_yhzc_grid_div"></div> 
+          </div>
+          
+          <!-- 售票授权 -->
+            <div class="bgf mt17 pt30 pb30 pl30 pr30 f14" id="indexSession_six_div" style="display:none;">
+
+               <div class="tab-title f_b"><span class="c_p dnb bod on" id="indexSession_six_xszcsq">销售政策授权</span>
+               <span class="c_p dnb bod" id="indexSession_six_spsq">售票授权</span></div>
+                <div class="tab-box bod" id="indexSession_six_sdspqx_div"  >
+					<h3 class=" pl20 pt15 pb15 green f_b">设定售票权限</h3>
+					<p>
+						<input type="radio" name="tj" class="ml20" value="jg" checked="checked"/> 按机构添加 <input
+							type="radio" name="tj" class="ml20" value="yh"/> 按用户添加
+					</p>
+					<div class="clearfix pl20 pr20 mt15">
+						<div class="bod ylfp l pt10" style="height:300px;overflow:auto;">
+							<div id="jg_div" class="pl20">
+								<div id="menu_div" style="height:100%;overflow: auto;">
+					            	<div id="menu" class="ztree" style="padding: 0;"></div>
+		     	                </div>
+							</div>
+							<div id="yh_div" class="pl20" style="display:none;">
+								<div id="yh_menu_div" style="height:100%;overflow: auto;">
+					            	<div id="yh_menu" class="ztree" style="padding: 0;"></div>
+		     	                </div>
+							</div>
+						</div>
+						<div class="bod ylfp r pt10">
+							<div id="spqx_div" class="pl20">
+								<h3 class="f_b">售票权限选择</h3>
+							</div>
+						</div>
+					</div>
+					<div class="t_c pt30 pb30">
+						<input id="spsq_save_btn" type="button" value="提交审核"
+							class="ff c_f f20 c_p bggreen pl30 pr30 pt10 pb10 bod" />
+												<input type="button" id="indexSession_seven_btn" value="下一步"  class="ff c_f f20 c_p bggreen pl30 pr30 pt10 pb10 bod" />
+					</div>
+				</div>
+				
+				<div class="tab-box bod d_n" id="indexSession_xsqxfp_div" style="display:none;">
+					<h3 class=" pl20 pt15 pb15 green f_b">销售权限分配</h3>
+					<p class="pl20">
+						选择机构 <select id="jg_sel" class="bod bgcolor txt txt-h ff v_m"><option></option>
+						</select> <input id="payboxname" type="text" class="bod bgcolor txt v_m" placeholder="请输入机构名称"/> <input id="areaname"
+							type="text" class="bod bgcolor txt v_m" placeholder="请输入城市名称"/>
+					</p>
+					<div class="clearfix pl20 pr20 mt15">
+						<div class="bod ylfp l pt10">
+
+							<div class="pl20 bb pb10 red">
+								<input id="qx_chk" type="checkbox" class="v_m" /> 选中/取消选中
+							</div>
+							<div id="jgyh_div" class="pl20 ">
+							</div>
+						</div>
+						<div class="bod ylfp r pt10">
+							<div class="pl20">
+								<h3 class="f_b">
+									销售政策选择 <select id="zc_sel" class="bod bgcolor txt ff">
+									</select>
+								</h3>
+
+							</div>
+						</div>
+					</div>
+					<div class="t_c pt30 pb30">
+						<input id="zcsq_save_btn" type="button" value="提交审核"
+							class="ff c_f f20 c_p bggreen pl30 pr30 pt10 pb10 bod" />
+						<input type="button" id="indexSession_seven_btn" value="下一步"  class="ff c_f f20 c_p bggreen pl30 pr30 pt10 pb10 bod" />
+					</div>
+				</div>
+      
+               
+          </div>
+          
+          <!-- 座位预留 -->
+           <div class="bgf mt17 pt30 pb30 pl30 pr30 f14" style="display:none" id="indexSession_zwyl_all_div" >
+                <div class="tab-title f_b">
+                <span class="c_p dnb bod on" id="indexBookedseat_zwyl_div">座位预留</span>
+                <span class="c_p dnb bod" id="indexBookedseat_ylfp_div">预留分配</span></div>
+                <div class="  bod pt20 pb20 pl20 pr20 tab-box" id="indexSession_zwyl_div">
+                    <p class="pb15 f16 f_b">票价划分</p>
+                    <p class="green">分区名称：<div id="indexBookedseat_fqmc" class="dropdownlist" style="float:left;"></div> <span class="ml30" id="indexSession_zwyl_ccmc_span"></span><span class="ml30" id="indexSession_zwyl_sysj_span"></span></p>
+                    <div class="clearfix mt15">
+                         <div class="l fq-l">
+                              <div class="bod t_c table" id="indexBookedSeat_left_table_div">
+         
+                              </div>
+                         </div>
+                         <div class="fq-r">
+                              <div class="bod_c pt10 pl10 pr10 pb10 p_r" style="margin-left:130px;">                                   
+                                   <p>                                 
+                         <input type="button" value="取消选定" class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl20 pr20"  id="indexBookedseat_reselect_btn" />
+                         <input type="button" value="刷新座位" class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl30 pr30" id="indexBookedseat_refresh_btn" /></p>
+                        <table><tr><td>
+                <span class="v_m pl20 pr20" >票价等级</span></td><td>
+                <div id="indexBookedseat_pjdj" class="dropdownlist" ></div><input type="hidden" id="indexBookedseat_pjdj_name"/></td><td>
+                 <span class="v_m pl20 pr20" >预留种类</span></td><td>
+                <div id="indexBookedseat_ylzl" class="dropdownlist" ></div></td></tr></table>
+                                  <div class="pt30  t_c ">
+                                       <ul class="clearfix piao" id="indexBookedSeat_seat_div">                                         
+                                       </ul>
+                                  </div>
+                              </div>
+                         </div>
+                    </div>
+                </div>
+                
+                  <!-- 预留分配 -->
+               <div class="bod pt20 pb20 pl20 pr20 tab-box d_n"  id="indexBookedseat_ylfp_div_id" style="display:none;">
+                    <h3 class="green f_b">预留分配</h3>
+                    <p class="mt">                     
+                        <span class="pl20">售票点</span>
+                         <input type="text" class="bod bgcolor txt"  id="indexBookedseat_spd_query_name"  />
+                        <input type="button" value="查询" class="ff c_f ml15 c_p btn-green02 bod_r f14 v_m"  id="indexBookedseat_spd_query_btn" />
+                        <span class="pl20">预留种类</span>
+                         <input type="text" class="bod bgcolor txt"  id="indexBookedseat_ylp_query_name" />
+                        <input type="button" value="查询" class="ff c_f ml15 c_p btn-green02 bod_r f14 v_m"  id="indexBookedseat_ylp_query_btn"/>
+                    </p>
+                    <div class="clearfix mt15">
+                         <div class="l bod ylfp" style="height:305px; overflow-y:scroll;" id="indexBookedSeat_ylfp_spd_div">                 
+                         </div>
+                         <div class="r bod ylfp" style="height:305px; overflow-y:scroll;" id="indexBookedSeat_ylfp_ylzl_div">                           
+                         </div>
+                    </div>
+           </div> 
+<div class="t_c pt30 pb30"><input type="button" value="保存"  id="indexBookedseat_save_btn" class="ff c_f f20 c_p bggreen pl30 pr30 pt10 pb10 bod" /><input type="button" value="下一步" class="ff c_f f20 c_p bggreen pl30 pr30 pt10 pb10 bod" /></div> 
+     </div>
+     
+     <!-- 分区座位 -->
+      <div class="bgf mt17 pt30 pb30 pl30 pr30 f14" id="indexSession_fq_div" style="display:none;" >
+                <h3 class=" pt30">
+                    <input type="button" value="新建分区" class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl20 pr20 ml add" id="indexSessnZone_addBtn" />
+                    <input type="button" value="修改分区" class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl20 pr20 ml" id="indexSessnZone_updateBtn" />
+                    <input type="button" value="删除分区" class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl20 pr20 ml"   id="indexSessnzone_deletebtn"/>
+                </h3>
+                <div class="bod mt17 pt20 pb20 pl20 pr20">
+                    <p >
+                       <span class="dnb v_m box01"></span> <span class="pl10 v_m">原始分区</span>  
+                       <span class="pl30"><span class="dnb v_m box01 box0104"></span>  <span class="pl10 v_m">新建分区</span> </span>
+                    </p>
+                   	<ul class="clearfix t_c f32 fq-box"  id="indexSessnZone_fq_ulId">						
+					</ul>
+                </div>
+     </div>
+     
+    <!-- 座位编辑 -->
+	 <div class="bgf mt17 pt30 pb30 pl30 pr30 f14"  style="display:none" id="indexSession_zw_divId">
+                <h3 class="f18 f_b green pt30 pl30">票价划分</h3>
+                <div class="  bod mt17 pt20 pb20 pl20 pr20">
+                    <p>
+                         <input type="button" value="+" class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl20 pr20" />
+                         <input type="button" value="-" class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl20 pr20 ml" />
+                         <input type="button" value="刷新座位" class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl20 pr20 ml" />
+                         <input type="button" value="编辑座位" class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl20 pr20 ml add" />
+                         <input type="button" value="删除座位" class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl20 pr20 ml" />
+                         <input type="button" value="取消选定" class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl20 pr20 ml" />
+                         <input type="button" value="返回" class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl30 pr30 ml" id="indexSessnZone_return_back_btn" />
+                    </p>
+                    <div class="clearfix mt15">
+                         <div class="l fq-l">
+                              <div class="bod t_c table" id="indexSesszone_table_div">                             
+                             </div>
+                         <ul>                  
+                             <li class="mt bod pt5 pb5 pl10" id="indexSesszone_fq_div_num"></li>
+                             <li class="mt bod pt5 pb5 pl10 red01" id="indexSessnzone_name_li"></li>
+                         </ul>
+                         </div>
+                         <div class="fq-r">
+                              <div class="bod_c pt10 pl10 pr10 pb10 t_c">
+                                  <span class="db bgcolor pt10 pb10 f18">舞台</span>
+                                  <div class="pt30   ">                                       
+                                       <ul class="clearfix piao" id="indexSessnzone_zw_detail_div">
+                                       </ul>
+                                  </div>
+                              </div>
+                         </div>
+                    </div>
+                </div>
+     </div>
+     </div>
+</div>
+
+
+    <!-- 新增/修改弹出层 票价等级-->
+	<div id="addticketprice_div" class="zhezhao" style="display:none;">
+		<div class="pt10 pb10 pl10 pr10 bb">
+			<div class="pt15">
+				<table width="100%">
+					<tr>
+					    <td class="pb10 pr10 t_r"><span class="red">*</span> 票价：</td>
+						<td class="pb10">
+							<input id="addprice" maxlength="80" type="text" class="I_txt v_m bod w140" maxlength="8" />
+						</td>
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 票价等级：</td>
+						<td class="pb10"><div id="pjdj" class="dropdownlist d_ib" style="float:left;"></div>
+						<input type="hidden" id="pjdjid"/>
+						<input type="hidden" id="pjdjid_hidden_id"/>
+						</td>
+					</tr>
+					<tr>						
+						<td class="pb10 pr10 t_r"><span class="red"></span> 票面字样：</td>
+						<td class="pb10"><input id="addmark" maxlength="80" type="text" maxlength="60" class="I_txt v_m bod w140" /></td>
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 颜色：</td>
+						<td class="pb10"><div id="addcolor" class="dropdownlist"></div>
+							<input type="hidden" id="addcolor_hidden_id"/>
+						</td>
+					</tr>			
+				</table>
+			</div>
+		</div>
+		<div class="t_c pt15 pb15">
+			<input id="addticketprice_save" type="button" value="保存" class="vote v_m c_p c_f f14" /> 
+			<input id="addticketprice_close" type="button" value="取消" class="vote vote01 v_m c_p blue f14" />
+		</div>
+	</div>
+	
+	
+	<!-- 新增/修改弹出层 -->
+	<div id="addSessnZone_div" class="zhezhao" style="display:none;">
+		<div class="pt10 pb10 pl10 pr10 bb">
+			<div class="pt15">
+				<table width="100%">
+					<tr>
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 分区名称：</td>
+						<td class="pb10"><input type="text" id="fqmc"
+							class="I_txt v_m bod w140" /></td>
+							<td class="pb10 pr10 t_r"><span class="red">*</span> 演出厅：</td>
+						<td class="pb10">
+							<div id="yct" class="dropdownlist d_ib" style="float:left;"></div>
+						</td>
+					</tr>
+					<tr>
+						
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 所属座位图：</td>
+						<td class="pb10"><input type="text" id="sszwt"
+							class="I_txt v_m bod w140" /></td>
+							<td class="pb10 pr10 t_r">分区规则：</td>
+						<td class="pb10">
+							<div id="ffgz" class="dropdownlist d_ib" style="float:left;"></div>
+						</td>
+					</tr>
+					<tr>						
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 高：</td>
+						<td class="pb10"><input type="text" id="g"
+							class="I_txt v_m bod w140" /></td>
+							<td class="pb10 pr10 t_r"><span class="red">*</span> 宽：</td>
+						<td class="pb10"><input type="text" id="k"
+							class="I_txt v_m bod w140" /></td>
+					</tr>
+					<tr>
+						
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 座位行数：</td>
+						<td class="pb10"><input type="text" id="zshs"
+							class="I_txt v_m bod w140" /></td>
+								<td class="pb10 pr10 t_r"><span class="red">*</span> 座位列数：</td>
+						<td class="pb10"><input type="text" id="zsls"
+							class="I_txt v_m bod w140" /></td>
+					</tr>
+					<tr>
+					
+						<td class="pb10 pr10 t_r"><span class="red">*</span> x坐标：</td>
+						<td class="pb10"><input type="text" id="xzb"
+							class="I_txt v_m bod w140" /></td>
+							<td class="pb10 pr10 t_r"><span class="red">*</span> y坐标：</td>
+						<td class="pb10"><input type="text" id="yzb"
+							class="I_txt v_m bod w140" /></td>
+					</tr>
+					<tr>
+						
+						<td class="pb10 pr10 t_r"> 分区文字：</td>
+						<td class="pb10"><input type="text" id="fqwz"
+							class="I_txt v_m bod w140" /></td>
+								<td class="pb10 pr10 t_r"> 背景颜色：</td>
+						<td class="pb10"><input type="text" id="bjys"
+							class="I_txt v_m bod w140" /></td>
+
+					</tr>
+					<tr>
+						<td class="pb10 pr10 t_r">分区类型：</td>
+						<td class="pb10"><input type="text" id="fqlx"
+							class="I_txt v_m bod w140" /></td>
+					</tr>					
+					<tr>
+						<td class="pb10 pr10 t_r">说明：</td>
+						<td class="pb10"><textarea cols="40" rows="4" id="sm" /></td>
+					</tr>
+
+				</table>
+			</div>
+		</div>
+		<div class="t_c pt15 pb15">
+			<input id="qd" type="button" value="保存" class="vote v_m c_p c_f f14" />
+			<input id="qx" type="button" value="取消"
+				class="vote vote01 v_m c_p blue f14" />
+		</div>
+	</div>
+
+
+	<!-- 修改弹出层 -->
+	<div id="updateSessnZone_div" class="zhezhao" style="display:none;">
+		<div class="pt10 pb10 pl10 pr10 bb">
+			<div class="pt15">
+				<table width="100%">
+					<tr>
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 分区名称：</td>
+						<td class="pb10"><input type="text" id="fqmc"
+							class="I_txt v_m bod w140" /></td>
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 所属场次：</td>
+						<td class="pb10"><input type="text" id="scycc"
+							class="I_txt v_m bod w140" readonly="readonly" /></td>
+					</tr>
+					<tr>
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 演出厅：</td>
+						<td class="pb10"><input type="text" id="yct"
+							class="I_txt v_m bod w140" readonly="readonly" /></td>
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 所属座位图：</td>
+						<td class="pb10"><input type="text" id="sszwt"
+							class="I_txt v_m bod w140" /></td>
+					</tr>
+					<tr>
+						<td class="pb10 pr10 t_r">分区规则：</td>
+						<td class="pb10">
+							<div id="ffgz" class="dropdownlist d_ib" style="float:left;"></div>
+						</td>
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 高：</td>
+						<td class="pb10"><input type="text" id="g"
+							class="I_txt v_m bod w140" /></td>
+					</tr>
+					<tr>
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 宽：</td>
+						<td class="pb10"><input type="text" id="k"
+							class="I_txt v_m bod w140" /></td>
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 座位行数：</td>
+						<td class="pb10"><input type="text" id="zshs"
+							class="I_txt v_m bod w140" /></td>
+					</tr>
+					<tr>
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 座位列数：</td>
+						<td class="pb10"><input type="text" id="zsls"
+							class="I_txt v_m bod w140" /></td>
+						<td class="pb10 pr10 t_r"><span class="red">*</span> x坐标：</td>
+						<td class="pb10"><input type="text" id="xzb"
+							class="I_txt v_m bod w140" /></td>
+					</tr>
+					<tr>
+						<td class="pb10 pr10 t_r"><span class="red">*</span> y坐标：</td>
+						<td class="pb10"><input type="text" id="yzb"
+							class="I_txt v_m bod w140" /></td>
+						<td class="pb10 pr10 t_r">分区文字：</td>
+						<td class="pb10"><input type="text" id="fqwz"
+							class="I_txt v_m bod w140" /></td>
+
+					</tr>
+					<tr>
+						<td class="pb10 pr10 t_r"> 背景颜色：</td>
+						<td class="pb10"><input type="text" id="bjys"
+							class="I_txt v_m bod w140" /></td>
+						<td class="pb10 pr10 t_r">分区类型：</td>
+						<td class="pb10"><input type="text" id="fqlx"
+							class="I_txt v_m bod w140" /></td>
+					</tr>					
+					<tr>
+						<td class="pb10 pr10 t_r">说明：</td>
+						<td class="pb10"><textarea cols="40" rows="4" id="sm" /></td>
+					</tr>
+
+				</table>
+			</div>
+		</div>
+		<div class="t_c pt15 pb15">
+			<input id="qd" type="button" value="保存" class="vote v_m c_p c_f f14" />
+			<input id="qx" type="button" value="取消"
+				class="vote vote01 v_m c_p blue f14" />
+		</div>
+	</div>
+	
+	<!-- 删除 -->
+	<div id="indexSessnzone_del_div" class="zhezhao" style="display:none;">
+	  	<ul class="role_tab2">
+			<li><label>分区：</label>
+				<div class="rolediv" id="deleteDataDiv"></div>
+			</li>
+		</ul>
+		<div class="t_c pt15 pb15">
+			<input id="indexSessnZoneSaveBtn" type="button" value="保存" class="vote v_m c_p c_f f14" />
+			<input id="indexSessnZoneCancelBtn" type="button" value="取消" class="vote vote01 v_m c_p blue f14" />
+		</div>
+	</div>
+	
+	
+	 <!-- 修改套票政策明细 -->
+	<div id="indexFavourable_detail_update_div" class="zhezhao" style="display:none;">
+		<div class="pt10 pb10 pl10 pr10 bb">
+			<div class="pt15">
+				<table width="100%">
+					<tr>
+					    <td class="pb10 pr10 t_r"><span class="red">*</span> 数量：</td>
+						<td class="pb10" style="padding-bottom:10px;"><input id="indexFavourable_detail_sl" maxlength="80" type="text"  style="width:156px;" class="I_txt v_m bod w140" /></td>
+				</tr>
+					<tr>
+						<td class="pb10 pr10 t_r"><span class="red">*</span> 票价等级：</td>
+						<td class="pb10" style="padding-bottom:10px;">
+                           <div id="indexFavourable_detail_pjdj" class="dropdownlist d_ib" style="float:left;">
+                           <input type="hidden" id="indexFavourable_detail_pjdj_name"/>
+                           </div>
+						</td>
+					</tr>
+			
+					<tr>
+					    <td class="pb10 pr10 t_r">总价格(元)：</td>
+						<td class="pb10" style="padding-bottom:10px;"><input id="indexFavourable_detail_jg" readonly="readonly"  type="text"  style="width:156px;" class="I_txt v_m bod w140" /></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div class="t_c pt15 pb15">
+			<input id="indexFavourable_detail_save_btn" type="button" value="保存" class="vote v_m c_p c_f f14" /> 
+			<input id="indexFavourable_detail_cancel_btn" type="button" value="取消" class="vote vote01 v_m c_p blue f14" />
+		</div>
+	</div>
+
+</body>
+</html>

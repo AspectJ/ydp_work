@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<sqls namespace="reserve">
+	<!--查询 -->
+	<sql id="selectReserve">
+		SELECT t.reserveid,t.reservename,t.pxh,t.des,
+		CASE
+		t.isreserve
+		WHEN '1'
+		THEN
+		'是'
+		WHEN '2' THEN
+		'否'
+		END isreservename,
+		CASE
+		t.issale
+		WHEN '1' THEN
+		'是'
+		WHEN
+		'2' THEN
+		'否'
+		END issalename,
+		CASE
+		t.iscancel
+		WHEN '1' THEN
+		'是'
+		WHEN '2' THEN
+		'否'
+		END iscancelname,
+		t.isreserve,t.issale,t.iscancel,t.status,t.delstatus,t.vid,t.cid,t.ctime,t.mid,t.mtime FROM pt_reserve t
+		<dynamic>
+			WHERE
+			<if name="status" test="notEmpty">and t.status = :status</if>
+			<!-- 根据名称模糊查询 -->
+			<if name="reservename" test="notEmpty">and <![CDATA[ t.reservename like CONCAT('%',:reservename,'%') ]]></if>
+		</dynamic>
+	</sql>
+	
+	<!--新增 -->
+	<sql id="insertReserve">
+		INSERT INTO pt_reserve(reserveid ,reservename ,pxh ,des ,isreserve ,issale ,iscancel ,status ,delstatus ,vid ,cid ,ctime ,mid ,mtime )
+		VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+	</sql>
+	
+	<!--更新 -->
+	<sql id="updateReserve">
+		UPDATE pt_reserve SET
+		<dynamic>
+		<if name="reservename" test="notEmpty">reservename = :reservename </if>
+		<if name="pxh" test="notEmpty">,pxh = :pxh </if>
+		<if name="des" test="notEmpty">,des = :des </if>
+		<if name="isreserve" test="notEmpty">,isreserve = :isreserve </if>
+		<if name="issale" test="notEmpty">,issale = :issale </if>
+		<if name="iscancel" test="notEmpty">,iscancel = :iscancel </if>
+		<if name="status" test="notEmpty">,status = :status </if>
+		<if name="delstatus" test="notEmpty">,delstatus = :delstatus </if>
+		<if name="vid" test="notEmpty">,vid = :vid </if>
+		<if name="cid" test="notEmpty">,cid = :cid </if>
+		<if name="ctime" test="notEmpty">,ctime = :ctime </if>
+		<if name="mid" test="notEmpty">,mid = :mid </if>
+		<if name="mtime" test="notEmpty">,mtime = :mtime </if>
+		</dynamic>
+		<dynamic>
+			WHERE
+			<if name="reserveid">reserveid = :reserveid</if>
+		</dynamic>
+	</sql>
+	
+	<!-- 禁用启用 -->
+	<sql id="updateStatus">
+		UPDATE pt_reserve
+		<dynamic>
+			SET
+			<if name="status">
+				status = :status
+			</if>
+			<if name="mid">
+				,mid = :mid
+			</if>
+			<if name="mtime">
+				,mtime = :mtime
+			</if>
+			<if name="reserveid">
+				WHERE reserveid = :reserveid
+			</if>
+		</dynamic>
+	</sql>
+	
+	<!--删除 -->
+	<sql id="deleteReserve">
+		DELETE FROM pt_reserve
+		<dynamic>
+			WHERE
+			<if name="reserveid">reserveid = :reserveid</if>
+		</dynamic>
+	</sql>
+</sqls>

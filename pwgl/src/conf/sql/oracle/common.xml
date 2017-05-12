@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqls namespace="common">
+
+	<!-- 系统通用字典模块-查询 -->
+	<sql id="selectDictionary">
+		SELECT t.dmid, t.dmz, t.flid, t.pxh
+		  FROM e_ptdm t
+		 WHERE t.zt = '1001'
+		 ORDER BY t.flid, t.pxh
+	</sql>
+	
+	<!-- 字典缓存：取所有字典分类  -->
+	<sql id="selectDictType">
+		SELECT distinct t.flid FROM e_ptdm t WHERE t.zt='1001'
+	</sql>
+	
+	<!-- 字典缓存：取分类下的字典值  -->
+	<sql id="selectDictByType">
+		SELECT t.dmid, t.dmz, t.pxh,t.flid
+		  FROM e_ptdm t
+		 WHERE t.zt = '1001'
+		 <dynamic>
+		 	<if name="flid">
+			 	AND t.flid in(:flid)
+			 ORDER BY t.flid,t.pxh
+		 	</if>
+		 </dynamic>
+	</sql>
+	
+	<sql id="getAllXzqh">
+		SELECT t.xzqhdm id,t.xzqhmc name,t.sjxzqhdm pId,t.cj,t2.xzqhmc sjxzqhmc 
+		  FROM e_org t LEFT JOIN e_org t2 ON t.sjxzqhdm = t2.xzqhdm
+		 WHERE t.xzqhdm != '360'
+	  ORDER BY t.xzqhdm
+	</sql>
+	
+	<!-- 获取卡片ID序列生成的序列值 -->
+	<sql id="querySeqCardIdNext">
+		<![CDATA[SELECT seq_cardid.nextval FROM dual connect by rownum <= ?]]>
+	</sql>
+	
+	<sql id="getAllZtfl">
+		select t.fldm as id,t.fldm||' '||t.flmc as name, t.ffldm as pId from e_ztfl t ORDER BY t.pxh
+	</sql>
+
+
+</sqls>

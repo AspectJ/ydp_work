@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+<head>
+<title>票面制作</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<script type="text/javascript"
+	src="js/plugin/bigcolorpicker/jquery.bigcolorpicker.js"></script>
+<script type="text/javascript" src="js/plugin/jqueryprint/jQuery.print.js"></script>
+<link rel="stylesheet"
+	href="js/plugin/bigcolorpicker/css/jquery.bigcolorpicker.css"></link>
+<script src="js/page/ticketface/indexFacemake.js" type="text/javascript"></script>
+</head>
+
+<body>
+		<div class="pl30 pr30 pt10 pb10">
+			<div class="bgf mt17 pb30 f14">
+				<h3 class="f18 f_b green">新增票面</h3>
+				<div class="clearfix pt20">
+                   	<span>场次编号：</span><span class=""  id="indexSession_two_ccbh" style="margin-right: 10px; color: red;"> </span>
+                   	<span style="margin-left: 10px;">场次名称：</span><span class="" id="indexSession_two_ccmc_txt" style="color: red;"></span>
+               </div>
+				<div class="bod mt17 pb20 pr20">
+					<table width="100%">
+						<tr>
+							<td class=" t_r pr5">票面名称</td>
+							<td><input id="add_ticketname" type="text"
+								class="bod bgcolor txt" />
+							</td>
+							<td><input id="add_bkimg_txt" type="text"
+								class="bod bgcolor txt " style="margin-top:10px;"/><input id="add_bgurl" type="hidden" />
+							</td>
+							
+							<td class="t_r pr5">副券张数</td>
+							<td><select id="add_carbonnum"
+								class="bod bgcolor txt ff w100">
+									<option value="1">1张</option>
+									<option value="2">2张</option>
+							</select></td>
+							<td><span class="v_m pr5">副券宽度</span> <input
+								id="add_carbonheight" type="text" class="bod bgcolor txt" style="width:40px;" value="6"/>
+								cm</td>
+							<td class=" t_r pr5">副券位置</td>
+							<td colspan="3"><input type="radio" class="v_m"
+								name="position" value="left"/> 左边 <span class="ml20"><input
+									type="radio" class="v_m" name="position" checked="checked" value="right"/> 右边</span> <span
+								class="ml20"><input type="radio" class="v_m"
+									name="position" value="left-right"/> 左右两边</span></td>
+						</tr>
+					</table>
+					<ul class="pt15">
+						<li style="float:left;"><label style="margin-left:15px;">数据库字段</label>
+							<select id="add_db_field" class="bod bgcolor txt ff w100"></select></li>
+						<li style="float:left;margin-left: 10px;"><input id="add_txt_btn" type="button" value="自定义文本"
+							class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl20 pr20" /></li>
+						<li style="float:left;" class="pl15"><input id="add_img_btn" type="text" value="图片"/></li>
+						<li style="float:left;" class="pl15"><input
+							id="add_txm_btn" type="button" value="条形码"
+							class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl30 pr30" /></li>
+						<li style="float:left;" class="pl15 pr15"><input
+							id="add_ewm_btn" type="button" value="二维码"
+							class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl30 pr30" /></li>
+						<li ><input id="print_btn" type="button" value="打印"
+							class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl30 pr30" /></li>
+					</ul>
+					
+					<p class="mt15">
+						 <label
+							style="margin-left:15px;color:red;">文本编辑：</label> <input id="nr_txt"
+							type="text" class="bod bgcolor txt" /> <input id="color_btn"
+							type="button" value="颜色"
+							class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl30 pr30" /> <label>字体大小：</label>
+						<input id="size_txt" type="text" class="bod bgcolor txt" /> <input
+							id="txt_save_btn" type="button" value="确认修改"
+							class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl30 pr30" />
+					</p>
+					<p class="mt15">
+						 <label
+							style="margin-left:15px;color:red;">图片编辑：</label>
+							<label style="">宽</label>
+							<input id="width_txt" type="text" class="bod bgcolor txt" style="width:40px;"/>
+							<label style="">高</label>
+							<input id="height_txt" type="text" class="bod bgcolor txt" style="width:40px;"/>
+							<input id="img_save_btn" type="button" value="确认修改"
+							class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl30 pr30" />
+							<input id="txt_del_btn" type="button" value="删除"
+							class="c_p btn-hui ff f16 c_p bgcolor bb pt5 pb5 pl30 pr30" />
+					</p>
+
+					<div id="main_div"
+						style="width:745px;height:245px;margin-left:10px;border:1px dashed #ddd;margin-top:15px;padding:42px;">
+						<div id="ticket_div" 
+							style="float:left;width:100%; height:300px; background-color:#CCC; position:relative; overflow:hidden; background-size:100% 100%; "></div>
+					</div>
+				</div>
+
+				<div class="t_c pt30 pb30">
+					<input id="save_btn" type="button" value="保存并下一步"
+						class="ff c_f f20 c_p bggreen pl30 pr30 pt10 pb10 bod" /> 
+				</div>
+			</div>
+		</div>
+
+</body>
+</html>

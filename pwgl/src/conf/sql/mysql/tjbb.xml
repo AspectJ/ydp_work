@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqls namespace="tjbb">
+
+	<!-- 查询订单完成的场次等信息 -->
+	<sql id="queryOrderStatus">
+		SELECT DISTINCT
+		s.sessionscode,
+		s.sessionsname,
+		DATE_FORMAT(
+		s.playtime,
+		'%Y-%m-%d %h:%i:%s'
+		) playtime,
+		v.venuename,
+		p.payboxname
+		FROM
+		OD_ORDER t
+		LEFT JOIN pt_sessions s ON t.sessionsid = s.sessionsid
+		LEFT JOIN PT_VENUE v ON v.venueid = t.venueid
+		LEFT JOIN pt_paybox p ON p.payboxid = t.payboxid
+		WHERE
+		t.odstatus = '4'
+	</sql>
+	
+	<!-- 查询项目 -->
+	<sql id="queryXm">
+	  SELECT i.itemid,i.itemname FROM pt_item i
+	</sql>
+	
+	<!-- 查询场馆 -->
+	<sql id="queryCg">
+	SELECT t.venueid,t.venuename FROM PT_VENUE t
+	</sql>
+</sqls>
