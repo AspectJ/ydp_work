@@ -1,0 +1,50 @@
+
+:global {
+  html, body, #root {
+    height: 100%;
+  }
+
+  .ContentHeader{
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #ccc;
+  }
+  .ContentQuery{
+    margin-bottom: 20px;
+  }
+
+  //上传后图片样式
+  .upload-list-inline .ant-upload-list-item {
+    display: inline-block;
+    width: 200px;
+    margin-right: 8px;
+  }
+
+  // 右侧弹出层样式
+  .rightModal {
+    > .ant-modal{
+      height: 100%;
+      top: 0;
+      bottom: 0;
+      margin-right: 0;
+      padding: 0;
+      > .ant-modal-content{
+        height: 100%;
+        border-radius: 0;
+        .ant-modal-body{
+          height: 89.4%;
+          overflow-y: scroll;;
+        }
+        .ThemePic{
+          max-width: 336px;
+          max-height: 118px;
+        }
+      }
+    }
+  }
+
+  // 富文本样式
+  .editor-container .tab-group .tab-nav .tab-item .tab-text{
+    line-height: 12px;
+  }
+}

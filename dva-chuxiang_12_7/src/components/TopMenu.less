@@ -1,0 +1,24 @@
+@charset "UTF-8";
+
+.antLayoutHeader {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 80px;
+  background: #404040;
+  z-index: 999;
+  > .antLayoutWrapper {
+    padding: 0 50px;
+    > .antLayoutLogo {
+      display: inline-block;
+      width: 200px;
+      height: 80px;
+      background: url('../static/image/logo.png') no-repeat left center;
+      background-size: 200px;
+    }
+    .topMenu{
+      float: right;
+      line-height: 80px;
+    }
+  }
+}
