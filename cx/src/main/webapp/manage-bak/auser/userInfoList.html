@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>影院总部管理系统</title>
+		<link rel="stylesheet" href="../css/base.css" />
+		<link rel="stylesheet" href="../css/main.css" />
+		<link rel="stylesheet" href="../css/pagination.css" />		
+	</head>
+	<body>
+		<!-- 主面板 -->
+		<div class="main-box">
+			<div class="content-title">
+				<span>您当前位置：用户管理</span>
+				<!-- <p class="search"><input placeholder="请输入您要查询的信息" /> <i></i></p>-->
+				<div class="clear"></div>
+			</div>
+			
+			<!-- 数据区 -->
+			<div class="content-data">
+				<h3 class="title">用户中心</h3>
+				<table class="data-tab" id="result">
+					<tr id="row_title"><th>全选</th><th>邮箱</th><th>手机号</th><th>昵称</th><th>真实姓名</th>
+					<th>影院名称</th><th>创建时间</th><th>更改时间</th><th>状态</th><th>操作</th></tr>	
+				</table>
+
+				<div class="page">
+<!-- 				<i class="delSelect">删除所选</i> -->
+						
+					<ul class="data-tab-ul">
+						<div id="Pagination" class="meneame"></div>
+						
+					</ul>
+				</div>
+<!-- 			<div class="page">
+					<i class="add"></i>
+				</div> -->
+				
+			</div>
+			
+		</div>
+		
+		<script type="text/javascript" src="../js/jquery-1.11.2.min.js" ></script>
+		<script type="text/javascript" src="../js/jquery.pagination.js" ></script>
+		<script type="text/javascript" src="../js/public.js" ></script>
+		<script type="text/javascript" src="../js/userinfolist.js" ></script>
+	</body>
+</html>

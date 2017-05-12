@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<!-- 接口地址 -->
+	<service url="http://localhost:8000" />
+
+	<!-- 导出文件保存路径 -->
+	<path file="C:/" />
+	
+	<MongoDB host="192.168.198.3" dbname="test" collname="java" user="" pass="i" />
+</config>

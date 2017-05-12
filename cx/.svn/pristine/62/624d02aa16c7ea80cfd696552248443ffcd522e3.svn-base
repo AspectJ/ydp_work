@@ -1,0 +1,59 @@
+.news-detail{
+	float: left;
+  width: 780px;
+  margin: 40px 50px 0 0;
+}
+.news-title{
+	margin-bottom: 20px;
+	font-size: 24px;
+	color: #333;
+	font-weight: normal;
+}
+.news-helper{
+  position: relative;
+  height: 30px;
+  line-height: 30px;
+  font-size: 14px;
+  color: #666;
+}
+.news-helper .view{
+	margin-left: 130px;
+  padding-left: 25px;
+  background: url('../img/view.png') no-repeat left center;
+  background-size: 20px;
+}
+.news-content{
+	margin-bottom: 30px;
+	padding: 30px 0;
+	border-bottom: 1px solid #f1f1f1;
+}
+.news-content img{
+	max-width: 780px;
+	margin: 40px auto;
+}
+.news-pagination span{
+	line-height: 30px;
+	color: #eb002a;
+}
+
+.left_news{margin-top: 120px;width: 900px;float: left;background-color: #fff;}
+.left_news .headImg{padding: 3px;width: 100%;}
+.left_news .view{line-height: 50px; color: #A4A4A5;}
+.left_news .view .time{margin-left: 60px;float:none!important;font-size: 16px;color:#666767}
+.left_news .view .see{font-size: 16px;color:#666767;margin-left: 620px; padding-left: 50px; background-image: url(../img/dynamic_visit.png);background-repeat: no-repeat;}
+.left_news .content{margin: 0px 10px;}
+.left_news .content h2{text-align: center;padding-top: 50px;padding-bottom: 10px;}
+.left_news .content p{padding: 10px 25px; line-height: 200%;color: #666767; font-size: 16px;}
+.left_news .content p img{width: 740px; padding: 10px;}
+.left_news .content	.share{padding-bottom: 60px;padding-top: 10px;padding-left: 500px; color: #A7A8A8;}
+.left_news .content	.share img{vertical-align: middle; margin-left: 20px;}
+
+.other_news{margin-top: 120px;width: 280px;float: right;}
+.other_news .other{background:#fff;line-height: 50px; border: 1px solid #A7A8A8; font-size: 17px;font-weight: bold; color: #666767; padding-left: 12px;}
+.other_news img{border: 1px solid #A7A8A8;padding: 5px 8px; margin-top: 0px;width: 260px;height:177px;}
+.other_news div div{margin-bottom:20px;font-size:16px;text-overflow:ellipsis;}
+.other_news div div div{margin: 0 3px 0 6px;}
+.other_news div div:hover{text-decoration: underline; color:#6495ED;cursor: pointer;}
+
+.bottom_top{clear:both;height: 50px;}
+.bottom{clear: both;}

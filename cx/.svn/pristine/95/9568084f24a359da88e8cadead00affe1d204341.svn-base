@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="theaterstyle">
+
+	<!-- 新增院线风采信息 -->	
+	<insert id="insertTheaterStyle" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="s_id">
+		insert into t_theater_style( s_name,s_type,s_img,cinemaid,create_time,update_time,s_remark) 
+			values 
+		(#{s_name},#{s_type},#{s_img}, #{cinemaid}, #{create_time}, #{update_time},#{s_remark})
+	</insert>
+	
+	
+	<!-- 查询院线风采信息 -->
+	<select id="getTheaterStyle" parameterType="java.util.Map" resultType="java.util.Map">
+		select s.s_id,s.s_name,s.s_type,s.s_img,s.cinemaid,s.create_time,s.update_time,s.s_remark,image.org_path 
+		from t_theater_style s 
+		join t_image image on s.s_img = image.imageid 
+			where 1=1 and s.s_id = #{s_id} 
+	</select>
+	
+	<!-- 修改院线风采信息 -->
+	<update id="updateTheaterStyle" parameterType="map">
+		update t_theater_style set s_name = #{s_name}
+			<if test="s_type != null">
+				,s_type = #{s_type}
+			</if>
+			<if test="j_remark != null">
+				,s_remark = #{s_remark}
+			</if>
+			<if test="update_time != null">
+				,update_time = #{update_time}
+			</if>
+		where s_id = #{s_id} 
+	</update>
+	
+	<!-- 删除院线风采信息 -->
+	<delete id="deleteTheaterStyle" parameterType="map">
+		delete from t_theater_style 
+		where s_id = #{s_id} 
+	</delete>
+	
+	
+	<!-- 院线风采信息查询 -->
+	<select id="getTheaterStyleList" parameterType="java.util.Map" resultType="java.util.Map">
+		select s_id,s_name,s_type,s_img,cinemaid,create_time,update_time,s_remark 
+		from t_theater_style  
+		order by create_time desc limit ${pageSize} offset ${offsetNum} 
+	</select>
+	
+	<!-- 院线风采信息查询 -->
+	<select id="getTheaterStyleListCount" parameterType="java.util.Map" resultType="java.util.Map">
+		select count(*) from t_theater_style 
+	</select>
+	
+	
+	
+	
+	
+</mapper>

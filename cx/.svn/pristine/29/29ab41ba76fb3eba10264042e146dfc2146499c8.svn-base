@@ -1,0 +1,557 @@
+package com.cx.rest.information;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+
+import org.jboss.resteasy.annotations.cache.NoCache;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cx.bean.ResMessage;
+import com.cx.filter.BaseServlet;
+import com.cx.rest.information.dao.ActivityInfoDaoImpl;
+import com.cx.rest.information.dao.AdminInfoDaoImpl;
+import com.cx.rest.information.dao.NewsInfoDaoImpl;
+import com.cx.util.CodeUtil;
+import com.mongo.MyMongo;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+@Path("rest/activity")
+@NoCache
+@Service()
+public class ActivityInfoRest extends BaseServlet
+{
+	
+	@Resource
+	private NewsInfoDaoImpl newsInfoDao;
+	@Resource
+	private ActivityInfoDaoImpl activityDao; 
+	@Autowired
+	private AdminInfoDaoImpl adminInfoDao;
+	
+	/**
+	 * 新增最新活动信息
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/addActivity")
+	@Produces("text/html;charset=UTF-8")
+	public String addActivity(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String cinema_id = request.getParameter("cinemaid");
+		String acti_title = URLDecoder.decode(request.getParameter("acti_title"), "UTF-8");
+		String acti_status = request.getParameter("acti_status");
+		String acti_img = request.getParameter("acti_img");
+		String acti_content = URLDecoder.decode(request.getParameter("acti_content"), "UTF-8");
+		String start_time = request.getParameter("start_time");
+		String end_time = request.getParameter("end_time");
+		String author = URLDecoder.decode(request.getParameter("adminname"), "UTF-8");
+		try{
+			if (CodeUtil.checkParam(acti_title)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			
+			Map<String, Object> imageMap = new HashMap<String, Object>();
+			imageMap.put("imageid", "");
+			imageMap.put("org_path", acti_img);
+			Map<String, Object> imageResult = newsInfoDao.insertImage(imageMap);
+			String acti_img_id = imageResult.get("imageid").toString();
+			Map<String, Object> actiMap = new HashMap<String, Object>();
+			actiMap.put("acti_id", "0");
+			actiMap.put("acti_title", acti_title);
+			actiMap.put("acti_status", Integer.parseInt(acti_status));
+			actiMap.put("acti_img", Integer.parseInt(acti_img_id));
+			actiMap.put("acti_content", acti_content);
+			actiMap.put("cinemaid", Integer.parseInt(cinema_id));
+			actiMap.put("brows_times", 0);
+			actiMap.put("start_time",  new SimpleDateFormat("yyyy-MM-dd").parse(start_time.replaceAll("/", "-")));
+			actiMap.put("end_time", new SimpleDateFormat("yyyy-MM-dd").parse(end_time.replaceAll("/", "-")));
+			actiMap.put("author", author);
+			Map<String, Object> resultMap = activityDao.insertActivity(actiMap);
+			JSONObject data = new JSONObject();
+			data.put("acti_id", resultMap.get("acti_id"));
+			data.put("acti_title", resultMap.get("acti_title"));
+			data.put("acti_status", resultMap.get("acti_status"));
+			data.put("acti_content", resultMap.get("acti_content"));
+			data.put("brows_times", resultMap.get("brows_times"));
+			data.put("start_time", start_time.replaceAll("/", "-"));
+			data.put("end_time", end_time.replaceAll("/", "-"));
+			data.put("cinemaid", resultMap.get("cinemaid"));
+			data.put("audit_flag", "0");
+			data.put("author", author);
+			data.put("acti_img", Integer.parseInt(acti_img_id));
+			data.put("org_path", acti_img);
+			data.put("create_time", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date()));
+			resultJson.put("data", data);
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("新增最新活动信息", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("新增最新活动信息",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 修改最新活动信息
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/updateActivity")
+	@Produces("text/html;charset=UTF-8")
+	public String updateActivity(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String acti_id = request.getParameter("acti_id");
+		String acti_title = URLDecoder.decode(request.getParameter("acti_title"), "UTF-8");
+		String acti_status = URLDecoder.decode(request.getParameter("acti_status"), "UTF-8");
+		String org_path = URLDecoder.decode(request.getParameter("org_path"), "UTF-8");
+		String acti_content = URLDecoder.decode(request.getParameter("acti_content"), "UTF-8");
+		String image_change = request.getParameter("image_change");
+		String imageid = request.getParameter("imageid");
+		String start_time = request.getParameter("start_time");
+		String end_time = request.getParameter("end_time");
+		String adminname = URLDecoder.decode(request.getParameter("adminname"), "UTF-8");
+
+
+		try{
+			if (CodeUtil.checkParam(acti_title)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			if(image_change.equals("0")){//需要修改主题图片
+				Map<String, Object> imageMap = new HashMap<String, Object>();
+				imageMap.put("org_path", org_path);
+				imageMap.put("imageid", Integer.parseInt(imageid));
+				newsInfoDao.updateImageInfo(imageMap);
+			}
+			Map<String, Object> actiMap = new HashMap<String, Object>();
+			actiMap.put("acti_id", Integer.parseInt(acti_id));
+			actiMap.put("acti_title", acti_title);
+			actiMap.put("acti_status", Integer.parseInt(acti_status));
+			actiMap.put("acti_content", acti_content);
+			actiMap.put("update_time", new Date());
+			actiMap.put("start_time", new SimpleDateFormat("yyyy-MM-dd").parse(start_time.replaceAll("/", "-")));
+			actiMap.put("end_time", new SimpleDateFormat("yyyy-MM-dd").parse(end_time.replaceAll("/", "-")));
+			actiMap.put("author", adminname);
+			Map<String, Object> resultMap = activityDao.updateActivity(actiMap);
+			JSONObject data = new JSONObject();
+			data.put("acti_id", resultMap.get("acti_id"));
+			resultJson.put("data", data);
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("修改最新活动信息", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("修改新闻信息",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 审核过程
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/updateActivity_Audit")
+	@Produces("text/html;charset=UTF-8")
+	public String updateActivity_Audit(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String acti_id = request.getParameter("acti_id");
+		String audit_flag = request.getParameter("audit_flag");
+		String adminid = request.getParameter("admin_id")==null || request.getParameter("admin_id").equals("") ? "0" : request.getParameter("admin_id");
+		
+		Map<String, Object> updateMap = new HashMap<String, Object>();
+		if(!adminid.equals("0")){//再次查询是否具备权限
+			updateMap.put("adminid", Integer.parseInt(adminid));
+			Map<String, Object> resultMap = adminInfoDao.selSingleAdmin(updateMap);
+			if(resultMap != null){
+				String audit = resultMap.get("audit_flag").toString();
+				if(audit.equals("1")){//可以审核
+					updateMap.put("audit_flag", audit_flag);
+				    updateMap.put("acti_id", Integer.parseInt(acti_id));
+				}else{
+					return this.returnError(resultJson, ResMessage.User_Lack_Privilege.code, request);
+				}
+			}else{
+				return this.returnError(resultJson, ResMessage.User_Lack_Privilege.code, request);
+			}
+		}else{
+			updateMap.put("audit_flag", audit_flag);
+		    updateMap.put("acti_id", Integer.parseInt(acti_id));
+		}
+
+		Map<String, Object> resultMap = activityDao.updateActivity_Audit(updateMap);
+		JSONObject data = new JSONObject();
+		data.put("audit_flag", resultMap.get("audit_flag"));
+		resultJson.put("data", data);
+
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("审核事务结束", etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 删除最新活动信息
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/deleteActivity")
+	@Produces("text/html;charset=UTF-8")
+	public String deleteActivity(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String imageid = request.getParameter("imageid");//图片ID
+		String acti_id = request.getParameter("acti_id");//活动ID
+		try{
+			if (CodeUtil.checkParam(acti_id)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			
+			Map<String, Object> actiMap = new HashMap<String, Object>();
+			actiMap.put("imageid", Integer.parseInt(imageid));
+			actiMap.put("acti_id", Integer.parseInt(acti_id));
+			newsInfoDao.deleteImage(actiMap);
+			activityDao.deleteActivity(actiMap);
+			JSONObject data = new JSONObject();
+			data.put("imageid", imageid);
+			data.put("news_id", acti_id);
+			resultJson.put("data", data);
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("删除最新活动信息", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("删除最新活动信息",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 批量删除活动信息
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/deleteActivitys")
+	@Produces("text/html;charset=UTF-8")
+	public String deleteActivitys(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String imageid = request.getParameter("imageid");//图片ID
+		String acti_id = request.getParameter("acti_id");//活动ID
+		try{
+			if (CodeUtil.checkParam(acti_id)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			String[] imageids = imageid.split(",");
+			String[] acti_ids = acti_id.split(",");
+			
+			for(int i=0;i<acti_ids.length;i++){
+				String imgid = imageids[i];
+				String actiid = acti_ids[i];
+				Map<String, Object> actiMap = new HashMap<String, Object>();
+				actiMap.put("imageid", Integer.parseInt(imgid));
+				actiMap.put("acti_id", Integer.parseInt(actiid));
+				newsInfoDao.deleteImage(actiMap);
+				activityDao.deleteActivity(actiMap);
+			}
+			
+			
+			JSONObject data = new JSONObject();
+			data.put("imageid", imageid);
+			data.put("acti_id", acti_id);
+			resultJson.put("data", data);
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("删除最新活动信息失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("删除最新活动信息成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 查看最新活动信息
+	 */
+	@GET
+	@POST
+	@Path("/getActivity")
+	@Produces("text/html;charset=UTF-8")
+	public String getActivity(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String acti_id = request.getParameter("acti_id");
+		try{
+			if (CodeUtil.checkParam(acti_id)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			Map<String, Object> actiInfo = new HashMap<String, Object>();
+			actiInfo.put("acti_id", Integer.parseInt(acti_id));
+			String updateFlag = request.getParameter("updateFlag");
+			if(updateFlag != null && "true".equals(updateFlag)) {
+				activityDao.updateBrowsTimes(actiInfo);
+			}
+			//获取活动信息
+			Map<String, Object> resultMap = activityDao.getActivity(actiInfo);
+			JSONObject data = new JSONObject();
+			if(resultMap != null && resultMap.size() > 0){
+				data.put("acti_id", resultMap.get("acti_id"));
+				data.put("acti_title", resultMap.get("acti_title"));
+				data.put("acti_img", resultMap.get("acti_img"));
+				data.put("acti_content", resultMap.get("acti_content"));
+				data.put("acti_status", resultMap.get("acti_status"));
+//				String acti_status = CodeUtil.convertNewsStatus(resultMap.get("acti_status").toString());
+				data.put("acti_status_name", resultMap.get("acti_status"));
+				data.put("cinemaid", resultMap.get("cinemaid"));
+				data.put("create_time", resultMap.get("create_time"));
+				if(resultMap.containsKey("update_time")){
+					data.put("update_time", resultMap.get("update_time"));
+				}
+				data.put("author", resultMap.get("author"));
+				data.put("brows_times", resultMap.get("brows_times"));
+				data.put("org_path", resultMap.get("org_path"));
+				data.put("audit_flag", resultMap.get("audit_flag"));
+				
+				//日期格式----------------start-----------------------------------------
+				Object startTime = resultMap.get("start_time");
+				Object endTime = resultMap.get("end_time");
+				if(startTime != null) {
+					//年月日的格式(yyyy年MM月dd日)
+					String start_time = new SimpleDateFormat("yyyy年MM月dd日").format(new SimpleDateFormat("yy-MM-dd").parse(startTime.toString()));
+					String end_time = new SimpleDateFormat("yyyy年MM月dd日").format(new SimpleDateFormat("yy-MM-dd").parse(endTime.toString()));
+					data.put("start_time", start_time);
+					data.put("end_time", end_time);
+					
+					//date类型的格式(yyyy-MM-dd)
+					String startTime_date = new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat("yyyy-MM-dd").parse(startTime.toString()));
+					String endTime_date = new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat("yyyy-MM-dd").parse(endTime.toString()));
+					data.put("startTime_date", startTime_date);
+					data.put("endTime_date", endTime_date);
+				}
+				//日期格式-----------------end------------------------------------------
+				resultJson.put("data", data);
+				
+			}else{
+				MyMongo.mRequestFail(request, "查询最新活动信息不存在");
+				return this.returnError(resultJson, ResMessage.Info_NoExist.code, request);
+			}
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("查询最新活动信息失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询最新活动信息成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 查看最新活动信息列表
+	 */
+	@GET
+	@POST
+	@Path("/getActivityList")
+	@Produces("text/html;charset=UTF-8")
+	public String getActivityList(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		//分页参数、条件查询参数
+		String pageSize = request.getParameter("pageSize");//每页多少条数据
+		String offsetNum = request.getParameter("offsetNum");//offsetNum＝（当前页数－1）*pagesize
+		String audit_flag = request.getParameter("audit_flag");//查询审核通过的
+		try{
+			Map<String, Object> actiInfo = new HashMap<String, Object>();
+			actiInfo.put("pageSize", Integer.parseInt(pageSize));
+			actiInfo.put("offsetNum", Integer.parseInt(offsetNum));
+			if("1".equals(audit_flag)) {
+				actiInfo.put("audit_flag", audit_flag);
+			}
+			int count = activityDao.getActivityListCount(actiInfo);
+			if(count > 0){
+				List<Map<String, Object>> resultList = activityDao.getActivityList(actiInfo);
+				JSONArray jsonArray = new JSONArray();
+				for(int i=0;i<resultList.size();i++){
+					Map<String, Object> resultMap = resultList.get(i);
+					JSONObject jsonObject = new JSONObject();
+					jsonObject.put("acti_id", resultMap.get("acti_id"));
+					jsonObject.put("acti_title", resultMap.get("acti_title"));
+					jsonObject.put("acti_img", resultMap.get("acti_img"));
+					jsonObject.put("acti_content", resultMap.get("acti_content"));
+//					String acti_status = CodeUtil.convertNewsStatus(resultMap.get("acti_status").toString());
+					jsonObject.put("acti_status", resultMap.get("acti_status"));
+					jsonObject.put("cinemaid", resultMap.get("cinemaid"));
+					jsonObject.put("create_time", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("create_time")));
+					if(resultMap.containsKey("update_time")){
+						jsonObject.put("update_time", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("update_time")));
+					}
+					jsonObject.put("author", resultMap.get("author"));
+					jsonObject.put("brows_times", resultMap.get("brows_times"));
+					jsonObject.put("start_time", resultMap.get("start_time").toString());
+					jsonObject.put("end_time", resultMap.get("end_time").toString());
+					jsonObject.put("org_path", resultMap.get("org_path"));
+					jsonObject.put("audit_flag", resultMap.get("audit_flag"));
+					jsonArray.add(jsonObject);
+				}
+				resultJson.put("data", jsonArray);
+			}else{
+				MyMongo.mRequestFail(request, "查询最新活动信息列表不存在");
+				return this.returnError(resultJson, ResMessage.Info_NoExist.code, request);
+			}
+			resultJson.put("total", count);
+		} catch (Exception e){
+			MyMongo.mErrorLog("查询最新活动信息列表失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询最新活动信息列表成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 前台查看    楚湘动态 --> 最新活动   信息
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@GET
+	@POST
+	@Path("/getFrontActivityList")
+	@Produces("text/html;charset=UTF-8")
+	public String getFrontActivityList(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		try{
+			List<Map<String, Object>> resultList = activityDao.getFrontActivityList();
+			JSONArray jsonArray = new JSONArray();
+			if(resultList != null && resultList.size() > 0) {
+				for(int i = 0; i < resultList.size(); i++) {
+					Map<String, Object> resultMap = resultList.get(i);
+					JSONObject jsonObject = new JSONObject();
+					jsonObject.put("acti_id", resultMap.get("acti_id"));
+					jsonObject.put("acti_title", resultMap.get("acti_title"));
+					jsonObject.put("update_time", resultMap.get("update_time"));
+					jsonObject.put("acti_content", resultMap.get("acti_content"));
+					jsonObject.put("org_path", resultMap.get("org_path"));
+					
+					//拼接有效期
+					String start_time = new SimpleDateFormat("MM月dd日").format(new SimpleDateFormat("yy-MM-dd").parse(resultMap.get("start_time").toString()));
+					String end_time = new SimpleDateFormat("MM月dd日").format(new SimpleDateFormat("yy-MM-dd").parse(resultMap.get("end_time").toString()));
+					String exp_date = start_time + " - " + end_time;
+					jsonObject.put("exp_date", exp_date);
+					//-----------------------end-------------------------------
+					
+					jsonArray.add(jsonObject);
+				}
+				resultJson.put("data", jsonArray);
+			}else {
+				MyMongo.mRequestFail(request, "查询最新活动信息列表不存在");
+				return this.returnError(resultJson, ResMessage.Info_NoExist.code, request);
+			}
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("查询最新活动信息列表失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询最新活动信息列表成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 获取热门活动信息
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@GET
+	@POST
+	@Path("/getHotActivity")
+	@Produces("text/html;charset=UTF-8")
+	public String getHotActivity(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		try {
+			List<Map<String, Object>> resultList = activityDao.getHotActivity();
+			JSONArray jsonArray = new JSONArray();
+			if(resultList != null && resultList.size() > 0) {
+				for(int i = 0; i < resultList.size(); i++) {
+					Map<String, Object> resultMap = resultList.get(i);
+					JSONObject jsonObject = new JSONObject();
+	
+					jsonObject.put("acti_id", Integer.parseInt(resultMap.get("acti_id").toString()));
+					jsonObject.put("acti_title", resultMap.get("acti_title"));
+					jsonObject.put("acti_content", resultMap.get("acti_content"));
+					jsonObject.put("org_path", resultMap.get("org_path"));
+					jsonArray.add(jsonObject);
+				}
+				resultJson.put("data", jsonArray);
+			}else{
+				MyMongo.mRequestFail(request, "查询热门活动信息不存在");
+				return this.returnError(resultJson, ResMessage.Info_NoExist.code, request);
+			}
+		}catch(Exception e) {
+			MyMongo.mErrorLog("查询热门活动信息失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询热门活动信息成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+}
+

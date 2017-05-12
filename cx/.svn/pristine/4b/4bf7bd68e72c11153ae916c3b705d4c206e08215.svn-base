@@ -1,0 +1,289 @@
+var pageCount = 0;
+var pageSize = 15;
+var offsetNum = 0;
+var cur = "";
+$(function() {
+	// Logo，地区，主菜单
+	LogoMenuTextLoad(3);
+	// 轮播图
+//	carouselTextLoad("index");
+	// 底部导航
+	bottomTextLoad();
+
+	$(".leftText>div:not(.head)").on("click", function(){
+		$(".option").removeClass("cur");
+		$(this).find(".option").addClass("cur");
+		$(".rightText>div").hide();
+		$("." + $(this).attr("target")).show();
+	});
+
+
+	InitData_issue(0);
+
+//	//跳转到发行通知更多页面
+//	$(".issue_notice .more").click(function() {
+//		window.location.href = "homeland_more.html?noti_type=0";
+//	});
+//	//跳转到院线通知更多页面
+//	$(".theatre_notice .more").click(function() {
+//		window.location.href = "homeland_more.html?noti_type=1";
+//	});
+//
+//	//跳转到院线通知更多页面
+//	$(".material_load .more").click(function() {
+//		window.location.href = "homeland_more.html?material=100";
+//	});
+
+
+	$(".issue_notice .search-btn").on("click",function() {
+		var criteria = $(".issue_notice .search input").val();
+		// if(criteria == null || $.trim(criteria) == '') {
+		// 	layer.msg("请输入您要查询的信息");
+		// 	return $(".issue_notice .search input").focus();
+		// }
+		criteria = encodeURIComponent($.trim(criteria));
+		var url = service_url + "notice/getNoticeByCriteria";
+		InitData_issue(0, url, criteria);
+	});
+
+	$(".theatre_notice .search-btn").on("click",function() {
+		var criteria = $(".theatre_notice .search input").val();
+		// if(criteria == null || $.trim(criteria) == '') {
+		// 	layer.msg("请输入您要查询的信息");
+		// 	return $(".theatre_notice .search input").focus();
+		// }
+		criteria = encodeURIComponent($.trim(criteria));
+		var url = service_url + "notice/getNoticeByCriteria";
+		InitData_theatre(0, url, criteria);
+	});
+
+	$(".material_load .search-btn").on("click",function() {
+		var criteria = $(".material_load .search input").val();
+		// if(criteria == null || $.trim(criteria) == '') {
+		// 	layer.msg("请输入您要查询的信息");
+		// 	return $(".material_load .search input").focus();
+		// }
+		criteria = encodeURIComponent($.trim(criteria));
+		InitData_material(0, criteria);
+	});
+});
+
+//跳转到通知详细信息页面
+function getNotiDetail(noti_id) {
+	window.location.href = "homeland/notice.html?noti_id="+noti_id;
+};
+
+
+//初始化数据(显示第一页)
+//InitData_issue(0);
+//获取发行通知
+function InitData_issue(pageindx,url,criteria) {
+	var num = 0;
+	var index = pageindx + 1;
+	if(index != 0){
+		num = (index - 1) * pageSize;
+	}
+
+	var paramas = {};
+	paramas.noti_type = 0;
+	paramas.pageSize = pageSize;
+	paramas.offsetNum = num;
+	if(url == null && criteria == null) {
+		url = service_url + "notice/getFrontNoticeList";
+
+	}else {
+		paramas.criteria = criteria;
+
+	}
+
+	var index = layer.load(0, {shade: false});
+
+	$.ajax({
+		url: url,
+		data: paramas,
+		dataType: "jsonp",
+		jsonp: "jsonpCallback",
+		success: function(data) {
+			var resultData = data.data;
+			pageCount = data.total;
+
+			layer.close(index);
+
+			//分页
+			$(".content ul").empty();
+			$("#issue_notice #Pagination").pagination(pageCount, {
+	            callback: pageselectCallback,
+	            prev_text: '« 上一页',
+	            next_text: '下一页 »',
+	            items_per_page: pageSize,     // 每页显示条数
+	            current_page: pageindx,  // 当前页索引,这里0为第一页
+	            num_display_entries: 3,  // 前面显示几个按钮
+	            num_edge_entries: 2  // 后面显示几个按钮
+	        });
+
+			for(var i = 0; i < resultData.length; i++) {
+				var noti_id = resultData[i].noti_id;
+				var noti_title = resultData[i].noti_title;
+				var update_time = resultData[i].update_time;
+				var url = resultData[i].noti_document_url;
+				var content = "";
+				if(i < 3) {
+					content = "<li><a href='homeland/notice.html?noti_id="+noti_id+"'>"+ noti_title +"</a><span class='time'>"+ update_time +" </span></li>";
+				}else {
+					content = "<li><a href='homeland/notice.html?noti_id="+noti_id+"'>"+ noti_title +"</a><span class='time'>"+ update_time +" </span></li>";
+				}
+				$("#issue_notice ul").append(content);
+//				if(url == "" || url == null || typeof(url) == "undefined") {
+//					$("#issue_notice ul li:last button").attr("disabled", "disabaled");;
+//				}
+//				$("#issue_notice ul li:last button").bind("click", {url: url}, function(event) {
+//					window.location.href = service_url + "image/download?f=" + event.data.url;
+//				});
+			}
+		}
+	});
+
+	//处理翻页,page_id为当前页索引(0为第一页)
+    function pageselectCallback(page_id, jq) {
+    	InitData_issue(page_id);
+    }
+}
+
+
+//获取院线通知
+function InitData_theatre(pageindx, url, criteria) {
+
+	var num = 0;
+	var index = pageindx + 1;
+	if(index != 0){
+		num = (index - 1) * pageSize;
+	}
+
+	var paramas = {};
+	paramas.noti_type = 1;
+	paramas.pageSize = pageSize;
+	paramas.offsetNum = num;
+	if(url == null && criteria == null) {
+		url = service_url + "notice/getFrontNoticeList";
+
+	}else {
+		paramas.criteria = criteria;
+
+	}
+
+	var index = layer.load(0, {shade: false});
+
+	$.ajax({
+		url: url,
+		data: paramas,
+		dataType: "jsonp",
+		jsonp: "jsonpCallback",
+		success: function(data) {
+			var resultData = data.data;
+			pageCount = data.total;
+
+			layer.close(index);
+
+			//分页
+			$(".content ul").empty();
+			$("#theatre_notice #Pagination").pagination(pageCount, {
+	            callback: pageselectCallback,
+	            prev_text: '« 上一页',
+	            next_text: '下一页 »',
+	            items_per_page: pageSize,     // 每页显示条数
+	            current_page: pageindx,  // 当前页索引,这里0为第一页
+	            num_display_entries: 3,  // 前面显示几个按钮
+	            num_edge_entries: 2  // 后面显示几个按钮
+	        });
+
+			for(var i = 0; i < resultData.length; i++) {
+				var noti_id = resultData[i].noti_id;
+				var noti_title = resultData[i].noti_title;
+				var update_time = resultData[i].update_time;
+				var url = resultData[i].noti_document_url;
+				var content = "";
+				if(i < 3) {
+					content = "<li><a class='notice_title' onclick ='getNotiDetail("+noti_id+")'>"+noti_title+"</a><span class='time'>"+ update_time +"</span></li>";
+				} else {
+					content = "<li><a class='notice_title' onclick ='getNotiDetail("+noti_id+")'>"+noti_title+"</a><span class='time'>"+ update_time +"</span></li>";
+				}
+
+				$("#theatre_notice ul").append(content);
+
+//				if(url == "" || url == null || typeof(url) == "undenfined") {
+//					$("#theatre_notice ul li:last button").attr("disabled", "disabaled");;
+//				}
+//				$("#theatre_notice ul li:last button").bind("click", {url: url}, function(event) {
+//					window.location.href = service_url + "image/download?f=" + event.data.url;
+//				});
+
+			}
+		}
+	});
+
+	//处理翻页,page_id为当前页索引(0为第一页)
+    function pageselectCallback(page_id, jq) {
+    	InitData_theatre(page_id);
+    }
+}
+
+
+//获取素材下载
+function InitData_material(pageindx, criteria) {
+	var num = 0;
+	var index = pageindx + 1;
+	if(index != 0){
+		num = (index - 1) * pageSize;
+	}
+
+	var paramas = {};
+	paramas.pageSize = pageSize;
+	paramas.offsetNum = num;
+	paramas.audit_flag = "true";
+	if(criteria != null) {
+		paramas.criteria = criteria;
+	}
+
+	var index = layer.load(0, {shade: false});
+
+	$.ajax({
+		url: service_url + "material/getMaterialList",
+		type: "POST",
+		data: paramas,
+		dataType: "jsonp",
+		jsonp: "jsonpCallback",
+		success: function(data) {
+			var resultData = data.data;
+			pageCount = data.total;
+
+			layer.close(index);
+
+			$(".content ul").empty();
+			$("#material_load #Pagination").pagination(pageCount, {
+	            callback: pageselectCallback,
+	            prev_text: '« 上一页',
+	            next_text: '下一页 »',
+	            items_per_page: pageSize,     // 每页显示条数
+	            current_page: pageindx,  // 当前页索引,这里0为第一页
+	            num_display_entries: 3,  // 前面显示几个按钮
+	            num_edge_entries: 2  // 后面显示几个按钮
+	        });
+			if(resultData != null){
+				var content = "";
+				for(var i = 0; i < resultData.length; i++) {
+					var material_id = resultData[i].material_id;
+					var material_name = resultData[i].material_name;
+					var material_content = resultData[i].material_content;
+					var update_time = resultData[i].update_time.substring(0,10);
+					content += "<li><div class='mate_title'>"+material_name+"</div><div><span class='mate_cotent'>"+material_content+"</span><span class='time'>"+ update_time +"</span></div></li>";
+				}
+
+				$("#material_load ul").append(content);
+			}
+		}
+	});
+	//处理翻页,page_id为当前页索引(0为第一页)
+    function pageselectCallback(page_id, jq) {
+    	InitData_material(page_id);
+    }
+}

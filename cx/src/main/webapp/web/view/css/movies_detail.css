@@ -1,0 +1,48 @@
+.movie-detail{
+  margin-top: 40px;
+}
+.left{
+  float: left;
+  width: 860px;
+  padding: 0 50px 50px 0;
+  background-color: #fff;
+}
+#poster{
+  max-width: 500px;
+  margin: 10px auto;
+}
+#moviename{color: #444444;}
+#remark{margin-left: 80px; color: #EB002A;}
+#feature{
+  text-indent: 2rem;
+  line-height: 30px;
+}
+p{color: #6E6E6E; font-size: 16px;}
+#stagePhoto{text-align: center; margin-top: 20px;}
+#stagePhoto h2{
+  margin-top: 50px;
+  color: #444444;
+  text-align: left;
+}
+#stagePhoto img{
+  max-width: 1190px;
+  margin: 20px auto;
+}
+#stagePhoto .last, #stagePhoto .next{border: 1px solid #c7c8c9; width: 100px; height: 30px; line-height: 30px; display: inline-block; text-align: center; margin: 10px;cursor:pointer;}
+
+.other{
+  float: right;
+  width: 280px;
+  background: #f6f6f6;
+}
+.other div{
+  padding-left: 20px;
+  line-height: 50px;
+  font-size: 16px;
+}
+.other ul{
+  padding: 0 20px 20px;
+  color: #666;
+  font-size: 16px;
+}
+.other li{font-size: 14px;list-style-type: none; padding: 6px 0px; width:250px;overflow: hidden;text-overflow:ellipsis;white-space: nowrap;cursor: pointer;}

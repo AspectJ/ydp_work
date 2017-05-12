@@ -1,0 +1,695 @@
+package com.cx.rest.information;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.List;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.IOUtils;
+import org.jboss.resteasy.annotations.cache.NoCache;
+import org.springframework.stereotype.Service;
+
+import com.cx.rest.information.dao.NoticeInfoDaoImpl;
+import com.cx.util.CodeUtil;
+import com.cx.util.Config;
+import com.cx.util.Constant;
+import com.cx.util.ImageUtil;
+import com.mongo.MyMongo;
+import com.sun.xml.fastinfoset.Decoder;
+
+import sun.misc.BASE64Encoder;
+
+@Path("rest/image")
+@NoCache
+@Service()
+public class FileUploadRest // extends BaseServlet
+{
+
+	@Resource
+	private NoticeInfoDaoImpl noticeDao;
+	/**
+	 * 保存新闻主题图片
+	 * 
+	 * @throws UnsupportedEncodingException
+	 */
+	@SuppressWarnings("unchecked")
+	@GET
+	@POST
+	@Path("/newsThemeImgUpload")
+	@Produces("text/html;charset=UTF-8")
+	public void newsThemeImgUpload(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		try {
+
+			String oldImg = request.getParameter("oldImg");
+
+			 String absPath =
+			 request.getSession().getServletContext().getRealPath("/");
+		//	String absPath = Config.FILE_PATH;
+           
+			// C:\Program Files\Apache Software
+			// Foundation\apache-tomcat-7.0.64\webapps\cx\
+			String savePath = Constant.image + Constant.news_info + Constant.news_theme;
+			DiskFileItemFactory factory = new DiskFileItemFactory(); // 设置工厂
+			factory.setRepository(new File(savePath)); // 设置文件存储位置
+			factory.setSizeThreshold(1073741824); // 设置大小，如果文件小于设置大小的话，放入内存中，如果大于的话则放入磁盘中,单位是byte
+			ServletFileUpload upload = new ServletFileUpload(factory);
+			upload.setHeaderEncoding("utf-8"); // 这里就是中文文件名处理的代码，其实只有一行
+			upload.setSizeMax(1073741824);
+
+			List<FileItem> list = upload.parseRequest(request);
+			// 判断当日文件夹是否存在
+			File firstPathFile = new File(absPath + Constant.image);
+			File secondPathFile = new File(absPath + Constant.image + Constant.news_info);
+			File thridPathFile = new File(absPath + Constant.image + Constant.news_info + Constant.news_theme);
+			createFolder(firstPathFile, secondPathFile, thridPathFile);// 文件夹是否存在
+
+			String value = null;
+
+			String requestPageUrl = "";
+
+			String cinimaStyle = "";
+
+			String isJoinCinemaflag = "";
+
+			for (FileItem item : list) {
+				String name = item.getFieldName();
+
+				if (item.isFormField()) {
+					value = item.getString("utf-8");
+
+					if ("cinimaStyle".equals(name)) {
+						cinimaStyle = value;
+
+					} else if ("flag".equals(name)) {
+						isJoinCinemaflag = value;
+					} else {
+						requestPageUrl = value;
+					}
+
+					// 传入了老的图片、需要删除之前的上传图片
+				} else {
+					// 写图片到path目录
+					value = Constant.news_img + System.currentTimeMillis()
+							+ item.getName().substring(item.getName().lastIndexOf("."));
+
+					/*
+					 * ImageUtil_FullImg it = new ImageUtil_FullImg();
+					 * it.saveImageAsJpg(item,
+					 * absPath+Constant.image+Constant.news_info+Constant.
+					 * news_theme + value, 310, 145);
+					 */
+
+					ImageUtil imageUtil = new ImageUtil();
+
+					if ("newsinfo".equals(requestPageUrl))
+//						imageUtil.companyAndNewsImg_310_145(item, absPath, value);
+						imageUtil.joinCinema_16_9(item, absPath, value);
+					if ("activity".equals(requestPageUrl))
+						imageUtil.latestActivity_1190_90(item, absPath, value);
+					if("carousel".equals(requestPageUrl)) {
+//						imageUtil.Carousel_8_3(item, absPath, value);
+						String filepath = absPath+Constant.image+Constant.news_info+Constant.news_theme;
+						item.write(new File(filepath + value));
+					}
+					if ("joincinema".equals(requestPageUrl) && isJoinCinemaflag.equals("joincinema"))
+						imageUtil.joinCinema_16_9(item, absPath, value);
+					if ("joincinema".equals(requestPageUrl) && isJoinCinemaflag.equals("partner"))
+						imageUtil.Partner_200_70(item, absPath, value);
+					if ("joincinema".equals(requestPageUrl) && cinimaStyle.equals("0") && isJoinCinemaflag.equals("null") )
+						imageUtil.cinemaStyle_284_154(item, absPath, value);
+					if ("joincinema".equals(requestPageUrl) && cinimaStyle.equals("1") && isJoinCinemaflag.equals("null") )
+						imageUtil.recreationAndEntertainment_856_286(item, absPath, value);
+					if ("joincinema".equals(requestPageUrl) && cinimaStyle.equals("2") && isJoinCinemaflag.equals("null") )
+						imageUtil.recreationAndEntertainment_276_286(item, absPath, value);
+					
+
+					/*
+					 * ImageUtil b1 = new ImageUtil();
+					 * b1.img_change(absPath+Constant.image+Constant.news_info+
+					 * Constant.news_theme + value, value, item,310,145);
+					 */
+
+					// item.write(new
+					// File(absPath+Constant.image+Constant.news_info+Constant.news_theme,
+					// value));
+				}
+			}
+
+//			String imgUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
+//					+ request.getContextPath() + savePath + value;
+			
+			
+			
+			String picUrl = savePath + value;
+
+			JSONObject data = new JSONObject();
+			data.put("imgUrl", absPath + Constant.image + Constant.news_info + Constant.news_theme  + value);
+			data.put("imgName", value);
+			data.put("picUrl", "/" + picUrl);
+			resultJson.put("data", data);
+
+			PrintWriter writer = response.getWriter();
+			writer.print(resultJson);
+			writer.close();
+
+		} catch (Exception e) {
+			MyMongo.mErrorLog("保存新闻主题图片失败", request, e);
+			// return this.returnError(resultJson,
+			// ResMessage.Server_Abnormal.code, request);
+		}
+
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("保存新闻主题图片成功", etime - stime, request, resultJson);
+		// return this.response(resultJson, request);
+	}
+
+	/**
+	 * 保存新闻内容图片
+	 * 
+	 * @throws UnsupportedEncodingException
+	 */
+	@GET
+	@POST
+	@Path("/newsContentImgUpload")
+	@Produces("text/html;charset=UTF-8")
+	public void newsContentImgUpload(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		try {
+			String absPath = request.getSession().getServletContext().getRealPath("/");
+			//String absPath = Config.FILE_PATH;
+			String savePath = Constant.image + Constant.news_info + Constant.news_content;
+			DiskFileItemFactory factory = new DiskFileItemFactory(); // 设置工厂
+			factory.setRepository(new File(savePath)); // 设置文件存储位置
+			factory.setSizeThreshold(1073741824); // 设置大小，如果文件小于设置大小的话，放入内存中，如果大于的话则放入磁盘中,单位是byte
+			ServletFileUpload upload = new ServletFileUpload(factory);
+			upload.setHeaderEncoding("utf-8"); // 这里就是中文文件名处理的代码，其实只有一行
+			upload.setSizeMax(1073741824);
+			
+
+			List<FileItem> list = upload.parseRequest(request);
+			// 判断当日文件夹是否存在
+			File firstPathFile = new File(absPath + Constant.image);
+			File secondPathFile = new File(absPath + Constant.image + Constant.news_info);
+			File thridPathFile = new File(absPath + Constant.image + Constant.news_info + Constant.news_content);
+			createFolder(firstPathFile, secondPathFile, thridPathFile);// 文件夹是否存在
+			String value = null;
+
+			String requestPageUrl = "";
+
+			for (FileItem item : list) {
+				String name = item.getFieldName();
+				if (item.isFormField()) {
+					value = item.getString("utf-8");
+					requestPageUrl = value;
+				} else {
+					// 写图片到path目录
+					value = Constant.news_content_img + System.currentTimeMillis()
+							+ item.getName().substring(item.getName().lastIndexOf("."));
+
+					ImageUtil imageUtil = new ImageUtil();
+
+					imageUtil.childrenImage(item, absPath, value);
+
+					// item.write(new
+					// File(absPath+Constant.image+Constant.news_info+Constant.news_content,
+					// value));
+				}
+			}
+			String imgUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
+					+ request.getContextPath() + savePath + value;
+			String picUrl = savePath + value;
+			JSONObject data = new JSONObject();
+			data.put("imgUrl", absPath + Constant.image + Constant.news_info + Constant.news_content + value);
+			data.put("imgName", value);
+			data.put("picUrl", picUrl);
+			resultJson.put("data", data);
+
+			PrintWriter writer = response.getWriter();
+			writer.print(resultJson);
+			writer.close();
+
+		} catch (Exception e) {
+			MyMongo.mErrorLog("保存新闻内容图片", request, e);
+			// return this.returnError(resultJson,
+			// ResMessage.Server_Abnormal.code, request);
+		}
+
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("保存新闻内容图片", etime - stime, request, resultJson);
+		// return this.response(resultJson, request);
+	}
+
+	// 文件夹不存在则创建文件夹
+	public void createFolder(File firstPathFile, File secondPathFile, File thridPathFile) {
+		if (!firstPathFile.exists()) {// 图片存储
+			firstPathFile.mkdir();
+			if (!secondPathFile.exists()) {// 新闻中心
+				secondPathFile.mkdir();
+				if (!thridPathFile.exists()) {// 主题图片
+					thridPathFile.mkdir();
+				}
+			}
+		}
+		if (firstPathFile.exists()) {
+			if (!secondPathFile.exists()) {
+				secondPathFile.mkdir();
+				if (!thridPathFile.exists()) {// 主题图片
+					thridPathFile.mkdir();
+				}
+			} else {
+				if (!thridPathFile.exists()) {// 主题图片
+					thridPathFile.mkdir();
+				}
+			}
+		}
+	}
+
+	/**
+	 * 文件下载
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@Path("/download")
+	@Consumes("text/html; charset=UTF-8")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String downloadFile(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException {
+		response.setCharacterEncoding("UTF-8");
+
+		Boolean isOnLine = false; // 是否在线浏览
+
+		String fileName = request.getParameter("f");
+
+		// 得到下载文件的名字
+		String path =fileName;
+		path = request.getSession().getServletContext().getRealPath("/" + path);
+//		path = new String(path.getBytes("iso-8859-1"), "utf-8");
+		File file = new File(path.toString());
+		FileInputStream fis = null;
+		BufferedInputStream buff = null;
+		OutputStream myout = null;
+		
+		//对文件名称进行截取
+		String uuid_file = path.substring(path.lastIndexOf("/") + 1);
+		String filename = uuid_file.substring(uuid_file.lastIndexOf("_") + 1);
+		try {
+			if (!file.exists()) {
+				response.sendError(404, "File not found!");
+				return "";
+			}
+			response.reset();
+			if (isOnLine) { // 在线打开方式
+				URL u = new URL("file:///" + path.toString());
+				response.setContentType(u.openConnection().getContentType());
+				response.setHeader("Content-Disposition",
+						"inline; filename=" + new String(filename.getBytes("gbk"), "iso-8859-1"));
+			} else { // 纯下载方式
+						// 设置response的编码方式
+				response.setContentType("application/x-msdownload");
+				// 写明要下载的文件的大小
+				response.setContentLength((int) file.length());
+				// 设置附加文件名(解决中文乱码)
+				response.setHeader("Content-Disposition",
+						"attachment;filename=" + new String(filename.getBytes("gbk"), "iso-8859-1"));
+			}
+
+			fis = new FileInputStream(file);
+			buff = new BufferedInputStream(fis);
+			byte[] b = new byte[1024];// 相当于我们的缓存
+			long k = 0;// 该值用于计算当前实际下载了多少字节
+			// 从response对象中得到输出流,准备下载
+			myout = response.getOutputStream();
+			while (k < file.length()) {
+				int j = buff.read(b, 0, 1024);
+				k += j;
+				// 将b中的数据写到客户端的内存
+				myout.write(b, 0, j);
+			}
+			// 将写入到客户端的内存的数据,刷新到磁盘
+			myout.flush();
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (fis != null) {
+					fis.close();
+				}
+				if (buff != null)
+					buff.close();
+				if (myout != null)
+					myout.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return "";
+	}
+	
+	/**
+	 * 下载
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/downloadRes")
+	@Produces("text/html;charset=UTF-8")
+	public String downloadRes(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException {
+		response.setCharacterEncoding("text/html;charset=utf-8");
+		request.setCharacterEncoding("utf-8");
+		String path = request.getParameter("url");
+//		path = new String(path.getBytes("iso-8859-1"), "utf-8");
+		path = request.getSession().getServletContext().getRealPath("/" + path);
+		try {
+			File file = new File(path.toString());
+			if (!file.exists()) {
+				response.sendError(404, "File not found!");
+				return "";
+			}
+			//对文件名称进行截取
+			String uuid_file = path.substring(path.lastIndexOf("/") + 1);
+			String filename = uuid_file.substring(uuid_file.lastIndexOf("_") + 1);
+			//下载文件的名称（处理乱码）
+			String framename = new String(filename.getBytes("GBK"), "iso-8859-1");
+			
+			String contentType = request.getSession().getServletContext().getMimeType(filename);//通过文件名称获取MIME类型
+			
+			String contentDisposition = "attachment;filename=" + framename;
+			
+			//设置头
+			response.setHeader("Content-Type", contentType);
+			response.setHeader("Content-Disposition", contentDisposition);
+			response.setContentLength((int)file.length());
+			
+			//设置流
+			InputStream input = new FileInputStream(file);
+			
+			OutputStream output = response.getOutputStream();
+			IOUtils.copy(input, output);
+			input.close();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return "0";
+	}
+	
+	/**
+	 * 对文件名进行编码（各大主流浏览器--包括IE）
+	 * @param filename
+	 * @param request
+	 * @return
+	 * @throws IOException
+	 */
+	public static String filenameEncoding(String filename, HttpServletRequest request) throws IOException {
+		String agent = request.getHeader("User-Agent"); //获取浏览器
+		if (agent.contains("Firefox")) {
+			BASE64Encoder base64Encoder = new BASE64Encoder();
+			filename = "=?utf-8?B?"
+					+ base64Encoder.encode(filename.getBytes("utf-8"))
+					+ "?=";
+		} else if(agent.contains("MSIE")) {
+			filename = URLEncoder.encode(filename, "utf-8");
+		} else {
+			filename = URLEncoder.encode(filename, "utf-8");
+		}
+		return filename;
+	}
+	
+	/**
+	 * 保存通知上传文件
+	 * 
+	 * @throws UnsupportedEncodingException
+	 */
+	@SuppressWarnings("unchecked")
+	@GET
+	@POST
+	@Path("/noticeDocumentUpload")
+	@Produces("text/html;charset=UTF-8")
+	public void noticeDocumentUpload(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		
+
+		try {
+		
+		//	String absPath = Config.FILE_PATH;
+			String absPath = request.getSession().getServletContext().getRealPath("/");
+			String savePath = Constant.image + Constant.notice_info + Constant.notice_content;
+			DiskFileItemFactory factory = new DiskFileItemFactory(); // 设置工厂
+			factory.setRepository(new File(savePath)); // 设置文件存储位置
+			factory.setSizeThreshold(1073741824); // 设置大小，如果文件小于设置大小的话，放入内存中，如果大于的话则放入磁盘中,单位是byte
+			ServletFileUpload upload = new ServletFileUpload(factory);
+			upload.setHeaderEncoding("utf-8"); // 这里就是中文文件名处理的代码，其实只有一行
+			upload.setSizeMax(1073741824);
+			
+
+			List<FileItem> list = upload.parseRequest(request);
+			// 判断当日文件夹是否存在
+			File firstPathFile = new File(absPath + Constant.image);
+			File secondPathFile = new File(absPath + Constant.image + Constant.notice_info);
+			File thridPathFile = new File(absPath + Constant.image + Constant.notice_info+ Constant.notice_content);
+			createFolder(firstPathFile, secondPathFile, thridPathFile);// 文件夹是否存在
+
+			String value = null;
+            
+			String realFileName = "";
+
+			for (FileItem item : list) {
+				String name = item.getFieldName();
+				System.out.println("name :" + name);
+
+				if (item.isFormField()) {
+					value = item.getString("utf-8");
+
+					if ("fileName".equals(name)) {
+						realFileName = value;
+
+					}  else {
+						realFileName = value;
+					}
+   
+
+					// 传入了老的图片、需要删除之前的上传图片
+				} else {
+					// 写图片到path目录
+					value = realFileName+"_"+  System.currentTimeMillis()
+							+ item.getName().substring(item.getName().lastIndexOf("."));
+					
+					 item.write(new
+					 File(absPath+Constant.image+Constant.notice_info + Constant.notice_content,
+				     value));
+				}
+			}
+
+			String docUrl = savePath + value;
+
+			JSONObject data = new JSONObject();
+			data.put("imgUrl", absPath + Constant.image + Constant.notice_info + Constant.notice_content  + value);
+			data.put("imgName", value);
+			data.put("docUrl", docUrl);
+			resultJson.put("data", data);
+
+			PrintWriter writer = response.getWriter();
+			writer.print(resultJson);
+			writer.close();
+
+		} catch (Exception e) {
+			MyMongo.mErrorLog("保存通知文件失败", request, e);
+			// return this.returnError(resultJson,
+			// ResMessage.Server_Abnormal.code, request);
+		}
+
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("保存通知文件成功", etime - stime, request, resultJson);
+		// return this.response(resultJson, request);
+	
+	} 
+	
+	
+	//上传文档
+	@SuppressWarnings("unchecked")
+	@GET
+	@POST
+	@Path("/uploadNoticeDocu")
+	@Produces("text/html;charset=UTF-8")
+	public void uploadNoticeDocu(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		
+		// 获取真实路径，对应${项目目录}/uploads/notice/content，当然，这个目录必须存在
+		String savepath = request.getSession().getServletContext().getRealPath(Constant.image + Constant.notice_info+ Constant.notice_content);
+		// 通过uploads目录和文件名称来创建File对象
+		File file = new File(savepath);
+		if(!file.exists()) {
+			file.mkdirs();
+		}
+		
+		// 创建工厂(同时设置缓存目录，当文件内容超过10M时，不写入内存，而写入临时目录)
+		DiskFileItemFactory dfif = new DiskFileItemFactory(10*1024*1024, file);
+		// 使用工厂创建解析器对象
+		ServletFileUpload fileUpload = new ServletFileUpload(dfif);
+		// 限制文件上传大小100M
+		fileUpload.setSizeMax(1024 * 1024 * 100);   
+		try {
+			// 使用解析器对象解析request，得到FileItem列表
+			List<FileItem> list = fileUpload.parseRequest(request);
+			for(FileItem fileItem : list) {
+				if(fileItem.isFormField()) {
+					// 获取当前表单项的字段名称
+//					String fileName = fileItem.getFieldName();
+					
+				} else {//如果当前表单项不是普通表单项，说明就是文件字段
+					String name = fileItem.getName();//获取上传文件的名称
+					
+					// 如果上传的文件名称为空，即没有指定上传文件
+					if(name == null || name.isEmpty()) {
+						continue;
+					}
+					
+					// 如果客户端使用的是IE6，那么需要从完整路径中获取文件名称
+					int lastIndex = name.lastIndexOf("\\");
+					if(lastIndex != -1) {
+						name = name.substring(lastIndex + 1);
+					}
+
+					// 把上传文件保存到指定位置
+					// 为防止文件名重名，所以给文件名加上UUID前缀
+					String saveName = CodeUtil.UUID() + "_" + name;
+					fileItem.write(new File(savepath, saveName));
+					
+					JSONObject data = new JSONObject();
+					
+					//返回文件保存的相对路径
+					data.put("noti_document_url", "\\" + Constant.image + Constant.notice_info+ Constant.notice_content + saveName);
+					data.put("doc_name", name);
+					resultJson.put("data", data);
+					PrintWriter writer = response.getWriter();
+					writer.print(resultJson);
+					writer.close();
+					
+				}
+			}
+		}catch(Exception e) {
+			MyMongo.mErrorLog("保存通知文件失败", request, e);
+		}
+		
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("保存通知文件成功", etime - stime, request, resultJson);
+	
+	}
+	
+	/**
+	 * 上传(资讯/活动/通知)内容中的图片
+	 * @param request
+	 * @param response
+	 */
+	@SuppressWarnings("unchecked")
+	@GET
+	@POST
+	@Path("/uploadContentImage")
+	@Produces("text/html;charset=UTF-8")
+	public void uploadContentImage(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		
+		// 获取真实路径，对应${项目目录}/uploads/contentimg_，当然，这个目录必须存在
+		String savepath = request.getSession().getServletContext().getRealPath(Constant.image + Constant.content_img);
+		// 通过uploads目录和文件名称来创建File对象
+		File file = new File(savepath);
+		if(!file.exists()) {
+			file.mkdirs();
+		}
+		
+		// 创建工厂(同时设置缓存目录，当文件内容超过10M时，不写入内存，而写入临时目录)
+		DiskFileItemFactory dfif = new DiskFileItemFactory(10*1024*1024, file);
+		// 使用工厂创建解析器对象
+		ServletFileUpload fileUpload = new ServletFileUpload(dfif);
+		// 限制图片上传大小100M
+		fileUpload.setSizeMax(1024 * 1024 * 100);   
+		try {
+			// 使用解析器对象解析request，得到FileItem列表
+			List<FileItem> list = fileUpload.parseRequest(request);
+			for(FileItem fileItem : list) {
+				if(fileItem.isFormField()) {
+					// 获取当前表单项的字段名称
+//					String fileName = fileItem.getFieldName();
+					
+				} else {//如果当前表单项不是普通表单项，说明就是文件字段
+					String name = fileItem.getName();//获取上传文件的名称
+					
+					// 如果上传的文件名称为空，即没有指定上传文件
+					if(name == null || name.isEmpty()) {
+						continue;
+					}
+					
+					// 如果客户端使用的是IE6，那么需要从完整路径中获取文件名称
+					int lastIndex = name.lastIndexOf("\\");
+					if(lastIndex != -1) {
+						name = name.substring(lastIndex + 1);
+					}
+
+					// 把上传文件保存到指定位置
+					// 为防止文件名重名，所以给文件名加上UUID前缀
+					String saveName = CodeUtil.UUID() + "_" + name;
+					fileItem.write(new File(savepath, saveName));
+					
+					JSONObject data = new JSONObject();
+					
+					//返回文件保存的相对路径
+					data.put("relativePath", request.getContextPath() + "/" + Constant.image + Constant.content_img +saveName);
+					resultJson.put("data", data);
+					resultJson.put("status", "success");
+					
+					PrintWriter writer = response.getWriter();
+					writer.print(resultJson);
+					writer.close();
+					
+				}
+			}
+		}catch(Exception e) {
+			MyMongo.mErrorLog("保存通知文件失败", request, e);
+		}
+		
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("保存通知文件成功", etime - stime, request, resultJson);
+	
+	}
+	
+	
+}

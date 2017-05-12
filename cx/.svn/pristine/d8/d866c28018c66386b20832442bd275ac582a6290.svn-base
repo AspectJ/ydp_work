@@ -1,0 +1,499 @@
+package com.cx.rest.information;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.jboss.resteasy.annotations.cache.NoCache;
+import org.springframework.stereotype.Service;
+
+import com.cx.bean.ResMessage;
+import com.cx.filter.BaseServlet;
+import com.cx.rest.information.dao.AdminInfoDaoImpl;
+import com.cx.util.CodeUtil;
+import com.cx.util.Md5;
+import com.mongo.MyMongo;
+
+@Path("rest/adminInfo")
+@NoCache
+@Service()
+public class AdminInfoRest extends BaseServlet{
+
+	
+	@Resource
+	private AdminInfoDaoImpl adminInfoDao;
+	
+	/**
+	 * 管理员登陆校验
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 */
+	@GET
+	@POST
+	@Path("/selAdminInfo")
+	@Produces("text/html;charset=UTF-8")
+	public String selAdminInfo(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		
+		// -------------------------------------------------------------------------------
+		//用户输入的账号
+		String adminname = request.getParameter(URLDecoder.decode("txtName", "UFT-8"));
+		//用户输入的密码
+		String adminpwd = request.getParameter(URLDecoder.decode("txtPass", "UFT-8"));
+		
+		try {
+			if(CodeUtil.checkParam(adminname, adminpwd)) {
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			
+			Map<String, Object> adminMap = new HashMap<String, Object>();
+			adminMap.put("adminname", adminname);
+			
+			//查询管理员信息
+			Map<String, Object> resultMap = adminInfoDao.selAdminInfo(adminMap);
+			
+
+			//管理员登陆名不存在
+			if(resultMap == null) {
+				MyMongo.mRequestFail(request, ResMessage.User_Account_Not_Exist.code);
+				return this.returnError(resultJson, ResMessage.User_Account_Not_Exist.code, request);
+			} else { //管理员密码密码错误
+				if(!Md5.md5(adminpwd).equals(resultMap.get("adminpwd"))){
+					MyMongo.mRequestFail(request, ResMessage.User_Login_Pass_Fail.code);
+					return this.returnError(resultJson, ResMessage.User_Login_Pass_Fail.code, request);
+				}
+			}
+			//更改管理员最后一次登录的时间
+			adminMap.put("last_login_time", new Date());
+			adminInfoDao.update_lastLoginTime(adminMap);
+			resultJson.put("data", resultMap);
+		
+		} catch(Exception e) {
+			MyMongo.mErrorLog("管理员登陆", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("管理员登陆",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 查看全部管理员信息列表
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@GET
+	@POST
+	@Path("/selAllAdmin")
+	@Produces("text/html;charset=UTF-8")
+	public String selAllAdmin(@Context  HttpServletRequest request, @Context HttpServletResponse response) {
+		
+		JSONObject resultJson = new JSONObject();
+		Long stime = System.currentTimeMillis();
+		
+		// -------------------------------------------------------------------------------
+		String pageSize = request.getParameter("pageSize");
+		String offsetNum = request.getParameter("offsetNum");
+		
+		try {
+			Map<String, Object> adminInfo = new HashMap<String, Object>();
+			adminInfo.put("pageSize", Integer.parseInt(pageSize));
+			adminInfo.put("offsetNum", Integer.parseInt(offsetNum));
+			int count = adminInfoDao.getAdminInfoListCount(adminInfo);
+			if(count > 0){
+				List<Map<String, Object>> adminList = adminInfoDao.getAdminInfoList(adminInfo);
+				JSONArray jsonArray = new JSONArray();
+				for(int i = 0; i<adminList.size(); i++) {
+					Map<String, Object> resultMap = adminList.get(i);
+					JSONObject jsonObject = new JSONObject();
+					jsonObject.put("adminname", resultMap.get("adminname"));
+					jsonObject.put("adminid", resultMap.get("adminid"));
+					jsonObject.put("cinemaid", resultMap.get("cinemaid"));
+					jsonObject.put("cinemaname", resultMap.get("name"));
+					jsonObject.put("audit", resultMap.get("audit_flag"));
+					jsonObject.put("create_time", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("create_time")));
+					Object obj = resultMap.get("last_login_time");
+					if(obj == null){
+						jsonObject.put("last_login_time", "");
+					}else {
+						jsonObject.put("last_login_time", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(obj));
+					}
+					jsonObject.put("nickname", resultMap.get("nickname"));
+					jsonObject.put("state", resultMap.get("state"));
+					jsonArray.add(jsonObject);
+				} 
+				resultJson.put("data", jsonArray);
+			}else {
+				MyMongo.mRequestFail(request, "查询管理员信息列表不存在");
+				return this.returnError(resultJson, ResMessage.Info_NoExist.code, request);
+			}
+			resultJson.put("total", count);
+		}catch(Exception e) {
+			MyMongo.mErrorLog("查询管理员信息列表失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询管理员信息列表成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 查询管理员用户信息
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@GET
+	@POST
+	@Path("/selSingleAdmin")
+	@Produces("text/html;charset=UTF-8")
+	public String selSingleAdmin(@Context  HttpServletRequest request, @Context HttpServletResponse response) {
+		
+		JSONObject resultJson = new JSONObject();
+		Long stime = System.currentTimeMillis();
+		
+		// -------------------------------------------------------------------------------
+		String admin_id = request.getParameter("admin_id");
+		
+		try {
+			if (CodeUtil.checkParam(admin_id)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			Map<String, Object> ParamsMap = new HashMap<String, Object>();
+			ParamsMap.put("adminid", Integer.parseInt(admin_id));
+			Map<String, Object> resultMap = adminInfoDao.selSingleAdmin(ParamsMap);
+			
+			// -------------------------------------------------------------------------------
+			//获取管理员被创建时间（必须是字符串类型的）
+			String create_time = new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("create_time"));
+			resultMap.put("create_time", create_time);
+			//获取管理员最后一次登录时间（必须是字符串类型的）
+			Object last_login_time = resultMap.get("last_login_time");
+			if(last_login_time == null) {
+				last_login_time = "";
+			}else {
+				last_login_time = new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("last_login_time"));
+			}
+		     	resultMap.put("last_login_time", last_login_time);
+				resultMap.put("cinema_name", resultMap.get("name"));
+				resultMap.put("audit", resultMap.get("audit_flag"));
+			resultJson.put("data", resultMap);
+		}catch(Exception e) {
+			MyMongo.mErrorLog("查询管理员信息失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询管理员信息成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 查询所有影院ID及其影院名称
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@GET
+	@POST
+	@Path("/selCinemaInfo")
+	@Produces("text/html;charset=UTF-8")
+	public String selCinemaInfo(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+		JSONObject resultJson = new JSONObject();
+		Long stime = System.currentTimeMillis();
+
+		try {
+			List<Map<String, Object>> cinemaIdList = adminInfoDao.getCinemaIdList();
+			JSONArray jsonArray = new JSONArray();
+			if(cinemaIdList != null && cinemaIdList.size() > 0) {
+				for(int i = 0; i < cinemaIdList.size(); i++) {
+					Map<String, Object> resultMap = cinemaIdList.get(i);
+					JSONObject jsonObject = new JSONObject();
+					jsonObject.put("cinema_id", resultMap.get("cinemaid"));
+					jsonObject.put("cinema_name", resultMap.get("name"));
+					jsonArray.add(jsonObject);
+				}
+			}else {
+				MyMongo.mRequestFail(request, "影院信息列表为空");
+				return this.returnError(resultJson, ResMessage.Info_NoExist.code, request);
+			}
+			resultJson.put("data", jsonArray);
+		}catch(Exception e) {
+			MyMongo.mErrorLog("查询所有影院ID列表失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询所有影院ID列表成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 添加管理员账号信息
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 */
+	@GET
+	@POST
+	@Path("/addAdminInfo")
+	@Produces("text/html;charset=UTF-8")
+	public String addAdminInfo(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException {
+		JSONObject resultJson = new JSONObject();
+		Long stime = System.currentTimeMillis();
+		
+		// -------------------------------------------------------------------------------
+		String adminname = request.getParameter("admin_name");
+		String nickname = request.getParameter(URLDecoder.decode("admin_nickname", "UFT-8"));
+		String adminpwd = request.getParameter("admin_pwd");
+		String cinemaid = request.getParameter("cinema_id");
+		String audit = request.getParameter("audit");
+		
+
+		//cinemaId不能为空，必须选择
+		if(Integer.parseInt(cinemaid) == 0) {
+			cinemaid = null;
+		}
+		
+		try {
+			if (CodeUtil.checkParam(adminname, nickname, adminpwd, cinemaid)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}else {
+					Map<String, Object> adminInfoMap = new HashMap<String, Object>();
+					adminInfoMap.put("adminname", adminname);
+					adminInfoMap.put("adminpwd", Md5.md5(adminpwd));
+					adminInfoMap.put("cinemaid", Integer.parseInt(cinemaid));
+					adminInfoMap.put("nickname", nickname);
+					boolean b_audit = Boolean.parseBoolean(audit);
+			         adminInfoMap.put("audit", b_audit);
+					//查询管理员账号是否已存在
+					Map<String, Object> adminMap = adminInfoDao.selAdminInfo(adminInfoMap);
+					if(adminMap != null) {
+						MyMongo.mRequestFail(request, ResMessage.User_Is_Exist.code);
+						return this.returnError(resultJson, ResMessage.User_Is_Exist.code, request);
+					} else {
+						
+						Map<String, Object> resultMap = adminInfoDao.insertAdminInfo(adminInfoMap);
+						resultJson.put("data", resultMap);
+					}
+			}
+		}catch(Exception e) {
+			MyMongo.mErrorLog("添加管理员账号信息失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("添加管理员账号信息成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+//	/**
+//	 * 删除单条管理员信息
+//	 * @param request
+//	 * @param response
+//	 * @return
+//	 * @throws UnsupportedEncodingException
+//	 */
+//	@GET
+//	@POST
+//	@Path("/deleteAdminInfo")
+//	@Produces("text/html;charset=UTF-8")
+//	public String deleteAdminInfo(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException {
+//		JSONObject resultJson = new JSONObject();
+//		Long stime = System.currentTimeMillis();
+//		
+//		// -------------------------------------------------------------------------------
+//		String adminid = request.getParameter("admin_id"); //用户ID
+//		
+//		try{
+//			if (CodeUtil.checkParam(adminid)){
+//				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+//				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+//			}
+//			
+//			Map<String, Object> paramMap = new HashMap<String, Object>();
+//			paramMap.put("adminid", Integer.parseInt(adminid));
+//			adminInfoDao.deleteAdminInfo(paramMap);
+//		}catch(Exception e) {
+//			MyMongo.mErrorLog("删除管理员信息失败", request, e);
+//			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+//		}
+//		
+//		long etime = System.currentTimeMillis();
+//		MyMongo.mRequestLog("删除管理员信息成功",  etime - stime, request, resultJson);
+//		return this.response(resultJson, request);
+//	}
+
+	
+//	/**
+//	 * 批量删除用户
+//	 * @param request
+//	 * @param response
+//	 * @return
+//	 * @throws UnsupportedEncodingException
+//	 */
+//	@GET
+//	@POST
+//	@Path("/deleteAdminInfos")
+//	@Produces("text/html;charset=UTF-8")
+//	public String deleteAdminInfos(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException {
+//		JSONObject resultJson = new JSONObject();
+//		long stime = System.currentTimeMillis();
+//		// -------------------------------------------------------------------------------
+//		String admin_id = request.getParameter("admin_id");//用户ID
+//		try{
+//			if (CodeUtil.checkParam(admin_id)){
+//				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+//				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+//			}
+//			String[] admin_ids = admin_id.split(",");
+//			
+//			for(int i=0;i<admin_ids.length;i++){
+//				String adminid = admin_ids[i];
+//				Map<String, Object> paramMap = new HashMap<String, Object>();
+//				paramMap.put("adminid", Integer.parseInt(adminid));
+//				adminInfoDao.deleteAdminInfo(paramMap);
+//			}
+//		} catch (Exception e){
+//			MyMongo.mErrorLog("删除新闻信息失败", request, e);
+//			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+//		}
+//		
+//		// -------------------------------------------------------------------------------
+//		long etime = System.currentTimeMillis();
+//		MyMongo.mRequestLog("删除新闻信息成功",  etime - stime, request, resultJson);
+//		return this.response(resultJson, request);
+//	}
+	
+	
+	/**
+	 * 更改管理员信息
+	 */
+	@GET
+	@POST
+	@Path("/updateAdminInfo")
+	@Produces("text/html;charset=UTF-8")
+	public String updateAdminInfo(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException {
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		
+		// -------------------------------------------------------------------------------
+		String admin_name = request.getParameter("admin_name");
+		String admin_id = request.getParameter("admin_id");
+		String admin_nickname = request.getParameter("admin_nickname");
+		String cinema_id = request.getParameter("cinema_id");
+		String admin_state = request.getParameter("admin_state");
+		String audit = request.getParameter("audit");
+	
+		try {
+			if (CodeUtil.checkParam(admin_name, admin_nickname, cinema_id, admin_state)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			
+			Map<String, Object> adminInfoMap = new HashMap<String, Object>();
+			adminInfoMap.put("adminname", admin_name);
+			adminInfoMap.put("adminid", Integer.parseInt(admin_id));
+			adminInfoMap.put("cinemaid", Integer.parseInt(cinema_id));
+			adminInfoMap.put("nickname", admin_nickname);
+			adminInfoMap.put("state", admin_state);
+	        adminInfoMap.put("audit", audit);
+
+			Map<String, Object> data = adminInfoDao.updateAdminInfo(adminInfoMap);
+			resultJson.put("data", data);
+			
+		}catch(Exception e) {
+			MyMongo.mErrorLog("更改管理员信息失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("更改管理员信息成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 修改密码
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 */
+	@GET
+	@POST
+	@Path("/modifyPwd")
+	@Produces("text/html;charset=UTF-8")
+	public String modifyPwd(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException {
+		JSONObject resultJson = new JSONObject();
+		Long stime = System.currentTimeMillis();
+		
+		// -------------------------------------------------------------------------------
+		String adminid = request.getParameter("adminid");
+		String fore_adminpwd = request.getParameter("fore_adminpwd");
+		String new_adminpwd = request.getParameter("new_adminpwd");
+		
+		try{
+			if (CodeUtil.checkParam(adminid, fore_adminpwd, new_adminpwd)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			
+			Map<String, Object> paramsMap = new HashMap<String, Object>();
+			paramsMap.put("adminid", Integer.parseInt(adminid));
+			paramsMap.put("fore_adminpwd", Md5.md5(fore_adminpwd));
+			paramsMap.put("new_adminpwd", Md5.md5(new_adminpwd));
+			
+			//确认输入原密码是否正确
+			Map<String, Object> resultMap = adminInfoDao.selSingleAdmin(paramsMap);
+			if(resultMap != null && resultMap.size() > 0) {
+				String adminpwd = resultMap.get("adminpwd").toString();
+				if(!adminpwd.equals(paramsMap.get("fore_adminpwd"))) {
+					MyMongo.mRequestFail(request, ResMessage.User_Login_Pass_Fail.code);
+					return this.returnError(resultJson, ResMessage.User_Login_Pass_Fail.code, request);
+				}
+				adminInfoDao.modifyPwd(paramsMap);
+			}
+		}catch(Exception e) {
+			MyMongo.mErrorLog("修改管理员密码失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("修改管理员密码成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+}

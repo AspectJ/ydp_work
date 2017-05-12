@@ -1,0 +1,595 @@
+package com.cx.rest.information;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+
+import org.jboss.resteasy.annotations.cache.NoCache;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cx.bean.ResMessage;
+import com.cx.filter.BaseServlet;
+import com.cx.rest.information.dao.AdminInfoDaoImpl;
+import com.cx.rest.information.dao.NoticeInfoDaoImpl;
+import com.cx.util.CodeUtil;
+import com.mongo.MyMongo;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+@Path("rest/notice")
+@NoCache
+@Service()
+public class NoticeInfoRest extends BaseServlet
+{
+	
+	@Resource
+	private NoticeInfoDaoImpl noticeDao;
+	@Autowired
+	private AdminInfoDaoImpl adminInfoDao;
+	
+	/**
+	 * 新增通知信息
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/addNotice")
+	@Produces("text/html;charset=UTF-8")
+	public String addNotice(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String noti_title = URLDecoder.decode(request.getParameter("noti_title"), "UTF-8");
+		String noti_type = request.getParameter("noti_type");
+		String noti_status = request.getParameter("noti_status");
+		String noti_content = URLDecoder.decode(request.getParameter("noti_content").replaceAll("%", "%25"), "UTF-8");
+		String noti_document_url = URLDecoder.decode(request.getParameter("noti_document_url"),"UTF-8");
+		String adminid = URLDecoder.decode(request.getParameter("adminid"), "UTF-8");
+
+		try{
+			if (CodeUtil.checkParam(noti_title)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			Map<String,Object> adminMap = new HashMap<String,Object>();
+			adminMap.put("adminid", Integer.parseInt(adminid));
+			Map<String,Object> resultMap_admin = adminInfoDao.selAdminById(adminMap);
+		    String adminname = (String) resultMap_admin.get("adminname");
+		    String cinemaid = resultMap_admin.get("cinemaid").toString();
+			Map<String, Object> notiMap = new HashMap<String, Object>();
+			notiMap.put("noti_title", noti_title);
+			notiMap.put("noti_type", Integer.parseInt(noti_type));
+			notiMap.put("noti_status", Integer.parseInt(noti_status));
+			notiMap.put("noti_content", noti_content);
+			notiMap.put("cinemaid", Integer.parseInt(cinemaid));
+			notiMap.put("brows_times", 0);
+			notiMap.put("author", adminname);
+			notiMap.put("noti_document_url", noti_document_url);
+			Map<String, Object> resultMap = noticeDao.insertNotice(notiMap);
+			JSONObject data = new JSONObject();
+			data.put("noti_id", resultMap.get("noti_id"));
+			data.put("noti_title", resultMap.get("noti_title"));
+			data.put("noti_type", resultMap.get("noti_type"));
+			data.put("noti_status", resultMap.get("noti_status"));
+			data.put("noti_content", resultMap.get("noti_content"));
+			data.put("cinemaid", resultMap.get("cinemaid"));
+			data.put("brows_times", resultMap.get("brows_times"));
+			data.put("author", resultMap.get("author"));
+			data.put("audit_flag", "0");
+			data.put("noti_document_url", resultMap.get("noti_document_url"));
+			data.put("create_time", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date()));
+			if(!CodeUtil.checkParam(noti_document_url)) {
+				String doc_name = noti_document_url.substring(noti_document_url.lastIndexOf("/") + 1).split("_")[1];
+				data.put("doc_name", doc_name);
+			}
+			resultJson.put("data", data);
+		} catch (Exception e){
+			MyMongo.mErrorLog("新增通知信息", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("新增通知信息",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 修改通知信息
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/updateNotice")
+	@Produces("text/html;charset=UTF-8")
+	public String updateNotice(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String noti_id = request.getParameter("noti_id");
+		String noti_title = URLDecoder.decode(request.getParameter("noti_title"), "UTF-8");
+		String noti_type = request.getParameter("noti_type");
+		String noti_status = request.getParameter("noti_status");
+		String noti_content = URLDecoder.decode(request.getParameter("noti_content").replaceAll("%", "%25"), "UTF-8");
+		String noti_document_url = URLDecoder.decode(request.getParameter("noti_document_url"),"UTF-8");
+		String author = URLDecoder.decode(request.getParameter("adminname"), "UTF-8");
+
+		try{
+			if (CodeUtil.checkParam(noti_title)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			Map<String, Object> notiMap = new HashMap<String, Object>();
+			notiMap.put("noti_id", Integer.parseInt(noti_id));
+			notiMap.put("noti_title", noti_title);
+			notiMap.put("noti_type", Integer.parseInt(noti_type));
+			notiMap.put("noti_status", Integer.parseInt(noti_status));
+			notiMap.put("noti_content", noti_content);
+			notiMap.put("update_time", new Date());
+			notiMap.put("author", author);
+			notiMap.put("noti_document_url", noti_document_url);
+			Map<String, Object> resultMap = noticeDao.updateNotice(notiMap);
+			resultJson.put("data", resultMap);
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("修改通知信息", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("修改新闻信息",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 审核过程
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/updateNotice_Audit")
+	@Produces("text/html;charset=UTF-8")
+	public String updateNotice_Audit(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String noti_id = request.getParameter("noti_id");
+		String audit_flag = request.getParameter("audit_flag");
+		String adminid = request.getParameter("admin_id")==null || request.getParameter("admin_id").equals("") ? "0" : request.getParameter("admin_id");
+		
+		Map<String, Object> updateMap = new HashMap<String, Object>();
+		if(!adminid.equals("0")){//再次查询是否具备权限
+			updateMap.put("adminid", Integer.parseInt(adminid));
+			Map<String, Object> resultMap = adminInfoDao.selSingleAdmin(updateMap);
+			if(resultMap != null){
+				String audit = resultMap.get("audit_flag").toString();
+				if(audit.equals("1")){//可以审核
+					updateMap.put("audit_flag", audit_flag);
+				    updateMap.put("noti_id", Integer.parseInt(noti_id));
+				}else{
+					return this.returnError(resultJson, ResMessage.User_Lack_Privilege.code, request);
+				}
+			}else{
+				return this.returnError(resultJson, ResMessage.User_Lack_Privilege.code, request);
+			}
+		}else{
+			updateMap.put("audit_flag", audit_flag);
+		    updateMap.put("noti_id", Integer.parseInt(noti_id));
+		}
+
+		noticeDao.updateNotice_Audit(updateMap);
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("审核事务结束", etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 删除通知信息
+	 */
+	@GET
+	@POST
+	@Path("/deleteNotice")
+	@Produces("text/html;charset=UTF-8")
+	public String deleteNotice(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String noti_id = request.getParameter("noti_id");//活动ID
+		try{
+			if (CodeUtil.checkParam(noti_id)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			
+			Map<String, Object> notiMap = new HashMap<String, Object>();
+			notiMap.put("noti_id", Integer.parseInt(noti_id));
+			noticeDao.deleteNotice(notiMap);
+			JSONObject data = new JSONObject();
+			data.put("noti_id", noti_id);
+			resultJson.put("data", data);
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("删除通知信息", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("删除通知信息",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 批量删除活动信息
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/deleteNotices")
+	@Produces("text/html;charset=UTF-8")
+	public String deleteNotices(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String noti_id = request.getParameter("noti_id");//通知ID
+		try{
+			if (CodeUtil.checkParam(noti_id)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			String[] noti_ids = noti_id.split(",");
+			
+			for(int i=0;i<noti_ids.length;i++){
+				String notiid = noti_ids[i];
+				Map<String, Object> notiMap = new HashMap<String, Object>();
+				notiMap.put("noti_id", Integer.parseInt(notiid));
+				noticeDao.deleteNotice(notiMap);
+			}
+			
+			
+			JSONObject data = new JSONObject();
+			data.put("noti_id", noti_id);
+			resultJson.put("data", data);
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("删除通知信息失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("删除通知信息成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 查看通知信息
+	 */
+	@GET
+	@POST
+	@Path("/getNotice")
+	@Produces("text/html;charset=UTF-8")
+	public String getNotice(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String noti_id = request.getParameter("noti_id");
+		String updateFlag =request.getParameter("updateFlag");
+		try{
+			if (CodeUtil.checkParam(noti_id)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			Map<String, Object> notiInfo = new HashMap<String, Object>();
+			notiInfo.put("noti_id", Integer.parseInt(noti_id));
+			
+			//----------------------更新通知的点击量--------------------------------------
+			if(updateFlag != null && "1".equals(updateFlag)) {
+				noticeDao.updateBrowsTimes(notiInfo);
+			}
+			Map<String, Object> resultMap = noticeDao.getNotice(notiInfo);
+			JSONObject data = new JSONObject();
+			if(resultMap != null && resultMap.size() > 0){
+				data.put("noti_id", resultMap.get("noti_id"));
+				data.put("name", resultMap.get("name"));
+				data.put("noti_title", resultMap.get("noti_title"));
+				
+				//-------------------------------------------------------------------------------------------
+				data.put("noti_content", resultMap.get("noti_content"));
+				data.put("cinemaid", resultMap.get("cinemaid"));
+				data.put("create_time", new SimpleDateFormat("yyyy-MM-dd").format(resultMap.get("create_time")));
+				if(resultMap.containsKey("update_time")){
+					data.put("update_time", new SimpleDateFormat("yyyy-MM-dd").format(resultMap.get("update_time")));
+				}
+				data.put("author", resultMap.get("author"));
+				data.put("audit_flag", resultMap.get("audit_flag"));
+				data.put("brows_times", resultMap.get("brows_times"));
+				try {
+					if(!resultMap.get("noti_document_url").equals("")  ){
+						String doc_name = 	CodeUtil.getFileName(resultMap.get("noti_document_url").toString());
+						data.put("noti_document_url",resultMap.get("noti_document_url"));
+						data.put("doc_name",doc_name);
+					}
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+
+				resultJson.put("data", data);
+			}else{
+				MyMongo.mRequestFail(request, "查询通知信息不存在");
+				return this.returnError(resultJson, ResMessage.Info_NoExist.code, request);
+			}
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("查询通知信息失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询通知信息成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 查看通知信息列表
+	 */
+	@GET
+	@POST
+	@Path("/getNoticeList")
+	@Produces("text/html;charset=UTF-8")
+	public String getNoticeList(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		//分页参数、条件查询参数
+		String pageSize = request.getParameter("pageSize");//每页多少条数据
+		String offsetNum = request.getParameter("offsetNum");//offsetNum＝（当前页数－1）*pagesize
+		try{
+			Map<String, Object> notiInfo = new HashMap<String, Object>();
+			notiInfo.put("pageSize", Integer.parseInt(pageSize));
+			notiInfo.put("offsetNum", Integer.parseInt(offsetNum));
+			int count = noticeDao.getNoticeListCount(notiInfo);
+			if(count > 0){
+				List<Map<String, Object>> resultList = noticeDao.getNoticeList(notiInfo);
+				JSONArray jsonArray = new JSONArray();
+				for(int i=0;i<resultList.size();i++){
+					Map<String, Object> resultMap = resultList.get(i);
+					JSONObject jsonObject = new JSONObject();
+					jsonObject.put("noti_id", resultMap.get("noti_id"));
+					jsonObject.put("noti_title", resultMap.get("noti_title"));
+					jsonObject.put("noti_content", resultMap.get("noti_content"));
+					jsonObject.put("noti_status", resultMap.get("noti_status"));
+					jsonObject.put("noti_type", resultMap.get("noti_type"));
+					jsonObject.put("cinemaid", resultMap.get("cinemaid"));
+					jsonObject.put("create_time", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("create_time")));
+					if(resultMap.containsKey("update_time")){
+						jsonObject.put("update_time", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("update_time")));
+					}
+					jsonObject.put("author", resultMap.get("author"));
+					jsonObject.put("brows_times", resultMap.get("brows_times"));
+					jsonObject.put("audit_flag", resultMap.get("audit_flag"));
+					
+					if(!CodeUtil.checkParam(resultMap.get("noti_document_url").toString())) {
+						String noti_document_url = resultMap.get("noti_document_url").toString();
+						jsonObject.put("noti_document_url", noti_document_url);
+						String doc_name = noti_document_url.substring(noti_document_url.lastIndexOf("/") + 1).split("_")[1];
+						jsonObject.put("doc_name", doc_name);
+					}
+					jsonArray.add(jsonObject);
+				}
+				resultJson.put("data", jsonArray);
+			}else{
+				MyMongo.mRequestFail(request, "查询通知信息列表不存在");
+				return this.returnError(resultJson, ResMessage.Info_NoExist.code, request);
+			}
+			resultJson.put("total", count);
+		} catch (Exception e){
+			MyMongo.mErrorLog("查询通知信息列表失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询通知信息列表成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 前台查看通知信息列表
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@GET
+	@POST
+	@Path("/getFrontNoticeList")
+	@Produces("text/html;charset=UTF-8")
+	public String getFrontNoticeList(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String noti_type_str = request.getParameter("noti_type");
+		String pageSize = request.getParameter("pageSize");
+		String offsetNum = request.getParameter("offsetNum");
+		try{
+			if(CodeUtil.checkParam(noti_type_str)) {
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			Map<String, Object> paramsMap = new HashMap<String, Object>();
+			paramsMap.put("noti_type", Integer.parseInt(noti_type_str));
+			if(pageSize != null && !pageSize.trim().isEmpty() && offsetNum != null && !offsetNum.trim().isEmpty()) {
+				paramsMap.put("pageSize", Integer.parseInt(pageSize));
+				paramsMap.put("offsetNum", Integer.parseInt(offsetNum));
+			}
+			
+			//获取总条数，用于分页
+			int count = noticeDao.getFrontNoticeListCount(paramsMap);
+			if (count > 0)
+			{
+				List<Map<String, Object>> resultList = noticeDao.getFrontNoticeList(paramsMap);
+				JSONArray jsonArray = new JSONArray();
+				for(int i=0;i<resultList.size();i++){
+					Map<String, Object> resultMap = resultList.get(i);
+					JSONObject jsonObject = new JSONObject();
+					jsonObject.put("noti_id", resultMap.get("noti_id"));
+					jsonObject.put("noti_title", resultMap.get("noti_title"));
+					jsonObject.put("noti_content", resultMap.get("noti_content"));
+					jsonObject.put("noti_document_url", resultMap.get("noti_document_url"));
+					if(resultMap.containsKey("update_time")){
+						jsonObject.put("update_time", new SimpleDateFormat("yyyy-MM-dd").format(resultMap.get("update_time")));
+					}
+					jsonArray.add(jsonObject);
+				}
+				resultJson.put("data", jsonArray);
+			}else{
+				MyMongo.mRequestFail(request, "前台查询通知信息列表不存在");
+				return this.returnError(resultJson, ResMessage.Info_NoExist.code, request);
+			}
+			resultJson.put("total", count);
+			
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("前台查询通知信息列表失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("前台查询通知信息列表成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 对通知进行模糊查询
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/getNoticeByCriteria")
+	@Produces("text/html;charset=UTF-8")
+	public String getNoticeByCriteria(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String noti_type_str = request.getParameter("noti_type");
+		String pageSize = request.getParameter("pageSize");
+		String offsetNum = request.getParameter("offsetNum");
+		String criteral = URLDecoder.decode(request.getParameter("criteria"), "UTF-8");
+		try{
+			if(CodeUtil.checkParam(noti_type_str, pageSize, offsetNum, criteral)) {
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			Map<String, Object> paramsMap = new HashMap<String, Object>();
+			paramsMap.put("noti_type", Integer.parseInt(noti_type_str));
+			paramsMap.put("pageSize", Integer.parseInt(pageSize));
+			paramsMap.put("offsetNum", Integer.parseInt(offsetNum));
+			paramsMap.put("criteral", criteral);
+			
+			//获取总条数，用于分页
+			int count = noticeDao.getNoticeListCount(paramsMap);
+			if(count > 0){
+				List<Map<String, Object>> resultList = noticeDao.getNoticeByCriteria(paramsMap);
+				JSONArray jsonArray = new JSONArray();
+				for(int i=0;i<resultList.size();i++){
+					Map<String, Object> resultMap = resultList.get(i);
+					JSONObject jsonObject = new JSONObject();
+					jsonObject.put("noti_id", resultMap.get("noti_id"));
+					jsonObject.put("noti_title", resultMap.get("noti_title"));
+					jsonObject.put("noti_content", resultMap.get("noti_content"));
+					jsonObject.put("noti_document_url", resultMap.get("noti_document_url"));
+					if(resultMap.containsKey("update_time")){
+						jsonObject.put("update_time", new SimpleDateFormat("yyyy-MM-dd").format(resultMap.get("update_time")));
+					}
+					jsonArray.add(jsonObject);
+				}
+				resultJson.put("data", jsonArray);
+			}else{
+				MyMongo.mRequestFail(request, "前台查询通知信息列表不存在");
+				return this.returnError(resultJson, ResMessage.Info_NoExist.code, request);
+			}
+			resultJson.put("total", count);
+		} catch (Exception e){
+			MyMongo.mErrorLog("前台查询通知信息列表失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("前台查询通知信息列表成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 获取其它发行通知
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@GET
+	@POST
+	@Path("/getOtherNotice")
+	@Produces("text/html;charset=UTF-8")
+	public String getOtherNotice(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+
+		try{
+			String noti_id = request.getParameter("noti_id");
+			List<Map<String, Object>> resultList = noticeDao.getOtherNotice(Integer.parseInt(noti_id));
+			JSONArray jsonArray = new JSONArray();
+			if(resultList != null && resultList.size() > 0){
+				for(int i=0;i<resultList.size();i++){
+					Map<String, Object> resultMap = resultList.get(i);
+					JSONObject jsonObject = new JSONObject();
+					jsonObject.put("noti_id", Integer.parseInt(resultMap.get("noti_id").toString()));
+					jsonObject.put("noti_title", resultMap.get("noti_title"));
+					jsonObject.put("noti_type", resultMap.get("noti_type"));
+					jsonArray.add(jsonObject);
+				}
+				resultJson.put("data", jsonArray);
+			}else{
+				MyMongo.mRequestFail(request, "查看其它发行通知列表不存在");
+				return this.returnError(resultJson, ResMessage.Info_NoExist.code, request);
+			}
+			
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("查看其它发行通知列表失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查看其它发行通知列表成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+}

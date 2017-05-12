@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>楚湘院线-院线家园</title>
+		<link rel="icon" href="../img/favicon.ico" type="image/x-icon" />
+		<link rel="stylesheet" href="../css/base.css" />
+		<link rel="stylesheet" href="../css/main.css" />
+		<link rel="stylesheet" href="../css/dynamic_more.css" />
+		<link rel="stylesheet" href="../css/pagination.css" />		
+		
+		<script type="text/javascript" src="../js/lib/jquery/jq.min.js" ></script>
+		<script type="text/javascript" src="../js/lib/jquery/jquery.cookie.js" ></script>
+		<script type="text/javascript" src="../js/public.js" ></script>
+		<script type="text/javascript" src="../js/dynamic_more.js" ></script>
+		<script type="text/javascript" src="../js/jquery.pagination.js" ></script>
+	</head>
+	<body>
+		<!-- 顶部登录部分 -->
+		<div class="top"></div>
+		<!-- Logo，地区，主菜单 -->
+		<div class="title"></div>
+        
+        <div class="clear" style="margin-top: 150px;"></div>
+        <div class="issue_notice" id="issue_notice">
+        	<div class="body">
+	        	<div class="headline">所有新闻</div>
+	        	<div class="more"></div>
+	        	<div class="content"><ul></ul></div>
+        	</div>
+        	<div id="Pagination" class="meneame"></div>
+        </div>
+        
+        <!-- 描述：底部 -->
+        <div class="bottom"></div>
+        
+        <!-- 在线资讯 -->
+        <div class="clear"></div>
+        <div class="online_consultation"></div>
+	</body>
+</html>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="material">
+
+	<!-- 新增素材信息 -->	
+	<insert id="insertMaterial" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="material_id">
+		insert into t_material(material_name,material_content,delete_flag,create_time,update_time,author,brows_times,cinemaid,audit_flag) 
+			values 
+		(#{material_name},#{material_content},#{delete_flag},#{create_time},#{update_time},#{author},#{brows_times},#{cinemaid},false)
+	</insert>
+	
+	
+	<!-- 查询素材信息 -->
+	<select id="getMaterial" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT material_id, material_name, material_content, 
+     		  create_time, update_time, author, brows_times, delete_flag,audit_flag
+  					FROM t_material
+  					where material_id=#{material_id}
+	</select> 
+	
+	<!-- 修改素材信息 -->
+	<update id="updateMaterial" parameterType="map">
+		update t_material set material_name = #{material_name},audit_flag=false
+
+			<if test="material_content != null">
+				,material_content = #{material_content}
+			</if>
+			<if test="update_time != null">
+				,update_time = #{update_time}
+			</if>
+			<if test="author != null">
+				,author = #{author}
+			</if>
+		where material_id = #{material_id} 
+	</update>
+	
+	<update id="updateMaterial_Audit" parameterType="map">
+			update t_material set audit_flag = #{audit_flag}
+			    where material_id = #{material_id} 
+	</update>
+	
+	<!-- 删除素材信息 -->
+	<delete id="deleteMaterial" parameterType="map">
+		delete from t_material
+		where material_id = #{material_id} 
+	</delete>
+	
+	
+	<!-- 通知素材查询 -->
+	<select id="getMaterialList" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT material_id, material_name, material_content, 
+      		 delete_flag, create_time, update_time, author,brows_times,audit_flag
+  		FROM t_material
+		WHERE 1 = 1
+  		<if test="criteria != null">
+  			AND material_name like '%${criteria}%'
+  		</if>
+		<if test="audit_flag != null">
+			AND audit_flag = true
+		</if>
+	</select>
+	
+	<!-- 通知素材查询 -->
+	<select id="getMaterialListCount" parameterType="java.util.Map" resultType="java.util.Map">
+		select count(*) from t_material
+	</select>
+	
+	<!-- 前台查看素材信息列表 -->
+<!-- 	<select id="getFrontNoticeList" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT noti_id, noti_title, noti_content, update_time
+  		FROM t_theater_notice
+  		WHERE noti_type = #{noti_type} 
+  		ORDER BY update_time desc
+  		<if test="pageSize != null">
+			LIMIT #{pageSize} OFFSET #{offsetNum}
+		</if>
+	</select> -->
+	
+	<!-- 更新素材的点击量 -->
+	<update id="updateBrowsTimes" parameterType="java.util.Map">
+		  UPDATE t_material
+		  SET brows_times = brows_times + 1
+		  WHERE material_id = #{material_id}
+	</update>
+	
+	<!-- 查看其它素材信息 -->
+	<select id="getOtherNotice" parameterType="java.lang.Integer" resultType="java.util.Map">
+		  SELECT noti_id, noti_title, update_time
+		  FROM t_theater_notice
+		  WHERE noti_id != #{noti_id}
+		  ORDER BY update_time desc
+		  LIMIT 5 OFFSET 0;
+	</select>
+</mapper>

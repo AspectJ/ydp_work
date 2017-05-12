@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>楚湘院线</title>
+		<link rel="icon" href="img/favicon.ico" type="image/x-icon" />
+		<link rel="stylesheet" href="..//css/base.css" />
+		<link rel="stylesheet" href="../css/main.css" />
+		<link rel="stylesheet" href="../css/movies_plan.css" />
+		<link rel="stylesheet" type="text/css" href="../js/lib/hzw-city/hzw-city-picker.css">
+		
+		<script type="text/javascript" src="../js/lib/hzw-city/city-data.js"></script>
+		<script type="text/javascript" src="../js/lib/hzw-city/hzw-city-picker.min.js"></script>
+		<script type="text/javascript" src="../js/lib/jquery/jq.min.js" ></script>
+		<script type="text/javascript" src="../js/lib/jquery/jquery.cookie.js" ></script>
+		<script type="text/javascript" src="../js/public.js" ></script>
+		<script type="text/javascript" src="../js/movies_plan.js" ></script>
+	</head>
+	<body>
+		<!-- 顶部登录部分 -->
+		<div class="top"></div>
+		<!-- Logo，地区，主菜单 -->
+		<div class="title"></div>
+		
+		<!-- 电影信息 -->
+		<div class="movie_info"><div class="body"><div id="movie_mess"></div></div></div>
+		
+		<!-- 选择区域 -->
+		<div class="choose">
+			<div class="body">
+				<div class="choose_lab"><span>选座购票</span><hr /></div>
+				<div class="options">
+					<div class="option_key">
+						<div class="area">选择区域</div>
+						<div class="cinema">选择影城</div>
+						<div class="time">选择时间</div>
+					</div>
+					<div class="option_value">
+						<div class="area">
+							<ul>
+								<li class="area_cur">全部区域</li>
+								<li>芙蓉区</li>
+								<li>岳麓区</li>
+								<li>天心区</li>
+								<li>天心区</li>
+								<li>天心区</li>
+								<li>天心区</li>
+							</ul>
+						</div>
+						<div class="cinema">
+							<ul>
+								<li class="cinema_cur">长沙芒果博拉影城</li>
+								<li>长沙硬性乐天</li>
+								<li>潇湘国际影城阿波罗店</li>
+								<li>潇湘国际影城天马店</li>
+								<li>潇湘国际影城天马店</li>
+								<li>潇湘国际影城天马店</li>
+								<li>潇湘国际影城天马店</li>
+							</ul>
+						</div>
+						<div class="time">
+							<ul>
+								<li class="time_cur">5月4日( 今天 )</li>
+								<li>5月5日( 明天 )</li>
+								<li>5月6日( 后年 )</li>
+								<li>5月7日</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<!-- 排期选择 -->
+		<div class="plans">
+			<div class="body">
+				<div>
+					<span class="area_tap">芙蓉区</span>
+					<span class="cinemaName">潇湘国际影城天马店</span>
+					<span class="cinemaMess">地址：长沙芙蓉区阿斯蒂芬阿斯蒂芬阿萨德发送地方阿斯蒂芬阿斯 &nbsp;&nbsp;电话：0731-88888888</span>
+					<hr />
+				</div>
+				<div>
+					<div class="plan">
+						<table rules="none">
+							<tr class="head"><th class="w180">放映时间</th><th>语言版本</th><th>放映厅</th><th>现价/影院价 (元)</th><th class="w180">选座购票</th></tr>
+							<tr>
+								<td><div class="showtime">16:55</div><div class="endtime">预计16:55散场</div></td>
+								<td><label>英语3D</label></td>
+								<td><label>1号厅<label></td>
+								<td><span class="price">26.00</span><span class="markprice">50.00<span></td>
+								<td><div class="stop_ticket">网售停止</div></td>
+							</tr>
+							<tr class="even">
+								<td><div class="showtime">16:55</div><div class="endtime">预计16:55散场</div></td>
+								<td><label>英语3D</label></td>
+								<td><label>1号厅<label></td>
+								<td><span class="price">26.00</span><span class="markprice">50.00<span></td>
+								<td><div class="buy_ticket">选座购票</div></td>
+							</tr>
+							<tr>
+								<td><div class="showtime">16:55</div><div class="endtime">预计16:55散场</div></td>
+								<td><label>英语3D</label></td>
+								<td><label>1号厅<label></td>
+								<td><span class="price">26.00</span><span class="markprice">50.00<span></td>
+								<td><div class="buy_ticket">选座购票</div></td>
+							</tr>
+							<tr class="even">
+								<td><div class="showtime">16:55</div><div class="endtime">预计16:55散场</div></td>
+								<td><label>英语3D</label></td>
+								<td><label>1号厅<label></td>
+								<td><span class="price">26.00</span><span class="markprice">50.00<span></td>
+								<td><div class="buy_ticket">选座购票</div></td>
+							</tr>
+							<tr>
+								<td><div class="showtime">16:55</div><div class="endtime">预计16:55散场</div></td>
+								<td><label>英语3D</label></td>
+								<td><label>1号厅<label></td>
+								<td><span class="price">26.00</span><span class="markprice">50.00<span></td>
+								<td><div class="buy_ticket">选座购票</div></td>
+							</tr>
+							<tr class="even">
+								<td><div class="showtime">16:55</div><div class="endtime">预计16:55散场</div></td>
+								<td><label>英语3D</label></td>
+								<td><label>1号厅<label></td>
+								<td><span class="price">26.00</span><span class="markprice">50.00<span></td>
+								<td><div class="buy_ticket">选座购票</div></td>
+							</tr>
+						</table>
+					</div>
+					<div class="reminder bold"><span class="red mr_5p fs15p">*</span>限价已包含服务费, 该影院放映前30分钟关闭网络售票。</div>
+				</div>
+			</div>
+		</div>
+		
+		<!-- 描述：底部 -->
+        <div class="bottom"></div>
+        
+        <!-- 在线资讯 -->
+        <div class="online_consultation"></div>
+	</body>
+</html>

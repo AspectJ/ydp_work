@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>regist.html</title>
+
+    <meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+    <meta http-equiv="description" content="this is my page">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+    <link rel="icon" href="../img/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/regist.css">
+
+    <script type="text/javascript" src="../js/lib/jquery/jq.min.js" ></script>
+	  <script type="text/javascript" src="../js/lib/jquery/jquery.cookie.js" ></script>
+    <script type="text/javascript" src="../js/lib/layer/layer.js"></script>
+    <script type="text/javascript" src="../js/public.js"></script>
+    <script type="text/javascript" src="../js/regist.js"></script>
+  </head>
+
+  <body>
+    <!-- 顶部登录部分 -->
+		<div class="top"></div>
+		<!-- Logo，地区，主菜单 -->
+		<div class="title">
+			<div class="body">
+				<img class="logo" src="/img/logo_top.png">
+        <span>注册</span>
+        <a href="/index.html">楚湘首页</a>
+			</div>
+		</div>
+
+    <div class="regist-wrapper">
+      <div class="info-box">
+        <h1>账户设置</h1>
+        <ul class="info-form">
+          <li>
+            <label for="account"><i class="require">*</i> 登录账号</label>
+            <input type="text" class="ipt" id="account" placeholder="请输入登录账号" />
+          </li>
+          <li>
+            <label for="pass"><i class="require">*</i> 登录密码</label>
+            <input type="password" class="ipt" id="pass" placeholder="请输入登录密码" />
+          </li>
+          <li>
+            <label for="repass"><i class="require">*</i> 确认密码</label>
+            <input type="password" class="ipt" id="repass" placeholder="请再次输入登录密码" />
+          </li>
+        </ul>
+      </div>
+      <div class="info-box">
+        <h1>个人信息</h1>
+        <ul class="info-form">
+          <li>
+            <label for="realname"><i class="require">*</i> 联系人姓名</label>
+            <input type="text" class="ipt" id="realname" placeholder="请输入联系人姓名" />
+          </li>
+          <li>
+            <label for="mobile"><i class="require">*</i> 联系电话</label>
+            <input type="text" class="ipt" id="mobile" placeholder="请输入联系电话" />
+          </li>
+          <li>
+            <label for="email"><i class="require">*</i> 联系邮箱</label>
+            <input type="text" class="ipt" id="email" placeholder="请输入联系邮箱" />
+          </li>
+          <li>
+            <label for="cinemaname"><i class="require">*</i> 影院名称</label>
+            <input type="text" class="ipt" id="cinemaname" placeholder="请输入影院名称" />
+          </li>
+        </ul>
+      </div>
+      <div class="info-box" style="width: 285px;padding: 0 85px 0 120px;">
+        <p style="font-size: 14px;">注：带“<i class="require">*</i>”为必填项</p>
+        <button class="submit-btn" type="button" onclick="regist()">提 交</button>
+      </div>
+    </div>
+
+		<!-- 描述：底部 -->
+    <div class="bottom"></div>
+
+    <!-- 在线资讯 -->
+    <div class="online_consultation"></div>
+  </body>
+</html>

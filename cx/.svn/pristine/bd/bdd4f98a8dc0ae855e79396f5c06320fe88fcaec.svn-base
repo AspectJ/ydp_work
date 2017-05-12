@@ -1,0 +1,23 @@
+
+.ml_50p{margin-left: 50px !important;}
+
+.mr_5p{margin-right: 5px !important;}
+
+.w180{width: 180px !important;}
+.h400{height: 400px !important;}
+.red{color: red;}
+
+.blod{font-weight: bold;}
+
+.fs15p{font-size: 18px;}
+
+.pointer{cursor: pointer;}
+
+.content_text {
+	text-indent: 2rem !important;
+	padding: 10px 25px !important;
+	line-height: 200% !important;
+	font-weight: bold !important;
+	color: #666767 !important;
+	font-size: 15px !important;
+}

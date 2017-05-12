@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>楚湘院线-影院加盟</title>
+		<link rel="icon" href="img/favicon.ico" type="image/x-icon" />
+		<link rel="stylesheet" href="css/base.css" />
+		<link rel="stylesheet" href="css/main.css" />
+		<link rel="stylesheet" href="css/league.css" />
+
+		<script type="text/javascript" src="js/lib/jquery/jq.min.js" ></script>
+		<script type="text/javascript" src="js/lib/jquery/jquery.cookie.js" ></script>
+		<script type="text/javascript" src="js/lib/swiper/swiper-3.4.0.jquery.min.js"></script>
+		<script type="text/javascript" src="js/public.js" ></script>
+		<script type="text/javascript" src="js/league.js" ></script>
+
+	</head>
+	<body>
+		<!-- Logo，地区，主菜单 -->
+		<div class="title" id="header"></div>
+
+		<div class="index-wrapper clearfix">
+			<div class="clear" style="margin-top: 40px"></div>
+        <div class="yyjm">
+        	<div class="leftText">
+				<div class="head">影院加盟</div>
+				<div class="view1" target="league_condition"><div class="option cur">加盟条件</div></div>
+				<div class="view2" target="league_guarantee"><div class="option">加盟保障</div></div>
+				<!-- <div class="view3" target="league_render"><div class="option">加盟回报</div></div> -->
+				<div class="view4" target="league_flow"><div class="option">加盟流程</div></div>
+				<div class="view5" target="league_answer"><div class="option">答疑解惑</div></div>
+				<!-- <div class="view6" target="league_newcinema"><div class="option">最新加盟影院</div></div> -->
+        	</div>
+        	<div class="rightText">
+		        <!--加盟条件-->
+		        <div class="league_condition" id="league_condition">
+		        	<div class="headline">加盟条件</div>
+		        	<div class="content">
+		        		<p>1、已有符合国家《影院建筑标准规范》的影院。</p>
+		        		<p>2、所建影院各项手续齐备，符合国家的法律法规。</p>
+		        		<p>3、遵守合约规定，诚信经营。拥有一支优秀的经营、管理团队。</p>
+						<p>4、接受楚湘院线的经营理念，服从楚湘院线的统一管理。</p>
+		        	</div>
+		        </div>
+
+                <!--加盟保障-->
+		        <div class="league_guarantee" id="league_guarantee">
+		        	<div class="headline">加盟保障</div>
+		        	<div class="content">
+		        		<p>
+			        		<div class="head">1、成熟的管家式服务支持体系： </div>
+			        		<div>让你拥有多个领域的专家团队，瞬间实现行业内外的跨越，以华丽的转身获得无限的机会。</div>
+		        		</p>
+		        		<p>
+							<div class="head">2、全程参与的加盟服务： </div>
+							<div>对您遇到的各种资质报批手续和流程提供直接有效的咨询指导；根据计划有序组织专业项目团队批次进场,为您节省时间和金钱，规避风险，直到顺利开业，让您全程无忧。</div>
+						</p>
+						<p>
+							<div class="head">3、科学的影院选址和影院规划服务：</div>
+							<div>科学的市场调研，帮助影院进行选址、市场定位及规划，确保投资收益更大化。</div>
+						</p>
+						<p>
+							<div class="head">4、严谨的影院专业设计服务：</div>
+							<div>组织和推荐专业机构进行设计、施工及监理；协助建议各种设备的招标采购和安装，直至交付钥匙。为影院提供各品牌放映设备分期付款业务的担保。 </div>
+						</p>
+						<p>
+							<div class="head">5、实用的专业培训服务： </div>
+							<div>涵盖全岗位的员工基础培训、岗位技能培训、运营培训，帮您打造出一支优质经营管理团队。</div>
+						</p>
+						<p>
+							<div class="head">6、贴近的日常经营诊断服务和支持： </div>
+							<div>提供日常经营中的跟踪服务，用专业的眼光发现问题，专业的方法解决问题。根据市场情况及时提出建议、提醒、通知、经验分享，帮助您的影院提升经营能力，赢得高票房。</div>
+						</p>
+						<p>
+							<div class="head">7、总部市场部门的综合支持：</div>
+							<div>负责院线品牌的宣传推广，策划并实施全国性的市场活动，提升院线品牌的票房号召力。 </div>
+						</p>
+		        	</div>
+		        </div>
+
+		        <!--加盟回报-->
+		        <!-- <div class="league_render" id="league_flow">
+		        	<div class="headline">加盟回报</div>
+		        	<div class="content"></div>
+		        </div> -->
+
+		        <!--加盟流程-->
+		        <div class="league_flow" id="league_flow">
+		        	<div class="headline">加盟流程</div>
+		        	<div class="content">
+		        		<img src="img/league_5.png" />
+		        	</div>
+		        </div>
+
+		        <!--答疑解惑-->
+		        <div class="league_answer" id="league_flow">
+		        	<div class="headline">答疑解惑</div>
+		        	<div class="content">
+						<p>
+							<div>Q：成熟领先的红鲤鱼管家式保姆服务支持体系?</div>
+							<div>A：让你拥有多个领域的专家团队，瞬间实现行业内外的跨越，以华丽的转身获得无限的机会。 全程参与的加盟服务：
+							对您遇到的各种资质报批手续和流程提供直接有效的咨询指导；
+							根据计划有序组织专业项目团队
+							批次进场。进行项目投资解析、让您更准确地把握项目的整体赢利能力。
+							为您节省时间和金钱，
+							规避风险，直到顺利开业，让您全程无忧。</div>
+						</p>
+						<p><div>Q：科学的影院选址和影院规划服务? </div>
+						<div>A：科学的市场调研、数据分析，帮进行影院定位、规划，确保投资收益更大化。
+						</div></p>
+
+<p><div>Q：严谨的影院专业设计服务? </div>
+<div>A：组织和推荐专业机构进行设计、施工及监理；协助建议各种设备的招标采购和安装，直至交
+付钥匙</div>
+</p>
+
+<p><div>Q、高效的开业筹备服务?  </div>
+<div>A：楚湘筹备小组深入现场，向您讲解中影院经营管理中的关键点，交付一份凝结着业内专家多
+年心血和
+经验的《影院经营标准手册》。同时，筹备组专家会协助推进各项必备的前期工作。在
+您的配合下，可确
+保影院在楚湘系统内如期红火开业。</div></p>
+
+<p><div>Q：实用的专业培训服务? </div>
+<div>A：涵盖全岗位的员工基础培训、岗位技能培训、经理进阶培训、课程包含内场管理、外场营销，
+提供专项培
+训及远程培训计划，更有影院总经理和投资者高阶深造的专业课程，帮您打造出一支
+优质经营管理团队。</div></p>
+
+<p><div>Q：贴近的日常经营诊断服务和支持? </div>
+<div>A：提供日常经营中的跟踪维护，用专业的眼光发现问题，专业的方法解决问题。因时而变，根据市场情况及时提出建议、提醒、通知、经验分享，帮助您的影院提升经营能力，赢得高票房。
+</div></p>
+		        	</div>
+		        </div>
+
+		        <!--最新加盟影院-->
+		        <!-- <div class="league_newcinema" id="league_flow">
+		        	<div class="headline">最新加盟影院</div>
+		        	<div class="content"></div>
+		        </div> -->
+        	</div>
+        </div>
+			</div>
+
+        <!-- 描述：底部 -->
+        <div class="bottom"></div>
+
+        <!-- 在线资讯 -->
+        <div class="online_consultation"></div>
+	</body>
+</html>

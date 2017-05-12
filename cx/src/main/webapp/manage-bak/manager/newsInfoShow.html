@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>影院总部管理系统</title>
+		<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
+		<link rel="stylesheet" href="../css/sweet-alert.css" />
+		
+		<script type="text/javascript" src="../js/jquery-1.11.2.min.js" ></script>
+		<script type="text/javascript" src="../js/ajaxfileupload.js"></script>
+		<script type="text/javascript" src="../js/public.js" ></script>
+		<script type="text/javascript" src="../js/newsinfoupdate.js" ></script>
+		<script type="text/javascript" src="../js/sweet-alert.min.js"></script>
+		<script>
+			$(function(){
+				$("#showNewsInfo").fadeIn(200);
+				$(document).scrollTop(document.body.scrollHeight);
+				var src = window.parent.$("#mainFrame").attr("src");
+				var news_id = src.replace("manager/newsInfoShow.html?news_id=","");
+				$("#news_id").val(news_id);
+				getNewsInfoShow(news_id,"show");
+			});
+			
+		</script>
+		<link rel="stylesheet" href="../css/base.css" />
+		<link rel="stylesheet" href="../css/main.css" />
+	</head>
+	<body>
+		<!-- 主面板 -->
+		<div class="main-box">
+			<div class="content-title">
+				<span>您当前位置：首页/新闻中心</span>
+<!-- 				<p class="search"><input placeholder="请输入您要查询的信息" /><i></i></p> -->
+				<div class="clear"></div>
+			</div>
+			
+			<!-- 数据区 -->
+			<div class="content-data">
+				<h3 class="title">新闻中心</h3>
+				<!-- 面板 -->
+				<div class="panel" id="showNewsInfo">				
+					<table class="panel-tab">
+					<input type="hidden" id="news_id" value=""/>	
+						<tr><td class="title">新闻标题：</td>
+							<td colspan="3" id="news_title"></td>
+						</tr>
+						<tr><td class="title">新闻状态：</td>
+							<td id="news_status"></td>
+							<td class="title">新闻类别：</td>
+							<td id="news_type"></td>
+						</tr>
+						<tr><td class="title">主题图片：</td>
+							<td colspan="3">
+								<img src="" id="news_img"/>
+							</td>
+						</tr>
+						
+						<input type="hidden" id="add" />
+					</table>
+					<p class="panel-btn">
+					    <button onclick="doAudit();">审核</button>
+						<button onclick="toUpdateNewsInfo();">修改</button>
+					</p>
+				</div>
+				
+			</div>
+		</div>
+		
+		
+	</body>
+</html>
+
+
+
+
+
+
+

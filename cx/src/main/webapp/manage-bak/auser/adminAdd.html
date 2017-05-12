@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>影院总部管理系统</title>
+		<link rel="stylesheet" href="../css/base.css" />
+		<link rel="stylesheet" href="../css/main.css" />
+	</head>
+	<body>
+		<!-- 主面板 -->
+		<div class="main-box">
+			<div class="content-title">
+				<span>您当前位置：添加系统管理员</span>
+				<!-- <p class="search"><input placeholder="请输入您要查询的信息" /><i></i></p> -->
+				<div class="clear"></div>
+			</div>
+			
+			<!-- 数据区 -->
+			<div class="content-data">
+				<h3 class="title">管理员中心</h3>
+				
+				<!-- 面板 -->
+				<div class="panel" id="addAdminInfo">				
+					<table class="panel-tab">
+						<tr>
+							<td class="title">用户名：</td>
+							<td><input id='admin_name'/>&nbsp;&nbsp;&nbsp;<font color="red">只能为数字、字母或下划线（3~10位）</font></td>
+						</tr>
+						<tr><td class="title">昵称：</td>
+							<td><input id='admin_nickname'/></td>
+						<tr/>
+						<tr><td class="title">密码：</td>
+							<td><input id='admin_pwd' type="password"/></td>
+						</tr>
+						<tr><td class="title">影院名称：</td>
+							<td id="cinema_name"></td>
+						</tr>
+						<tr><td class="title">能否审核：</td>
+							 <td><input id='checkbox_audit' type="checkbox" /></td>
+						</tr>
+					</table>
+					<p class="panel-btn">
+						<button onclick="addAdminInfo();">提交</button>
+					</p>
+				</div>
+				
+			</div>
+		</div>
+		
+		<script type="text/javascript" src="../js/jquery-1.11.2.min.js" ></script>
+		<script type="text/javascript" src="../js/public.js" ></script>
+		<script type="text/javascript" src="../js/adminadd.js" ></script>
+		<script>
+			$(function(){
+				$("#addAdminInfo").fadeIn(200);
+				$(document).scrollTop(document.body.scrollHeight);
+			});
+			
+		</script>
+	</body>
+</html>
+
+
+
+
+
+
+

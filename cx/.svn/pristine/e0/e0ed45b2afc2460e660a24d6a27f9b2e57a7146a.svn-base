@@ -1,0 +1,170 @@
+@charset "UTF-8";
+body {
+  overflow-x: hidden;
+  background: #272636;
+}
+
+/* 导航 */
+.nav {
+  width: 270px;
+  float: left;
+  background: #272636;
+  font-family: "微软雅黑";
+}
+.nav .logo {
+  background: #2B2A3C;
+  padding: 20px 0;
+  color: #fff;
+  font-size: 18px;
+  text-align: center;
+}
+.nav .head {
+  width: 180px;
+  margin: 30px auto;
+  text-align: center;
+  color: #fff;
+}
+.nav .head i {
+  display: block;
+  font-family: "微软雅黑";
+  font-style: normal;
+  background: url(../img/icon.png) no-repeat;
+  cursor: pointer;
+}
+.nav .head .img {
+  margin: 0 auto;
+  width: 120px;
+  height: 133px;
+  background-position: 0 -76px;
+}
+.nav .head p {
+  height: 40px;
+  padding: 10px 0;
+}
+.nav .head .edit {
+  float: left;
+  width: 30px;
+  height: 30px;
+  background-position: -233px -43px;
+}
+.nav .head .quanxian {
+  float: right;
+  width: 80px;
+  height: 30px;
+/*   background-position: 0 -211px;  */
+} 
+.nav .head button {
+  width: 120px;
+  height: 30px;
+  line-height: 30px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  background: #FF4400;
+  color: #fff;
+  font-family: "微软雅黑";
+  font-size: 16px;
+}
+
+/* 菜单 */
+.menu {
+  width: 270px;
+  font-family: "微软雅黑";
+  /*标题*/
+}
+.menu div {
+  overflow: hidden;
+  background-repeat: no-repeat;
+}
+.menu .menu-box {
+  background: #333247;
+}
+.menu ul {
+  display: none;
+  background: #fff;
+  width: 230px;
+  float: right;
+}
+.menu li {
+  padding: 15px 0 15px 33px;
+  color: #fff;
+  font-size: 14px;
+  border-bottom: 1px solid #777;
+  background: #333247;
+  transition: all .3s;
+  position: relative;
+  cursor: pointer;
+}
+.menu li:hover {
+  background: #FF4400 !important;
+}
+.menu li:before {
+  content: '';
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background: #fff;
+  border-radius: 50%;
+  left: 0;
+  top: 50%;
+  margin-top: -3px;
+}
+.menu li:last-child {
+  border: none;
+}
+.menu .menu-title {
+  width: 250px;
+  margin: 0;
+  padding: 15px 0 15px 20px;
+  color: #000;
+  cursor: pointer;
+  font-size: 16px;
+  color: #fff;
+  font-weight: normal;
+}
+.menu .menu-title span {
+  float: left;
+  margin-top: -3px;
+  margin-right: 20px;
+  width: 33px;
+  height: 33px;
+  background: url(../img/icon.png) no-repeat;
+  background-position-y: -46px;
+  background-position-x: -111px;
+}
+.menu .menu-title .yingyuan {
+  background-position-x: 0;
+}
+.menu .menu-title .huiyuan {
+  background-position-x: -34px;
+}
+.menu .menu-title .paiqi {
+  background-position-x: -73px;
+}
+.menu .menu-title .qudao {
+  background-position-x: -111px;
+}
+.menu .menu-title .yingxiao {
+  background-position-x: -149px;
+}
+.menu .menu-title .fenxi {
+  background-position-x: -186px;
+}
+.menu .more {
+  float: right;
+  width: 28px;
+  height: 18px;
+  margin-right: 15px;
+  background: url(../img/icon.png) no-repeat;
+  background-position: -270px -58px;
+}
+
+.menu-show ul {
+  display: block;
+}
+.menu-show .menu-title {
+  background-color: #FF4400;
+}
+.menu-show .more {
+  background-position: -270px -41px;
+}

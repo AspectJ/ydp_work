@@ -1,0 +1,88 @@
+$(document).ready(function() {
+	//底部导航
+	bottomTextLoad();
+	
+	// 弹出框文本事件
+	maskInputEvent(".mask .account input");
+	$("#account").focus();
+	
+	$(".personal").hide();
+});
+
+var params = {};
+/**
+ * 注册请求服务器
+ */
+function regist(){
+	var realname = $("#realname").val();
+	var mobile = $("#mobile").val();
+	var email = $("#email").val();
+	var cinamename = $("#cinamename").val();
+	
+	if(realname == "" || mobile == "" || cinamename == "" || email == ""){
+		$(".mask .personal input").blur();
+		return;
+	}
+	params.realname = realname;
+	params.mobile = mobile;
+	params.cinema_name = cinamename;
+	params.email = email;
+
+	console.log(params);
+	$.ajax({
+        url: service_url + "user/regist",
+        dataType: 'jsonp',
+        data: params,
+        async: false,
+        jsonp: "jsonpCallback",
+        success: function(data){
+			switch(data.result){
+				case 1000:
+					var user = data.data;
+					var nickname = user.nickname;
+					$("#userName").text(nickname);
+					sessionStorage.setItem("nickname", nickname);
+
+					if(document.getElementById("remember").checked){
+						$.cookie("userid", user.userid, { expires: 7, path: '/' }); 
+						$.cookie("nickname", nickname, { expires: 7, path: '/' }); 
+					}
+					
+					toolTip("恭喜您，注册成功！", "../index.html");
+					break;
+				case 1006:
+					$("#mobile").after("<div class='text_error_tip'>"+ data.msg +"</div>"); break;
+				case 1007:
+					$("#email").after("<div class='text_error_tip'>"+ data.msg +"</div>"); break;
+				default:
+					toolTip(data.msg);
+					break;
+			}
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown){
+        	alert(errorThrown);
+        },
+        timeout: 30000
+    });
+}
+
+function next() {
+	params.account = $("#account").val();
+	params.pass = $("#pass").val();
+	params.repass = $("#repass").val();
+	if(params.account == null || params.pass == null || params.repass == null 
+			|| params.account == '' || params.pass == '' || params.repass == '') {
+		$(".mask .account input").blur();
+		return;
+	}
+	if(params.pass != params.repass) {
+		$("#repass").after("<div class='text_error_tip'>两次密码输入不一致</div>");
+		return;
+	}
+	$(".account").hide();
+	$(".personal").show();
+	$(".mask .registtext").css("height", "460px");
+	
+	maskInputEvent(".mask .personal input");
+	$("#realname").focus();
+}

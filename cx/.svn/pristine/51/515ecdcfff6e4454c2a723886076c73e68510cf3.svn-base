@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>楚湘院线-座位选择</title>
+		<link rel="icon" href="img/favicon.ico" type="image/x-icon" />
+		<link rel="stylesheet" href="../css/base.css" />
+		<link rel="stylesheet" href="../css/main.css" />
+		<link rel="stylesheet" href="../css/movies_seat.css" />
+		
+		<script type="text/javascript" src="../js/lib/jquery/jq.min.js" ></script>
+		<script type="text/javascript" src="../js/lib/jquery/jquery.cookie.js" ></script>
+		<script type="text/javascript" src="../js/public.js" ></script>
+		<script type="text/javascript" src="../js/movies_seat.js" ></script>
+	</head>
+	<body>
+		<!-- 顶部登录部分 -->
+		<div class="top"></div>
+		<!-- Logo，地区，主菜单 -->
+		<div class="title"></div>
+		
+		<div class="step">
+			<ul>
+				<li><span>1</span>选择影片场次</li>
+				<li><span>2</span>选座，填手机号</li>
+				<li><span>3</span>确认订单支付</li>
+				<li><span>4</span>支付成功，影院取票观影</li>
+			</ul>
+		</div>
+		<hr />
+		
+		<!--购票选座-->
+		<div>
+			<div class="seat">
+				<div class="hall"><span>4号厅</span>荧幕方向</div>
+				<ul class="seat_sample">
+					<li><img src="img/select-able.png" />可选座位</li>
+					<li><img src="img/select-selected.png" />已选座位</li>
+					<li><img src="img/select-disable.png" />不可选座位</li>
+					<li><img src="img/select-lovers.png" />情侣座位</li>
+				</ul>
+				<div class="seat_row_num"></div>
+				<div class="seat-arr-info"></div>
+			<div>
+			<div class="ticket">
+				<div class="tap">您的购票信息</div>
+				<div class="movieName"><span class="lable">影片：</span>大唐玄奘（国语 2D）</div>
+				<div class="showlength"><span class="lable">时长：</span>120分钟</div>
+				<div class="cinemaName"><span class="lable">影院：</span>大唐玄奘（国语 2D）</div>
+				<div class="showtime"><span class="lable">场次：</span>2016-05-05 16:12:45</div>
+				<hr />
+				<div class="seat_selected">
+					<span class="lable">座位：</span>
+					<div class="seattitles">
+						<span>11排11座</span>
+						<span>11排11座</span>
+						<span>11排11座</span>
+						<span>11排11座</span>
+						<span>11排11座</span>
+					</div>
+				</div>
+				<div class="showprice"><span class="lable">原价：</span>￥46 × 5</div>
+				<div class="price"><span class="lable">总计：</span>￥230</div>
+				<hr />
+				<div class="mobile_tap">接受取票信息手机号</div>
+				<div class="mobile"><input id="mobile" maxlength="11"/></div>
+				<div class="sure_order">确认订单</div>
+			</div>
+		</div>
+		
+		<!-- 温馨提示 -->
+		<div class="reminder">
+			<div>温馨提示</div>
+			<div>1、选择您要预定的座位单机选中，重复点击取消选座；</div>
+			<div>2、每笔订单最多可选4张电影票；情侣座不单卖；</div>
+			<div>3、选座时，必须选择相邻座位，请不要留下单个座位；</div>
+			<div>4、部分影院3D眼睛需要押金，请观影前准备好现金；</div>
+			<div>5、点击“确认订单”进入付款页面后，请在15分钟内完成支付，超时系统将释放您选定的座位。</div>
+		</div>
+		
+		<!-- 描述：底部 -->
+        <div class="bottom"></div>
+        
+        <!-- 在线资讯 -->
+        <div class="online_consultation"></div>
+	</body>
+</html>

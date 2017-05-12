@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>楚湘院线-电影</title>
+
+    <meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+    <meta http-equiv="description" content="this is my page">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+    <link rel="icon" href="../img/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/login.css">
+
+    <script type="text/javascript" src="../js/lib/jquery/jq.min.js" ></script>
+	  <script type="text/javascript" src="../js/lib/jquery/jquery.cookie.js" ></script>
+    <script type="text/javascript" src="../js/lib/layer/layer.js"></script>
+    <script type="text/javascript" src="../js/public.js"></script>
+    <script type="text/javascript" src="../js/login.js"></script>
+  </head>
+
+  <body>
+		<!-- Logo，地区，主菜单 -->
+		<div class="title">
+			<div class="body">
+				<img class="logo" src="/img/logo_top.png">
+        <span>登录</span>
+        <a href="/index.html">楚湘首页</a>
+			</div>
+		</div>
+
+    <div class="login-wrapper">
+      <div class="login-box">
+        <h1>登录</h1>
+
+        <ul class="login-form">
+          <li>
+            <label for="account">登录账号</label>
+            <input type="text" class="login-ipt" id="account" placeholder="手机号/邮箱" />
+          </li>
+          <li>
+            <label for="pass">登录密码</label>
+            <input type="password" class="login-ipt" id="pass" placeholder="请输入登录密码" />
+          </li>
+        </ul>
+        <a href="/auth/regist.html" class="regist">免费注册</a>
+        <button class="submit-btn" type="button" onclick="login()">登 录</button>
+      </div>
+    </div>
+
+		<!-- <div class="mask1">
+			<div class="logintext h400">
+				<div class="head">登录
+				</div>
+				<div class="account"><i></i><input id="account" placeholder="请输入帐号" tip1="帐号不能为空" maxlength="20"/></div>
+				<div class="pass"><i></i><input type="password" id="pass" placeholder="请输入密码" tip1="密码不能为空" maxlength="20"/></div>
+				<div class="tip"><input id="remember" type="checkbox" name="r" value="r"/><span class="remember">记住密码</span><span class="forget">忘记密码?</span>|<span class="regist">立即注册</span></div>
+				<div class="loginbn" onclick="login();">登录</div>
+			</div>
+		</div> -->
+
+		<!-- 描述：底部 -->
+    <div class="bottom"></div>
+
+    <!-- 在线资讯 -->
+    <div class="online_consultation"></div>
+  </body>
+</html>

@@ -1,0 +1,70 @@
+$().ready(function() {
+	
+	$("#account").val(localStorage.setItem("account"));
+	$("#pass").val(localStorage.setItem("pass"));
+	
+	//底部导航
+	bottomTextLoad();
+	
+	//弹出文本框时间
+	maskInputEvent(".mask1 input");
+});
+
+
+/**
+ * 登录请求服务器
+ */
+function login(){
+	var account = encodeURIComponent($("#account").val());
+	var pass = $("#pass").val();
+	if(account == '' || pass == '') {
+		$(".mask account input").blur();
+		return;
+	}
+	
+	var params = {};
+	params.account = account;
+	params.pass = pass;
+	
+	$.ajax({
+        url: service_url + "user/login",
+        dataType: 'jsonp',
+        data: params,
+        async: false,
+        jsonp: "jsonpCallback",
+        success: function(data){
+			switch(data.result){
+				case 1000:
+					var user = data.data;
+					var nickname = user.nickname;
+					$("#userName").text(nickname);
+					localStorage.setItem("nickname", nickname);
+					
+					if(document.getElementById("remember").checked){
+//						$.cookie("userid", user.userid, { expires: 7, path: '/' }); 
+//						$.cookie("nickname", nickname, { expires: 7, path: '/' });
+						localStorage.setItem("account", account);
+						localStorage.setItem("pass", pass);
+					}
+					
+					$(".mask").remove(".mask")
+					$("body").css("overflow", "auto");
+					$(".top .out_login").show();
+					window.location.href = "../index.html";
+					break;
+				case 1004:
+					$("#account").after("<div class='text_error_tip'>"+ data.msg +"</div>"); break;
+				case 1005:
+					$("#pass").after("<div class='text_error_tip'>"+ data.msg +"</div>"); break;
+					$("#pass").val("");
+				default:
+					toolTip(data.msg);
+					break;
+			}
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown){
+        	alert(errorThrown);
+        },
+        timeout: 30000
+    });
+}

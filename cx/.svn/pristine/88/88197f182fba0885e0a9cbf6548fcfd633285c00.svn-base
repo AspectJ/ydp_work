@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>楚湘院线-院线风采</title>
+		<link rel="icon" href="img/favicon.ico" type="image/x-icon" />
+		<link rel="stylesheet" href="css/base.css" />
+		<link rel="stylesheet" href="css/main.css" />
+		<link rel="stylesheet" href="css/elegant.css" />
+		<link rel="stylesheet" href="css/pagination.css" />	
+		<link rel="stylesheet" href="js/lib/zone/zone.css" />
+	
+<!--  		<link rel="stylesheet" href="css/baiduMap.css" /> -->
+
+       
+		
+		<script type="text/javascript" src="js/lib/jquery/jquery.charfirst.pinyin.js" ></script>
+		<script type="text/javascript" src="js/lib/jquery/jq.min.js" ></script>
+		<script type="text/javascript" src="js/lib/jquery/jquery.cookie.js" ></script>
+		<script type="text/javascript" src="js/public.js" ></script>
+		<script type="text/javascript" src="js/elegant.js" ></script>
+		<script type="text/javascript" src="js/jquery.pagination.js" ></script>
+<!-- 		<script type="text/javascript" src="http://api.map.baidu.com/api?key=&v=1.1&services=true"></script> -->
+<!--      	<script type="text/javascript" src="js/baiduMap.js"></script> -->
+		
+
+	</head>
+	<body >
+		<!-- 顶部登录部分 -->
+		<div class="top"></div>
+		<!-- Logo，地区，主菜单 -->
+		<div class="title"></div>
+        
+        <!-- 院线风采 -->
+		<div class="elegant"><img src="img/elegant_bg.png" class="logo" /></div>
+		
+		<div class="clear" style="margin-top: 230px"></div>
+        <!--加盟影院展示-->
+        <div>
+        	<div class="elegant_left">
+        		<div class="head">院线风采</div>
+        		<div class="league_theater" target="cinemashow">
+        			<div class="option cur">加盟影院展示</div>
+        			
+        			<div class="citybox zone">
+				</div>
+        			
+        		</div>
+        		
+        		<div class="theater_elegant" target="cx_elegant">
+        			<div class="option">院线风采展示</div>
+        		</div>
+        		<div class="theater_elegant" target="cx_distribution">
+        			<div class="option">加盟影院分布</div>
+             	</div>
+        	</div>
+
+	        <div class="cinemashow">
+	        	<div class="headline">加盟影院展示</div>
+	        	<div class="content">
+<!-- 	        	    	<div style="position:relative;float:left">
+    		        		<img src="img/dynamic_news_detail_1.png"/>
+    		        		<div>aaaaaaaaaaa</div>
+    		        	</div>
+    		        	<div style="position:relative;float:left">
+    		        		<img src="img/dynamic_news_detail_1.png"/>
+    		        		<div>aaaaaaaaaaa</div>
+    		        	</div> -->
+	        	</div>
+	        	<!-- <div class="paging"><span class="none">上一页</span><span class="cur">1</span><span>2</span><span>3</span>···<span class="has">下一页</span></div> -->
+				<!--  分页 -->
+				<div id="Pagination" class="meneame"></div>
+	        </div>
+	        
+	        <!--楚湘风采-->
+	        <div class="cx_elegant">
+	        	<div class="headline">楚湘风采展示</div>
+	        	<div class="content">
+	    			<img src="img/elegant_6.png" />
+	        	</div>
+	        </div>
+	        
+	        <!--加盟影院分布-->
+	        <div class="cx_distribution" >
+	       		<div class="headline">加盟影院分布图</div> 
+	    		 <div class="content">
+	    		       <iframe src="cinemaDistribution.html" width="900" height="550" frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling="no" allowtransparency="yes"></iframe>
+	    		 </div>   		   	
+	        </div>
+        </div>
+        
+        <!-- 描述：底部 -->
+        <div class="clear"></div>
+        <div class="bottom"></div>
+        
+        <!-- 在线资讯 -->
+        <div class="online_consultation"></div>
+        
+<!--         <script type="text/javascript" > initMap();  </script> -->
+      		  
+<!--   	   <script type="text/javascript">  		  $("#baiduMapContainer").load("cinemaDistribution.html"); </script> -->
+
+	</body>
+</html>

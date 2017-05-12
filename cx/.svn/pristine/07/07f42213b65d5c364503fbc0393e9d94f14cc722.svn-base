@@ -1,0 +1,171 @@
+var pageCount = 0;
+var pageSize = 10;
+var offsetNum = 0;
+
+$(function() {
+    // 初始化数据(显示第一页)
+    InitData(0);
+    
+    function InitData(pageindx) {
+    	var url = requestUrl + "rest/user/sel_status_false";
+    	var num = 0;
+    	var index = pageindx + 1;
+    	if(index != 0){
+    		num = (index - 1) * pageSize;
+    	}
+    	
+    	$.ajax({
+    		type: "POST",
+    		url: url,
+    		cache: false,
+    		dataType: "json",
+    		data: {
+    			pageSize: pageSize,
+    			offsetNum: num
+    		},
+    		jsonp: "jsonpCallback",
+    		success: function(data) {
+    			var result = parseInt(data.result);
+    			switch(result) {
+    				case 1000:
+    					var resultData = data.data;
+    					pageCount = data.total;
+    					
+    					$("#Pagination").pagination(pageCount, {
+    			            callback: pageselectCallback,
+    			            prev_text: '« 上一页',
+    			            next_text: '下一页 »',
+    			            items_per_page: pageSize,     // 每页显示条数
+    			            current_page: pageindx,  // 当前页索引,这里0为第一页
+    			            num_display_entries: 3,  // 前面显示几个按钮
+    			            num_edge_entries: 2  // 后面显示几个按钮
+    			        });
+    					
+
+    					$("#result tr:gt(0)").remove();
+    					if(resultData != null && resultData.length > 0) {
+    						for(var i = 0; i < resultData.length; i++) {
+    							var userid = resultData[i].userid;
+    							var email = resultData[i].email;
+    							var password = resultData[i].password;
+    							var nickname = resultData[i].nickname;
+    							
+    							var mobile = resultData[i].mobile;
+    							var birthday = resultData[i].birthday;
+    							var sex = resultData[i].sex;
+    							var realname = resultData[i].realname;
+    							
+    							var createtime = resultData[i].createtime;
+    							var modifytime = resultData[i].modifytime;
+    							var state = resultData[i].state;
+    							var cinema_name = resultData[i].cinema_name;
+    							
+    							var changeState = "";
+    							var state_last = "";
+    							if(state == "true") {
+    								state_last = "可用";
+    								changeState = "禁用";
+    							}else {
+    								state_last = "禁用";
+    								changeState = "启用";
+    							}
+    							
+    							var row = i + 1;
+    							var content = "<tr id='row_"+row+"'><td><input type='checkbox' name='check_userid' id='check_"+userid+"' value='"+userid+"'/>";
+    							content += "</td><td>"+email+"</td><td>"+mobile+"</td><td>"+nickname+"</td>";
+    							content += "<td>"+realname+"</td><td>"+ cinema_name + "</td><td>"+createtime+"</td>";
+    							content += "<td>"+modifytime+"</td><td>"+state_last+"</td>";
+    							content += "<td><a href='javascript:void(0);' onclick='showAdminInfo("+userid+");'>查看</a>&nbsp;&nbsp;";
+    							content += "<a href='javascript:void(0);' onclick='changeState("+userid+","+state+");'>"+changeState+"</a></td><tr>";
+    							if(i == 0){
+    								$("#row_title").after(content);
+    							}else{
+    								$("#row_"+i).after(content);
+    							}
+    						}
+    					} 
+    					break;
+    				case 1001:
+    					break;
+    				default:
+    					break;
+    			}
+    		}
+    	});
+    	
+        //处理翻页,page_id为当前页索引(0为第一页)
+        function pageselectCallback(page_id, jq) {
+            InitData(page_id);
+        }
+    }
+});
+
+//更改用户状态（启用/禁用）
+function changeState(userid, state) {
+	$.ajax({
+		url: requestUrl + "rest/user/changeState",
+		type: "POST",
+		cache: false,
+		data: {
+			userid: userid,
+			state: state
+		},
+		dataType: "json",
+		jsonp: "jsonpCallback",
+		success: function(data) {
+			var page = "auser/verifyRegisterUser.html";
+			window.parent.$("#mainFrame").attr("src", page);
+		}
+	});
+}
+
+//跳转到用户详细信息页面
+function showAdminInfo(userid) {
+	var page = "auser/userInfoShow.html?userid=" + userid;
+	window.parent.$("#mainFrame").attr("src", page);
+	
+}
+
+//显示用户详细信息
+function getUserInfoShow(user_id) {
+	$.ajax({
+		url: requestUrl + "rest/user/selSingleUser",
+		type: "POST",
+		data: {
+			userid: user_id
+		},
+		dataType: "json",
+		jsonp: "jsonpCallback",
+		success: function(data) {
+			var result = parseInt(data.result);
+			switch(result) {
+				case 1000:
+					var resultData = data.data;
+					showInfo(resultData);
+					break;
+				default:
+					alert("查询用户信息失败！");
+					break;
+			}
+		}
+	});
+}
+
+function showInfo(resultData) {
+	$("#email").html(resultData.email);
+	$("#mobile").html(resultData.mobile);
+	$("#nickname").html(resultData.nickname);
+	$("#realname").html(resultData.realname);
+	$("#createtime").html(resultData.createtime);
+	$("#modifytime").html(resultData.modifytime);
+	$("#cinema_name").html(resultData.cinema_name);
+	var state = resultData.state;
+	if(state) {
+		$("#state").html("可用");
+	} else {
+		$("#state").html("禁用");
+	}
+}
+
+
+

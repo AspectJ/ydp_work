@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="joincinema">
+
+	<!-- 新增加盟影院信息 -->	
+	<insert id="insertJoinCinema" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="j_id">
+		INSERT INTO t_join_cinema(j_number, j_name, cinemaid, customer_phone, profile, area_number, address, linkman, contact_phone, job, 
+            customer_qq, customer_email, philosophy, remark, author, t_logo_url,province,city,district,audit_flag)
+    	VALUES ( #{j_number}, #{j_name}, #{cinemaid}, #{customer_phone}, #{profile}, #{area_number}, #{address}, #{linkman}, #{contact_phone}, #{job}, 
+            #{customer_qq}, #{customer_email}, #{philosophy}, #{remark}, #{author}, #{t_logo_url},#{province},#{city},#{district},0)
+	</insert>
+	
+	<!-- 查询加盟影院信息 -->
+	<select id="getJoinCinema" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT j_id, j_number, j_name, cinemaid, customer_phone, profile, area_number, address, linkman, 
+			contact_phone, create_time, update_time, job, customer_qq, customer_email, philosophy, 
+			remark, author, t_logo_url,province,city,district
+  		FROM t_join_cinema
+		where j_id = #{j_id} 
+	</select>
+	
+	<!-- 修改加盟影院信息 -->
+	<update id="updateJoinCinema" parameterType="map">
+		update t_join_cinema set j_name = #{j_name}, audit_flag = 0
+			<if test="j_number != null">
+				,j_number = #{j_number}
+			</if>
+			<if test="cinemaid != null">
+				,cinemaid = #{cinemaid}
+			</if>
+			<if test="customer_phone != null">
+				,customer_phone = #{customer_phone}
+			</if>
+			<if test="profile != null">
+				,profile = #{profile}
+			</if>
+			<if test="area_number != null">
+				,area_number = #{area_number}
+			</if>
+			<if test="address != null">
+				,address = #{address}
+			</if>
+			<if test="linkman != null">
+				,linkman = #{linkman}
+			</if>
+			<if test="contact_phone != null">
+				,contact_phone = #{contact_phone}
+			</if>
+			<if test="update_time != null">
+				,update_time = #{update_time}
+			</if>
+			<if test="job != null">
+				,job = #{job}
+			</if>
+			<if test="customer_qq != null">
+				,customer_qq = #{customer_qq}
+			</if>
+			<if test="customer_email != null">
+				,customer_email = #{customer_email}
+			</if>
+			<if test="philosophy != null">
+				,philosophy = #{philosophy}
+			</if>
+			<if test="remark != null">
+				,remark = #{remark}
+			</if>
+			<if test="author != null">
+				,author = #{author}
+			</if>
+			<if test="t_logo_url != null">
+				,t_logo_url = #{t_logo_url}
+			</if>
+			<if test="province != null">
+				,province = #{province}
+			</if>
+			<if test="city != null">
+				,city = #{city}
+			</if>
+			<if test="district != null">
+				,district = #{district}
+			</if>
+		where j_id = #{j_id} 
+	</update>
+	
+	<update id="updateJoinCinema_Audit" parameterType="map">
+		update t_join_cinema set audit_flag = #{audit_flag} where j_id = #{j_id} 
+	</update>
+	
+	<!-- 删除加盟影院信息 -->
+	<delete id="deleteJoinCinema" parameterType="map">
+		delete from t_join_cinema where j_id = #{j_id} 
+	</delete>
+	
+	
+	<!-- 加盟影院信息查询 -->
+	<select id="getJoinCinemaList" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT j_id, j_number, j_name, cinemaid, customer_phone, profile, area_number, 
+      		 address, linkman, contact_phone, create_time, update_time, job, customer_qq, customer_email, philosophy, 
+      		 remark, author, t_logo_url, province,city,district,audit_flag
+  		FROM t_join_cinema  
+		order by create_time desc limit ${pageSize} offset ${offsetNum} 
+	</select>
+	
+	<!-- 加盟影院信息查询 -->
+	<select id="getJoinCinemaListCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+		select count(*) from t_join_cinema 
+	</select>
+	
+	<!-- 获取城市数据 -->
+	<select id="getCityData" resultType="java.util.Map">
+  		select distinct c.city city_name, c.cityID city_number
+		  from dq_area a 
+		  join dq_city c on a.fatherID= c.cityID
+		  join t_join_cinema jc on jc.area_number = a.areaID
+  		 where jc.audit_flag = 1 and t_logo_url != ''
+	</select>
+	
+	<!-- 根据城市编号查询城市名称 -->
+	<select id="getCityNameByCityNumber" resultType="java.util.Map">
+		select city_name from t_hunan_city  where city_number=#{city_number}
+	</select>
+	
+	<!-- 根据区域编号号查询区域名称 -->
+	<select id="getAreaByarea_number" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT id, areaID, area, fatherID FROM dq_area where areaID=#{areaID}
+	</select>
+</mapper>

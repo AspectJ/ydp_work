@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+     	http://www.springframework.org/schema/beans/spring-beans.xsd 
+    	http://www.springframework.org/schema/context  
+       	http://www.springframework.org/schema/context/spring-context.xsd
+       	http://code.alibabatech.com/schema/dubbo
+     	http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+	<context:component-scan base-package="com" />
+
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+		<!-- 基本属性 url、user、password -->
+		<property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+		<property name="url" value="jdbc:mysql://192.168.198.3:3306/chuxiang_db?useUnicode=true&amp;characterEncoding=UTF-8"></property>
+		<property name="username" value="root"></property>
+		<property name="password" value="123456"></property>
+		<!-- 配置初始化大小、最小、最大 -->
+		<property name="initialSize" value="1" />
+		<property name="minIdle" value="1" />
+		<property name="maxActive" value="20" />
+		<!-- 配置获取连接等待超时的时间 -->
+		<property name="maxWait" value="60000" />
+		<!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+		<property name="timeBetweenEvictionRunsMillis" value="60000" />
+		<!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+		<property name="minEvictableIdleTimeMillis" value="300000" />
+		<property name="validationQuery" value="SELECT 1" />
+		<property name="testWhileIdle" value="true" />
+		<property name="testOnBorrow" value="false" />
+		<property name="testOnReturn" value="false" />
+		<!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+		<property name="poolPreparedStatements" value="true" />
+		<property name="maxPoolPreparedStatementPerConnectionSize" value="20" />
+		<!-- 配置监控统计拦截的filters -->
+		<property name="filters" value="wall,stat" />
+
+		<!-- 超过时间限制是否回收 -->
+		<property name="removeAbandoned" value="true" />
+		<!-- 超时时间；单位为秒。180秒=3分钟 -->
+		<property name="removeAbandonedTimeout" value="180" />
+		<!-- 关闭abanded连接时输出错误日志 -->
+		<property name="logAbandoned" value="true" />
+	</bean>
+	
+	<!-- spring ioc容器创建MyBatis框架中的SqlSessionFactory -->
+	<bean id="mysql_sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="configLocation" value="classpath:mybatis-config.xml" />
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+
+	<bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<!-- 控制一个pool可分配多少个jedis实例 -->
+		<!-- <property name="maxTotal" value="20" /> -->
+		<!-- 控制一个pool最多有多少个状态为idle(空闲)的jedis实例 -->
+		<property name="maxIdle" value="5" />
+		<property name="minIdle" value="1" />
+		<!-- 表示当borrow一个jedis实例时，最大的等待时间，如果超过等待时间，则直接抛出JedisConnectionException -->
+		<property name="maxWaitMillis" value="5000" />
+		<!-- 在borrow一个jedis实例时，是否提前进行validate操作；如果为true，则得到的jedis实例均是可用的 -->
+		<property name="testOnBorrow" value="true" />
+		<property name="testOnReturn" value="true" />
+		<property name="testWhileIdle" value="true" />
+	</bean>
+
+	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Jedis ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	<!-- Jedis ConnectionFactory 数据库连接配置 -->
+	<bean id="jedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+		<property name="hostName" value="192.168.198.3" />
+		<property name="port" value="6379" />
+		<property name="password" value="" />
+		<property name="poolConfig" ref="jedisPoolConfig" />
+	</bean>
+
+	<bean id="stringSerializer" class="org.springframework.data.redis.serializer.StringRedisSerializer" />
+	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Jedis ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+	<dubbo:application name="CHUXIANG" />
+
+	<!-- 使用zookeeper注册中心暴露服务地址 -->
+<!-- 	<dubbo:registry protocol="zookeeper" address="192.168.198.3:2181" timeout="120000" wait="30000" /> -->
+<!-- 	<dubbo:registry protocol="zookeeper" address="192.168.196.90:2181" timeout="120000" wait="30000"/> -->
+	<!-- <dubbo:registry protocol="zookeeper" address="192.168.1.171:2181" timeout="120000" wait="10000" /> -->
+
+	<!-- 声明需要暴露的服务接口 -->
+<!-- 	<dubbo:reference id="serviceCinema" interface="com.ydp.servier.facade.IServiceCinema" timeout="120000" /> -->
+<!-- 	<dubbo:reference id="serviceZone" interface="com.ydp.servier.facade.IServiceZone" timeout="120000" /> -->
+<!-- 	<dubbo:reference id="serviceMovie" interface="com.ydp.servier.facade.IServiceMovie" timeout="120000" /> -->
+<!-- 	<dubbo:reference id="servicePlan" interface="com.ydp.servier.facade.IServicePlan" timeout="120000" /> -->
+<!-- 	<dubbo:reference id="serviceSeat" interface="com.ydp.servier.facade.IServiceSeat" timeout="120000" /> -->
+<!-- 	<dubbo:reference id="serviceOrder" interface="com.ydp.servier.facade.IServiceOrder" timeout="120000" /> -->
+
+	<dubbo:reference url="dubbo://192.168.196.56:20881" id="serviceCinema" interface="com.ydp.servier.facade.IServiceCinema" timeout="60000"/>
+	<dubbo:reference url="dubbo://192.168.196.56:20881" id="serviceZone" interface="com.ydp.servier.facade.IServiceZone" timeout="60000"/>
+	<dubbo:reference url="dubbo://192.168.196.56:20881" id="serviceMovie" interface="com.ydp.servier.facade.IServiceMovie" timeout="60000"/>
+	<dubbo:reference url="dubbo://192.168.196.56:20881" id="servicePlan" interface="com.ydp.servier.facade.IServicePlan" timeout="60000"/>
+	<dubbo:reference url="dubbo://192.168.196.56:20881" id="serviceSeat" interface="com.ydp.servier.facade.IServiceSeat" timeout="60000"/>
+	<dubbo:reference url="dubbo://192.168.196.56:20881" id="serviceOrder" interface="com.ydp.servier.facade.IServiceOrder" timeout="60000"/>
+</beans>

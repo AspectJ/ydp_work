@@ -1,0 +1,351 @@
+package com.mongo;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
+import net.sf.json.JSONObject;
+
+import org.bson.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.cx.bean.ResMessage;
+import com.cx.util.CodeUtil;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+
+/**
+ * mongodb数据记录
+ */
+public class MyMongo
+{
+	private static final Logger logger = LoggerFactory.getLogger(MyMongo.class);
+
+	public static MongoCollection<Document> coll;
+
+	public static String MongoHost = "192.168.190.3";
+
+	public static String MongoDB = "test";
+
+	public static String MongoCollName = "java";
+
+	public static String MongoUser = "";
+
+	public static String MongoPass = "i";
+
+	public static MongoClientURI mongoClientURI;
+
+	public static MongoClient mongoClient;
+
+	/**
+	 * 创建mongdo链接
+	 * 
+	 * @return
+	 */
+	public static void connMdb()
+	{
+		if (coll == null)
+		{
+			try
+			{
+				StringBuffer uri = new StringBuffer();
+				uri.append("mongodb://");
+				if (!"".equals(MongoUser) && !"".equals(MongoPass))
+				{
+					uri.append(MongoUser).append(":").append(MongoPass).append("@");
+				}
+				uri.append(MongoHost).append(":").append(27017);
+
+				mongoClientURI = new MongoClientURI(uri.toString());
+				mongoClient = new MongoClient(mongoClientURI);
+				MongoDatabase db = mongoClient.getDatabase(MongoDB);
+
+				coll = db.getCollection(MongoCollName);
+			} catch (Exception e)
+			{
+				logger.error("", e);
+			}
+		}
+	}
+
+	// /**
+	// * mongodb数据库插入记录
+	// */
+	// public static void mLog(String level, String interName, String arg, Object content)
+	// {
+	// try
+	// {
+	// Document doc = new Document();
+	// doc.append("level", level);
+	// doc.append("hostname", interName.substring(interName.lastIndexOf("/") != -1 ? (interName.lastIndexOf("/") + 1) : 0));
+	// doc.append("timestamp", new Date());
+	// doc.append("processname", "APP");
+	// doc.append("logger", arg);
+	// doc.append("thread", Thread.currentThread().getName());
+	// doc.append("message", content.toString());
+	// connMdb(); // 创建Mongdb连接
+	// coll.writeLog(doc);
+	// } catch (Exception e)
+	// {
+	// logger.error("", e);
+	// }
+	// }
+
+	/**
+	 * 错误日志记录
+	 */
+	public static void mRequestFail(HttpServletRequest request, int eCode)
+	{
+		Document doc = new Document();
+
+		String requestPath = request.getRequestURI();
+		String url = requestPath.substring(requestPath.indexOf("rest") + 5);
+
+		doc.append("logger", url);
+		doc.append("level", "INFO");
+
+		StringBuffer content = new StringBuffer();
+
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.putAll(request.getParameterMap());
+		map.remove("jsonpCallback");
+		map.remove("now");
+		map.remove("sign");
+		map.remove("_");
+
+		if (map.size() > 0)
+		{
+			content.append("【参数】");
+			Set<String> pNames = map.keySet();
+			for (String pName : pNames)
+			{
+				content.append(pName).append(":").append(((String[]) map.get(pName))[0]).append(" ");
+			}
+		}
+
+		content.append("【返回】").append(eCode).append(":").append(ResMessage.getMessage(eCode));
+
+		doc.append("message", content.toString());
+		writeLog(doc);
+		logger.info("【{}】{}", new Object[] { url, content });
+	}
+
+	/**
+	 * 错误日志记录
+	 */
+	public static void mRequestFail(HttpServletRequest request, String eMess)
+	{
+		Document doc = new Document();
+
+		String requestPath = request.getRequestURI();
+		String url = requestPath.substring(requestPath.indexOf("/", 15) + 1);
+
+		doc.append("logger", url);
+		doc.append("level", "INFO");
+
+		StringBuffer content = new StringBuffer();
+
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.putAll(request.getParameterMap());
+		map.remove("jsonpCallback");
+		map.remove("now");
+		map.remove("sign");
+		map.remove("_");
+
+		if (map.size() > 0)
+		{
+			content.append("【参数】");
+			Set<String> pNames = map.keySet();
+			for (String pName : pNames)
+			{
+				content.append(pName).append(":").append(((String[]) map.get(pName))[0]).append(" ");
+			}
+		}
+
+		content.append("【返回】").append(eMess);
+
+		doc.append("message", content.toString());
+		writeLog(doc);
+		logger.info("【{}】{}", new Object[] { url, content });
+	}
+
+	/**
+	 * 错误日志记录
+	 */
+	public static void mErrorLog(String methodName, Exception e)
+	{
+		Document doc = new Document();
+		doc.append("logger", methodName);
+		doc.append("level", "ERROR");
+		doc.append("message", CodeUtil.getErrorMessage(e));
+		writeLog(doc);
+		logger.error("【{}】", methodName, e);
+	}
+
+	/**
+	 * 错误日志记录
+	 */
+	public static void mErrorLog(String methodName, String mess, Exception e)
+	{
+		Document doc = new Document();
+		doc.append("logger", methodName);
+		doc.append("level", "ERROR");
+		doc.append("message", mess + ", " + CodeUtil.getErrorMessage(e));
+		writeLog(doc);
+		logger.error("【{}】", methodName, e);
+	}
+
+	/**
+	 * 错误日志记录
+	 */
+	public static void mErrorLog(String methodName, HttpServletRequest request, Exception e)
+	{
+		StringBuffer content = new StringBuffer();
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.putAll(request.getParameterMap());
+		map.remove("jsonpCallback");
+		map.remove("now");
+		map.remove("sign");
+		map.remove("_");
+		if (map.size() > 0)
+		{
+			content.append("【参数】");
+			Set<String> pNames = map.keySet();
+			for (String pName : pNames)
+			{
+				content.append(pName).append(":").append(((String[]) map.get(pName))[0]).append(" ");
+			}
+		}
+		Document doc = new Document();
+		doc.append("logger", methodName);
+		doc.append("level", "ERROR");
+		doc.append("message", content + ", " + CodeUtil.getErrorMessage(e));
+		writeLog(doc);
+		logger.error("【{}】", methodName, e);
+	}
+
+	/**
+	 * 请求记录日志
+	 * @param level 日志等级
+	 * @param methodName 请求方法
+	 * @param utime 所花时间
+	 * @param param 参数
+	 * @param rValue 返回结果
+	 */
+	public static void mRequestLog(String methodName, long utime, HttpServletRequest request, JSONObject reJson)
+	{
+		Document doc = new Document();
+		doc.append("logger", methodName + "<" + utime + ">");
+		doc.append("level", "INFO");
+
+		StringBuffer content = new StringBuffer();
+
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.putAll(request.getParameterMap());
+		map.remove("jsonpCallback");
+		map.remove("now");
+		map.remove("sign");
+		map.remove("_");
+
+		if (map.size() > 0)
+		{
+			content.append("【参数】");
+			Set<String> pNames = map.keySet();
+			for (String pName : pNames)
+			{
+				content.append(pName).append(":").append(((String[]) map.get(pName))[0]).append(" ");
+			}
+		}
+		if (!reJson.isEmpty())
+		{
+			content.append("【返回】").append(reJson);
+		} else
+		{
+			content.append("【数据为空】");
+		}
+		doc.append("message", content.toString());
+		writeLog(doc);
+		logger.info("【{}-<{}>】{}", new Object[] { methodName, utime, content });
+	}
+
+	/**
+	 * 请求记录日志
+	 * @param level 日志等级
+	 * @param methodName 请求方法
+	 * @param utime 所花时间
+	 * @param param 参数
+	 * @param rValue 返回结果
+	 */
+	public static void mRequestLog(String methodName, long utime, HttpServletRequest request, String textHtml)
+	{
+		Document doc = new Document();
+		doc.append("logger", methodName + "<" + utime + ">");
+		doc.append("level", "INFO");
+
+		StringBuffer content = new StringBuffer();
+
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.putAll(request.getParameterMap());
+		map.remove("jsonpCallback");
+		map.remove("now");
+		map.remove("sign");
+		map.remove("_");
+
+		if (map.size() > 0)
+		{
+			content.append("【参数】");
+			Set<String> pNames = map.keySet();
+			for (String pName : pNames)
+			{
+				content.append(pName).append(":").append(((String[]) map.get(pName))[0]).append(" ");
+			}
+		}
+		content.append("【返回】").append(textHtml);
+		doc.append("message", content.toString());
+		writeLog(doc);
+		logger.info("【{}-<{}>】{}", new Object[] { methodName, utime, content });
+	}
+
+	/**
+	 * mongodb数据库插入记录
+	 */
+	public static void mLog(String level, Object record, Object content)
+	{
+		Document doc = new Document();
+		doc.append("logger", record);
+		doc.append("level", level);
+		doc.append("message", content.toString());
+		logger.info("【{}】【{}】", record, content);
+		writeLog(doc);
+	}
+
+	/**
+	 * 记录日志
+	 */
+	private static void writeLog(Document doc)
+	{
+		try
+		{
+			doc.append("processname", "WEIX");
+			doc.append("timestamp", new Date());
+			doc.append("thread", Thread.currentThread().getName());
+			doc.append("hostname", InetAddress.getLocalHost().getHostAddress());
+			connMdb(); // 创建Mongdb连接
+			coll.insertOne(doc); // 写入日志
+		} catch (UnknownHostException e)
+		{
+			logger.error("Mongdb-{}", e.getMessage());
+		} catch (Exception e)
+		{
+			logger.error("Mongdb-{}", e.getMessage());
+		}
+	}
+}

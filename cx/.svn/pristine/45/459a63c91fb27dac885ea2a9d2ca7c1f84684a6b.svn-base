@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>影院总部管理系统</title>
+		<link rel="stylesheet" href="../css/base.css" />
+		<link rel="stylesheet" href="../css/main.css" />
+	</head>
+	<body>
+		<!-- 主面板 -->
+		<div class="main-box">
+			<div class="content-title">
+				<span>您当前位置：系统用户管理</span>
+				<!-- <p class="search"><input placeholder="请输入您要查询的信息" /><i></i></p> -->
+				<div class="clear"></div>
+			</div>
+			
+			<!-- 数据区 -->
+			<div class="content-data">
+				<h3 class="title">系统用户管理</h3>
+				<!-- 面板 -->
+				<div class="panel" id="showAdminInfo">
+					<input type="hidden" id="admin_id" value=""/>				
+					<table class="panel-tab">
+						<tr>
+							<td class="title">用户名：</td>
+							<td id='admin_name'></td>
+						</tr>
+						<tr><td class="title">昵称：</td>
+							<td id='admin_nickname'></td>
+						<tr/>
+						<tr><td class="title">院线名称：</td>
+							<td id='cinema_name'></td>
+						</tr>
+						<tr><td class="title">创建时间：</td>
+							<td id='admin_create_time'></td>
+						</tr>
+						<tr><td class="title" colspan="1">最后登录：</td>
+							<td id='admin_lastlogin_time'></td>
+						</tr>
+						<tr><td class="title">状态：</td>
+							<td id='admin_state'></td>
+						</tr>
+						<tr><td class="title">能否审核：</td>
+							 <td><input id='checkbox_audit' type="checkbox" /></td>
+						</tr>
+					</table>
+					<p class="panel-btn">
+						<button onclick="toUpdateAdminInfo();">更改</button>
+					</p>
+				</div>
+				
+			</div>
+		</div>
+		
+		<script type="text/javascript" src="../js/jquery-1.11.2.min.js" ></script>
+		<script type="text/javascript" src="../js/public.js" ></script>
+ 		<script type="text/javascript" src="../js/admininfoupdate.js" ></script> 
+		<script>
+ 			$(function(){
+				$("#showAdminInfo").fadeIn(200);
+				$(document).scrollTop(document.body.scrollHeight);
+				
+				var src = window.parent.$("#mainFrame").attr("src");
+				var admin_id = src.replace("auser/adminInfoShow.html?adminid=","");
+				$("#admin_id").val(admin_id);
+				getAdminInfoShow(admin_id, "show");
+			}); 
+			
+		</script>
+	</body>
+</html>
+
+
+
+
+
+
+

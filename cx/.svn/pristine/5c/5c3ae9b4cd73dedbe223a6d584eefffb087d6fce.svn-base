@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>楚湘院线-楚湘动态</title>
+		<link rel="icon" href="../img/favicon.ico" type="image/x-icon" />
+		<link rel="stylesheet" href="../css/base.css" />
+		<link rel="stylesheet" href="../css/main.css" />
+		<link rel="stylesheet" href="../css/homeland_issue_notice.css" />
+		
+		<script type="text/javascript" src="../js/lib/jquery/jq.min.js" ></script>
+		<script type="text/javascript" src="../js/lib/jquery/jquery.cookie.js" ></script>
+		<script type="text/javascript" src="../js/public.js" ></script>
+		<script type="text/javascript" src="../js/homeland_issue_notice.js" ></script>
+		
+	</head>
+	<body>
+		<!-- 顶部登录部分 -->
+		<div class="top"></div>
+		<!-- Logo，地区，主菜单 -->
+		<div class="title"></div>
+        
+        <div class="left_news">
+        	<div class="content">
+        		<h2><!-- 《消失的凶手》 ---发行通知 --></h2>
+        		<p class="cinema"><span class="time"></span><span class="see">123</span></p>
+        		<p class="resourse"></p>
+        		<!-- <p>根据贵我双方已经签订的《数字版影片分账发行放映合同》（以下简称“总发行合同”）和排片计划，我公司即将在全国数字影院发行影片《自我救赎》，现就该影片的发行和放映工作具体通知（以下简称“本通知”）如下：</p> -->
+       			<div class="rules">
+<!-- 					<p>一、影片概况</p>
+					<div>
+						中文片名：《自我救赎》 <br/>外文片名：[SELF REDEMPTION]<br />
+						国    别：中国<br />
+						类    型：剧情<br />
+						片    长：85分钟<br />
+						幕    幅：宽幅<br />
+						声    制：5.1声道<br />
+						语    别：国语<br />
+						发行版本：数字2D(001106302015)<br />
+						发行范围：全国<br />
+						最低场次： 【*】<br />
+						最低票价：最低20元<br />
+						统计结算：中数负责全国所有院线全部设备的统计结算<br />
+						出    品：北京雅越文化传播有限公司、北京正义网络传媒有限公司<br />
+						引    进： 【*】<br />
+						发    行：北京金亿乾坤影视文化传媒有限公司<br />
+						联合发行： 【*】<br />
+						译    制：【*】<br />
+						硬盘制作：鲍志芬   电话：18101285702<br />
+						密钥制作：中影数字电影发展（北京）有限公司<br />
+						密钥下载：http://www.digifilm.com.cn/<br />
+						国内首映：2016年05月25日<br />
+						放映期限：2016年05月25日—2016年06月25日<br />
+						影片数字硬盘原价及赔偿标准：【*】<br />
+					</div>
+					<p>二、分账比例</p>
+					<p>三、故事梗概</p>
+					<div>《自我救赎》是当代反腐题材电影讲述了人心、人性的贪婪、贪得无厌。在很多色与诱的驱使下，使原本正义纯洁的心灵变的扭曲。为了达到个人的贪有欲，而不惜牺牲所有人的生命与安慰。
+						文学、晓蕾、战云大学期间是很要好的同学，毕业后各自找到了理想的工作，文学与晓磊结婚后有一个活泼可爱的儿子叫帅帅，原本幸福美满的生活，却因一场爆炸，夺走了战云的生命与美满的家庭，一个个扑朔迷离的疑点、是暗杀人为、还是意外….
+						整个故事扑朔迷离的疑点背后暗藏着何种阴谋…
+						正义与邪恶的较量又会爆发出何种结局…
+						是暗杀还是他杀…
+						是意外还是故意…
+					</div>
+					<p>四、卖点分析：</p>
+					<div>【*】</div>
+					<p>五、主创简介（主创名单以海报为准）</p>
+					<div>
+						导演：朱江华、王首越<br />
+						主演：孙渤洋、陈美行、陈铮、王庆祥、彭波<br />
+					</div>
+					<p>六、宣传品</p>
+					<div>【*】</div>
+					<p>七、其他事宜</p>
+					<div>【*】</div>
+					<p>八、法律效力</p>
+					<div> 根据贵我双方已经签订的《总发行合同》，本通知为《总发行合同》不可分割的一部分，与《总发行合同》具有同等法律效力。
+根据《总发行合同》，乙方应当在收到本通知之日起两（二）个工作日内，以书面方式告知本通知发出方是否接受本通知的规定。如果乙方未在收到本通知后两（二）个工作日内以书面方式告知本通知发出方是否接受，也未以书面方式提出任何异议，则视为接受本通知的规定。
+无论有何相反规定，只要乙方或乙方所属影院发生任何发行或放映本通知指定影片的行为，就本通知指定影片而言，即视为乙方接受《总发行合同》及其附件（包括但不限于本通知）的约束，承担《总发行合同》及其附件（包括但不限于本通知）规定的义务。
+</div>
+        			<p>   九、声明</p>
+        			<div>本通知仅针对本通知指定的接收方（即乙方）产生效力，任何第三方不得依据本通知主张权利。
+本通知为保密信息，如果本通知接收方非本通知指定的乙方，请立即通知乙方，且不要使用、保存、复印、打印或散布本通知及其内容。任何对本通知的伪造、变造、修改、盗用将导致本通知无效。</div> -->
+         		</div> 
+        	</div>
+        </div>
+        
+        <div class="other_notice">
+        	<div><!-- 其他发行通知 --></div>
+    		<ul>
+    		</ul>   	
+        </div>
+        
+        <!-- 描述：底部 -->
+        <div class="bottom_top"></div>
+        <div class="bottom"></div>
+        
+        <!-- 在线资讯 -->
+        <div class="online_consultation"></div>
+	</body>
+</html>

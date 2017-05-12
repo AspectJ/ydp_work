@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>最新影片</title>
+		<link rel="icon" href="../img/favicon.ico" type="image/x-icon" />
+		<link rel="stylesheet" href="../js/lib/swiper/swiper-3.4.0.min.css" />
+		<link rel="stylesheet" href="../css/base.css" />
+		<link rel="stylesheet" href="../css/main.css" />
+		<link rel="stylesheet" href="../css/movies_detail.css" />
+
+		<script type="text/javascript" src="../js/lib/jquery/jq.min.js" ></script>
+		<script type="text/javascript" src="../js/lib/jquery/jquery.cookie.js" ></script>
+		<script type="text/javascript" src="../js/lib/swiper/swiper-3.4.0.jquery.min.js"></script>
+		<script type="text/javascript" src="../js/public.js" ></script>
+		<script type="text/javascript" src="../js/movies_detail.js" ></script>
+
+	</head>
+	<body>
+		<!-- Logo，地区，主菜单 -->
+		<div class="title" id="header"></div>
+		<div class="index-wrapper clearfix">
+			<div class="section movie-detail clearfix">
+				<div class="section-header">
+					<div class="breadcrumb">
+						<div onclick="window.location.href='../index.html'">首页</div>
+						<span>>></span>
+						<div>最新影片</div>
+						<span>>></span>
+						<div>神奇动物在哪里</div>
+					</div>
+				</div>
+        <div class="section-body">
+	        <div class="left">
+	        	<img id="poster" src="#" />
+	        	<h2><span id="moviename"></span><span id="remark"></span></h2>
+	        	<p>导演：<span id="director"></span></p>
+	        	<p>主演：<span id="leadingRole"></span></p>
+	        	<p>类型：<span id="movieType"></span></p>
+	        	<p>地区：<span id="moviearea"></span></p>
+	        	<!--<p>语言：<span id="director"></span></p>-->
+	        	<p>片场：<span id="duration"></span>分钟</p>
+	        	<p>上映时间：<span id="openDay"></span></p>
+	        	<p id="feature"></p>
+	        	<div id="stagePhoto">
+	        		<h2>剧照</h2>
+							<div class="stills swiper-container">
+								<div class="swiper-wrapper">
+									<div class="swiper-slide"></div>
+								</div>
+
+							  <!-- 如果需要导航按钮 -->
+							  <div class="swiper-button-prev"></div>
+						 	  <div class="swiper-button-next"></div>
+							</div>
+	        		<!-- <img src=""/> -->
+	        		<!-- <div><span class="last">上一张</span><span class="next">下一张</span></div> -->
+	        	</div>
+	        </div>
+
+					<div class="other">
+	        	<div>其他影片</div>
+	    			<ul></ul>
+	        </div>
+				</div>
+			</div>
+		</div>
+
+    <!-- 描述：底部 -->
+    <div class="bottom"></div>
+    <!-- 在线资讯 -->
+    <div class="online_consultation"></div>
+	</body>
+</html>

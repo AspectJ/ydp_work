@@ -1,0 +1,44 @@
+import React, { PropTypes } from 'react'
+import { connect } from 'dva'
+import NewsManage from '../components/NewsManage'
+import NewsModal from '../components/NewsModal'
+
+let News = ({ dispatch, app }) => {
+  const {
+    list,
+    total,
+    loading,
+    modalVisible,
+    modalType,
+    currentItem
+  } = app;
+
+  const NewsManageProps = {
+    list,
+    total,
+    loading,
+    onViewItem(){},
+    onEditItem(){},
+    onDeleteItem(){}
+  };
+
+  const NewsModalProps = {
+    
+  };
+
+  const NewsModalGen = () =>
+    <NewsModal {...NewsModalProps} />
+
+  return (
+    <div>
+      <NewsManage {...NewsManageProps} />
+      <NewsModalGen />
+    </div>
+  );
+};
+
+function mapStateToProps({ app }){
+  return { app };
+}
+
+export default connect(mapStateToProps)(News)

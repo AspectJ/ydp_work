@@ -1,0 +1,698 @@
+package com.cx.rest.information;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+
+import org.jboss.resteasy.annotations.cache.NoCache;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cx.bean.ResMessage;
+import com.cx.filter.BaseServlet;
+import com.cx.rest.information.dao.AdminInfoDaoImpl;
+import com.cx.rest.information.dao.NewsInfoDaoImpl;
+import com.cx.util.CodeUtil;
+import com.mongo.MyMongo;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+@Path("rest/newsinfo")
+@NoCache
+@Service()
+public class NewsInfoRest extends BaseServlet
+{
+	
+	@Resource
+	private NewsInfoDaoImpl newsInfoDao;
+	@Autowired
+	private AdminInfoDaoImpl adminInfoDao;
+	
+	/**
+	 * 新增新闻信息
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/addNewsInfo")
+	@Produces("text/html;charset=UTF-8")
+	public String addNewsInfo(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String cinema_id = request.getParameter("cinemaid");
+	//	String news_title = URLDecoder.decode(request.getParameter("news_title").replaceAll("%", "%25"), "UTF-8");
+		String news_title = URLDecoder.decode(request.getParameter("news_title"), "UTF-8");
+		String news_status = request.getParameter("news_status");
+		String news_type = request.getParameter("news_type");
+		String news_img = request.getParameter("news_img");
+		String news_content = URLDecoder.decode(request.getParameter("news_content").replaceAll("%", "%25"), "UTF-8");
+	//	String news_content = request.getParameter("news_content");
+	//	System.out.println("asdasdad   :" +  news_content + news_content.length());
+		String author = request.getParameter("author");
+		
+		try{
+			if (CodeUtil.checkParam(news_title)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			
+			Map<String, Object> imageMap = new HashMap<String, Object>();
+			imageMap.put("imageid", "");
+			imageMap.put("org_path", news_img);
+			Map<String, Object> imageResult = newsInfoDao.insertImage(imageMap);
+			String news_img_id = imageResult.get("imageid").toString();
+			Map<String, Object> newsMap = new HashMap<String, Object>();
+			newsMap.put("news_id", "0");
+			newsMap.put("news_title", news_title);
+			newsMap.put("news_status", Integer.parseInt(news_status));
+			newsMap.put("news_type", Integer.parseInt(news_type));
+			newsMap.put("news_img", Integer.parseInt(news_img_id));
+			newsMap.put("news_content", news_content);
+			newsMap.put("cinemaid", Integer.parseInt(cinema_id));
+			newsMap.put("brows_times", 0);
+			newsMap.put("create_time", new Date());
+			newsMap.put("update_time", new Date());
+			newsMap.put("author", author);
+			Map<String, Object> resultMap = newsInfoDao.insertNewsInfo(newsMap);
+			JSONObject data = new JSONObject();
+			data.put("news_id", resultMap.get("news_id"));
+			data.put("news_title", resultMap.get("news_title"));
+			data.put("news_status", resultMap.get("news_status"));
+			data.put("news_type", resultMap.get("news_type"));
+			data.put("news_content", resultMap.get("news_content"));
+			data.put("cinemaid", resultMap.get("cinemaid"));
+			data.put("brows_times", resultMap.get("brows_times"));
+			data.put("author", resultMap.get("author"));
+			data.put("audit_flag", "0");
+			data.put("create_time", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date()));
+			resultJson.put("data", data);
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("新增新闻信息", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("新增新闻信息",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 修改新闻信息
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/updateNewsInfo")
+	@Produces("text/html;charset=UTF-8")
+	public String updateNewsInfo(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String news_id = request.getParameter("news_id");
+		String news_title = URLDecoder.decode(request.getParameter("news_title"), "UTF-8");
+		String news_status = URLDecoder.decode(request.getParameter("news_status"), "UTF-8");
+		String news_type = URLDecoder.decode(request.getParameter("news_type"), "UTF-8");
+		String org_path = URLDecoder.decode(request.getParameter("org_path"), "UTF-8");
+		String news_content =  URLDecoder.decode(request.getParameter("news_content").replaceAll("%", "%25"), "UTF-8");
+		String image_change = request.getParameter("image_change");
+		String imageid = request.getParameter("imageid");
+		String adminid = URLDecoder.decode(request.getParameter("adminid"), "UTF-8");
+		try{
+			if (CodeUtil.checkParam(news_title)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			if(image_change.equals("0")){//需要修改主题图片
+				Map<String, Object> imageMap = new HashMap<String, Object>();
+				imageMap.put("org_path", org_path);
+				imageMap.put("imageid", Integer.parseInt(imageid));
+				newsInfoDao.updateImageInfo(imageMap);
+			}
+			Map<String,Object> adminMap = new HashMap<String,Object>();
+			adminMap.put("adminid", Integer.parseInt(adminid));
+			Map<String,Object> resultMap_admin = adminInfoDao.selAdminById(adminMap);
+		    String adminname = (String) resultMap_admin.get("adminname");
+			Map<String, Object> newsMap = new HashMap<String, Object>();
+			newsMap.put("news_id", Integer.parseInt(news_id));
+			newsMap.put("news_title", news_title);
+			newsMap.put("news_status", Integer.parseInt(news_status));
+			newsMap.put("news_type", Integer.parseInt(news_type));
+			newsMap.put("news_content", news_content);
+			newsMap.put("update_time", new Date());
+			newsMap.put("author", adminname);
+			Map<String, Object> resultMap = newsInfoDao.updateNewsInfo(newsMap);
+			JSONObject data = new JSONObject();
+			data.put("news_id", resultMap.get("news_id"));
+			resultJson.put("data", data);
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("修改新闻信息", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("修改新闻信息",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 审核过程
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/updateNewsInfo_Audit")
+	@Produces("text/html;charset=UTF-8")
+	public String updateNewsInfo_Audit(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String news_id = request.getParameter("news_id");
+		String audit_flag = request.getParameter("audit_flag");
+		String adminid = request.getParameter("admin_id")==null || request.getParameter("admin_id").equals("") ? "0" : request.getParameter("admin_id");
+		
+		Map<String, Object> updateMap = new HashMap<String, Object>();
+		if(!adminid.equals("0")){//再次查询是否具备权限
+			updateMap.put("adminid", Integer.parseInt(adminid));
+			Map<String, Object> resultMap = adminInfoDao.selSingleAdmin(updateMap);
+			if(resultMap != null){
+				String audit = resultMap.get("audit_flag").toString();
+				if(audit.equals("1")){//可以审核
+					updateMap.put("audit_flag", audit_flag);
+				    updateMap.put("news_id", Integer.parseInt(news_id));
+				}else{
+					return this.returnError(resultJson, ResMessage.User_Lack_Privilege.code, request);
+				}
+			}else{
+				return this.returnError(resultJson, ResMessage.User_Lack_Privilege.code, request);
+			}
+		}else{
+			updateMap.put("audit_flag", audit_flag);
+		    updateMap.put("news_id", Integer.parseInt(news_id));
+		}
+		newsInfoDao.updateNewsInfo_Audit(updateMap);
+
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("审核事务结束", etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 删除新闻信息
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/deleteNewsInfo")
+	@Produces("text/html;charset=UTF-8")
+	public String deleteNewsInfo(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String imageid = request.getParameter("imageid");//图片ID
+		String news_id = request.getParameter("news_id");//新闻ID
+		try{
+			if (CodeUtil.checkParam(news_id)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			
+			Map<String, Object> newsMap = new HashMap<String, Object>();
+			newsMap.put("imageid", Integer.parseInt(imageid));
+			newsMap.put("news_id", Integer.parseInt(news_id));
+			newsInfoDao.deleteImage(newsMap);
+			newsInfoDao.deleteNewsInfo(newsMap);
+			JSONObject data = new JSONObject();
+			data.put("imageid", imageid);
+			data.put("news_id", news_id);
+			resultJson.put("data", data);
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("删除新闻信息", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("删除新闻信息",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 批量删除新闻信息
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/deleteNewsInfos")
+	@Produces("text/html;charset=UTF-8")
+	public String deleteNewsInfos(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String imageid = request.getParameter("imageid");//图片ID
+		String news_id = request.getParameter("news_id");//新闻ID
+		try{
+			if (CodeUtil.checkParam(news_id)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			String[] imageids = imageid.split(",");
+			String[] news_ids = news_id.split(",");
+			
+			for(int i=0;i<news_ids.length;i++){
+				String imgid = imageids[i];
+				String newsid = news_ids[i];
+				Map<String, Object> newsMap = new HashMap<String, Object>();
+				newsMap.put("imageid", Integer.parseInt(imgid));
+				newsMap.put("news_id", Integer.parseInt(newsid));
+				newsInfoDao.deleteImage(newsMap);
+				newsInfoDao.deleteNewsInfo(newsMap);
+			}
+			
+			
+			JSONObject data = new JSONObject();
+			data.put("imageid", imageid);
+			data.put("news_id", news_id);
+			resultJson.put("data", data);
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("删除新闻信息失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("删除新闻信息成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 查看新闻信息
+	 */
+	@GET
+	@POST
+	@Path("/getNewsInfo")
+	@Produces("text/html;charset=UTF-8")
+	public String getNewsInfo(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String news_id = request.getParameter("news_id");
+		String flag = request.getParameter("flag");
+		try{
+			if (CodeUtil.checkParam(news_id)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			
+			Map<String, Object> newsInfo = new HashMap<String, Object>();
+			newsInfo.put("news_id", Integer.parseInt(news_id));
+			//更新该条新闻的点击量（brows_times）
+			if(flag != null && "1".equals(flag)) {
+				newsInfoDao.updateBrowsTimes(newsInfo);
+			}
+			
+			//根据news_id查询新闻详细信息
+			Map<String, Object> resultMap = newsInfoDao.getNewsInfo(newsInfo);
+			JSONObject data = new JSONObject();
+			if(resultMap != null){
+				data.put("news_id", resultMap.get("news_id"));
+				data.put("news_title", resultMap.get("news_title"));
+				data.put("news_img", resultMap.get("news_img"));
+				data.put("news_content", resultMap.get("news_content"));
+				data.put("news_type", resultMap.get("news_type"));
+				data.put("news_status", resultMap.get("news_status"));
+//				String news_type = CodeUtil.convertNewsType(resultMap.get("news_type").toString());
+//				String news_status = CodeUtil.convertNewsStatus(resultMap.get("news_status").toString());
+				data.put("news_type", resultMap.get("news_type"));
+				data.put("news_status", resultMap.get("news_status"));
+				data.put("cinemaid", resultMap.get("cinemaid"));
+				data.put("create_time", new SimpleDateFormat("yyyy-MM-dd").format(resultMap.get("create_time")));
+				if(resultMap.containsKey("update_time")){
+					data.put("update_time", new SimpleDateFormat("yyyy-MM-dd").format(resultMap.get("update_time")));
+				}
+				data.put("author", resultMap.get("author"));
+				data.put("brows_times", resultMap.get("brows_times"));
+				data.put("org_path", resultMap.get("org_path"));
+				data.put("audit_flag", resultMap.get("audit_flag"));
+				resultJson.put("data", data);
+			}else{
+				MyMongo.mRequestFail(request, "查询新闻信息不存在");
+				return this.returnError(resultJson, ResMessage.Info_NoExist.code, request);
+			}
+		} catch (Exception e){
+			MyMongo.mErrorLog("查询新闻信息失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询新闻信息成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 查看新闻信息总条数
+	 */
+	@GET
+	@POST
+	@Path("/getNewsInfoCount")
+	@Produces("text/html;charset=UTF-8")
+	public String getNewsInfoCount(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		try{
+			Map<String, Object> newsInfo = new HashMap<String, Object>();
+			int count = newsInfoDao.getNewsInfoListCount(newsInfo);
+			resultJson.put("total", count);
+		} catch (Exception e){
+			MyMongo.mErrorLog("查询新闻信息总数量失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询新闻信息总数量成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	
+	/**
+	 * 查看新闻信息列表
+	 */
+	@GET
+	@POST
+	@Path("/getNewsInfoList")
+	@Produces("text/html;charset=UTF-8")
+	public String getNewsInfoList(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		//分页参数、条件查询参数
+		String pageSize = request.getParameter("pageSize");//每页多少条数据
+		String offsetNum = request.getParameter("offsetNum");//offsetNum＝（当前页数－1）*pagesize
+		try{
+			Map<String, Object> newsInfo = new HashMap<String, Object>();
+			newsInfo.put("pageSize", Integer.parseInt(pageSize));
+			newsInfo.put("offsetNum", Integer.parseInt(offsetNum));
+			int count = newsInfoDao.getNewsInfoListCount(newsInfo);
+			if(count > 0){
+				List<Map<String, Object>> resultList = newsInfoDao.getNewsInfoList(newsInfo);
+				JSONArray jsonArray = new JSONArray();
+				for(int i=0;i<resultList.size();i++){
+					Map<String, Object> resultMap = resultList.get(i);
+					JSONObject jsonObject = new JSONObject();
+					jsonObject.put("news_id", resultMap.get("news_id"));
+					jsonObject.put("news_title", resultMap.get("news_title"));
+					jsonObject.put("news_img", resultMap.get("news_img"));
+					jsonObject.put("news_content", resultMap.get("news_content"));
+//					String news_type = CodeUtil.convertNewsType(resultMap.get("news_type").toString());
+//					String news_status = CodeUtil.convertNewsStatus(resultMap.get("news_status").toString());
+					jsonObject.put("news_type", resultMap.get("news_type"));
+					jsonObject.put("news_status", resultMap.get("news_status"));
+					jsonObject.put("cinemaid", resultMap.get("cinemaid"));
+					jsonObject.put("create_time", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("create_time")));
+					if(resultMap.containsKey("update_time")){
+						jsonObject.put("update_time", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("update_time")));
+					}
+					jsonObject.put("author", resultMap.get("author"));
+					jsonObject.put("brows_times", resultMap.get("brows_times"));
+					jsonObject.put("audit_flag", resultMap.get("audit_flag"));
+					jsonObject.put("org_path", resultMap.get("org_path"));
+					jsonArray.add(jsonObject);
+				}
+				resultJson.put("data", jsonArray);
+			}else{
+				MyMongo.mRequestFail(request, "查询新闻信息列表不存在");
+				return this.returnError(resultJson, ResMessage.Info_NoExist.code, request);
+			}
+			resultJson.put("total", count);
+		} catch (Exception e){
+			MyMongo.mErrorLog("查询新闻信息列表失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询新闻信息列表成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 首页获取更多动态信息
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@GET
+	@POST
+	@Path("/getMoreNewsInfo")
+	@Produces("text/html;charset=UTF-8")
+	public String getMoreNewsInfo(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		//分页参数、条件查询参数
+		String pageSize = request.getParameter("pageSize");//每页多少条数据
+		String offsetNum = request.getParameter("offsetNum");//offsetNum＝（当前页数－1）*pagesize、
+		String flag = request.getParameter("flag");
+		try{
+			Map<String, Object> newsInfo = new HashMap<String, Object>();
+			newsInfo.put("pageSize", Integer.parseInt(pageSize));
+			newsInfo.put("offsetNum", Integer.parseInt(offsetNum));
+			newsInfo.put("flag", Integer.parseInt(flag));
+			int count = newsInfoDao.getMoreNewsInfoCount(newsInfo);
+			if(count > 0){
+				List<Map<String, Object>> resultList = newsInfoDao.getMoreNewsInfo(newsInfo);
+				JSONArray jsonArray = new JSONArray();
+				for(int i=0;i<resultList.size();i++){
+					Map<String, Object> resultMap = resultList.get(i);
+					JSONObject jsonObject = new JSONObject();
+					jsonObject.put("news_id", resultMap.get("news_id"));
+					jsonObject.put("news_title", resultMap.get("news_title"));
+					jsonObject.put("news_img", resultMap.get("news_img"));
+					jsonObject.put("news_content", resultMap.get("news_content"));
+					String news_type = CodeUtil.convertNewsType(resultMap.get("news_type").toString());
+					String news_status = CodeUtil.convertNewsStatus(resultMap.get("news_status").toString());
+					jsonObject.put("news_type", news_type);
+					jsonObject.put("news_status", news_status);
+					jsonObject.put("cinemaid", resultMap.get("cinemaid"));
+					jsonObject.put("create_time", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("create_time")));
+					if(resultMap.containsKey("update_time")){
+						jsonObject.put("update_time", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("update_time")));
+					}
+					jsonObject.put("author", resultMap.get("author"));
+					jsonObject.put("brows_times", resultMap.get("brows_times"));
+					jsonArray.add(jsonObject);
+				}
+				resultJson.put("data", jsonArray);
+			}else{
+				MyMongo.mRequestFail(request, "查询新闻信息列表不存在");
+				return this.returnError(resultJson, ResMessage.Info_NoExist.code, request);
+			}
+			resultJson.put("total", count);
+		} catch (Exception e){
+			MyMongo.mErrorLog("查询新闻信息列表失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询新闻信息列表成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 新闻中心（根据新闻分类查询）
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@GET
+	@POST
+	@Path("/selNewsByNewsType")
+	@Produces("text/html;charset=UTF-8")
+	public String selNewsByNewsType(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String newsType = request.getParameter("news_type");
+		try {
+			if (CodeUtil.checkParam(newsType)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			int news_type = Integer.parseInt(newsType);
+			//查询出有主题图片的最新新闻（用于首页第一条展示）
+			Map<String, Object> ImgMap = newsInfoDao.selFreshImgNews(news_type);
+			int  Img_news_id = Integer.parseInt(ImgMap.get("news_id").toString());
+			resultJson.put("Img_news_id", Img_news_id);
+			resultJson.put("Img_path", ImgMap.get("org_path"));
+			resultJson.put("Img_NewsTitle", ImgMap.get("news_title"));
+			
+			Map<String, Object> paramsMap = new HashMap<String, Object>();
+			paramsMap.put("news_type", news_type);
+			paramsMap.put("Img_news_id", Img_news_id);
+			List<Map<String, Object>> resultList = newsInfoDao.selNewsByNewsType(paramsMap);
+			JSONArray jsonArray = new JSONArray();
+//			String ImgPath = "";
+			if(resultList != null && resultList.size() > 0) {
+				for(int i = 0; i < resultList.size(); i++) {
+					Map<String, Object> resultMap = resultList.get(i);
+					JSONObject jsonObject = new JSONObject();
+					jsonObject.put("news_id", Integer.parseInt(resultMap.get("news_id").toString()));
+					jsonObject.put("news_title", resultMap.get("news_title"));
+//					if(i == 0) {
+//						int news_img = Integer.parseInt(resultMap.get("news_img").toString());
+//						Map<String, Object> ImageMap = newsInfoDao.getImgPath(news_img);
+//						ImgPath = ImageMap.get("org_path").toString();
+//					}
+					jsonArray.add(jsonObject);
+				}
+				resultJson.put("data", jsonArray);
+//				resultJson.put("ImgPath", ImgPath);
+			}else{
+				MyMongo.mRequestFail(request, "查询新闻信息不存在");
+				return this.returnError(resultJson, ResMessage.Info_NoExist.code, request);
+			}
+		}catch(Exception e) {
+			MyMongo.mErrorLog("查询新闻信息失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询新闻信息成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 查找两条热门新闻
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@GET
+	@POST
+	@Path("/getHotNews")
+	@Produces("text/html;charset=UTF-8")
+	public String getHotNews(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		int news_id = Integer.parseInt(request.getParameter("news_id"));
+		try {
+			List<Map<String, Object>> resultList = newsInfoDao.getHotNews(news_id);
+			JSONArray jsonArray = new JSONArray();
+			if(resultList != null && resultList.size() > 0) {
+				for(int i = 0; i < resultList.size(); i++) {
+					Map<String, Object> resultMap = resultList.get(i);
+					JSONObject jsonObject = new JSONObject();
+	
+					jsonObject.put("news_id", Integer.parseInt(resultMap.get("news_id").toString()));
+					jsonObject.put("news_title", resultMap.get("news_title"));
+					jsonObject.put("news_content", resultMap.get("news_content"));
+					jsonObject.put("org_path", resultMap.get("org_path"));
+					jsonArray.add(jsonObject);
+				}
+				resultJson.put("data", jsonArray);
+			}else{
+				MyMongo.mRequestFail(request, "查询热门新闻信息不存在");
+				return this.returnError(resultJson, ResMessage.Info_NoExist.code, request);
+			}
+		}catch(Exception e) {
+			MyMongo.mErrorLog("查询热门新闻信息失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询热门新闻信息成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 查询公司动态
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@GET
+	@POST
+	@Path("/getCompanyDynamic")
+	@Produces("text/html;charset=UTF-8")
+	public String getCompanyDynamic(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		try {
+			//查询带有图片的最新的楚湘动态（用于首页展示）
+			Map<String, Object> ImgMap = newsInfoDao.selFreshDynamicImg();
+			resultJson.put("ImgObject", ImgMap);
+			List<Map<String, Object>> resultList = newsInfoDao.getCompanyDynamic(Integer.parseInt(ImgMap.get("news_id").toString()));
+			JSONArray jsonArray = new JSONArray();
+			if(resultList != null && resultList.size() > 0) {
+				for(int i = 0; i < resultList.size(); i++) {
+					Map<String, Object> resultMap = resultList.get(i);
+					JSONObject jsonObject = new JSONObject();
+					
+					String news_content = resultMap.get("news_content").toString();
+					//查询公司动态时对news_content进行截取（不要ImgPath）;
+					String[] arr = new String[10];
+					arr = news_content.split("</p>");
+					String dynamic_newsContent = "";
+					
+					if(arr[0].indexOf("<img") == -1) {
+						//截取字符串，楚湘动态-->公司新闻-->避免content内容过长
+						dynamic_newsContent = arr[0].substring(3);
+					}
+					//截取字符串，首页-->公司动态-->避免content内容过长
+					jsonObject.put("dynamic_newsContent", dynamic_newsContent);
+					// end-------------------------------------------------------------------------------
+					
+					jsonObject.put("news_id", Integer.parseInt(resultMap.get("news_id").toString()));
+					jsonObject.put("brows_times", resultMap.get("brows_times"));
+					jsonObject.put("news_title", resultMap.get("news_title"));
+					jsonObject.put("news_content", news_content);
+					if(resultMap.containsKey("update_time")){
+						jsonObject.put("update_time", new SimpleDateFormat("yyyy-MM-dd").format(resultMap.get("update_time")));
+					}
+					jsonObject.put("create_time", new SimpleDateFormat("MM-dd").format(resultMap.get("create_time")));
+					jsonObject.put("org_path", resultMap.get("org_path"));
+					jsonArray.add(jsonObject);
+				}
+				resultJson.put("data", jsonArray);
+			}else{
+				MyMongo.mRequestFail(request, "查询公司动态不存在");
+				return this.returnError(resultJson, ResMessage.Info_NoExist.code, request);
+			}
+		}catch(Exception e) {
+			MyMongo.mErrorLog("查询公司动态信息失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询公司动态信息成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+}

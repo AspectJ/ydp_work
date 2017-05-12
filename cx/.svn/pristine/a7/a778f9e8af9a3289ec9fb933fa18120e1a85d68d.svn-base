@@ -1,0 +1,100 @@
+package com.cx.rest.cinema;
+
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+
+import org.jboss.resteasy.annotations.cache.NoCache;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cx.bean.ResMessage;
+import com.cx.filter.BaseServlet;
+import com.cx.rest.cinema.dao.GetCinemaInfoListDaoImpl;
+import com.cx.util.CodeUtil;
+import com.mongo.MyMongo;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+@Path("rest/cinema")
+@NoCache
+@Service
+public class CinemaListRest extends BaseServlet
+{
+	@Autowired
+	private GetCinemaInfoListDaoImpl cinemaInfoListDao;
+	
+	/**
+	 *  获取院线信息列表
+	 */
+	@SuppressWarnings("unchecked")
+	@GET
+	@POST
+	@Path("/getCinemaInfoList")
+	@Produces("text/html;charset=UTF-8")
+	public String getCinemaInfoList(@Context HttpServletRequest request)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		//分页参数、条件查询参数
+		String pageSize = request.getParameter("pageSize");//每页多少条数据
+		String offsetNum = request.getParameter("offsetNum");//offsetNum＝（当前页数－1）*pagesize
+		try{
+			Map<String, Object> cinimaInfo = new HashMap<String, Object>();
+			cinimaInfo.put("pageSize", Integer.parseInt(pageSize));
+			cinimaInfo.put("offsetNum", Integer.parseInt(offsetNum));
+			Map<String, Object> countMap = cinemaInfoListDao.getCinemaInfoListCount(cinimaInfo);
+			String count = countMap.get("count").toString();
+			List<Map<String, Object>> resultList = cinemaInfoListDao.getCinemaInfoList(cinimaInfo);
+			JSONArray jsonArray = new JSONArray();
+			if(resultList != null && resultList.size() > 0){
+				for(int i=0;i<resultList.size();i++){
+					Map<String, Object> resultMap = resultList.get(i);
+					JSONObject jsonObject = new JSONObject();
+					jsonObject.put("cinemaid", resultMap.get("cinemaid"));
+					jsonObject.put("name", resultMap.get("name"));
+					jsonObject.put("profile", resultMap.get("profile"));
+					jsonObject.put("philosophy", resultMap.get("philosophy"));
+					jsonObject.put("customer_phone", resultMap.get("customer_phone"));
+					jsonObject.put("customer_qq", resultMap.get("customer_qq"));
+					jsonObject.put("customer_email", resultMap.get("customer_email"));
+					jsonObject.put("address", resultMap.get("address"));
+					jsonObject.put("author", resultMap.get("author"));
+					jsonObject.put("remark", resultMap.get("remark"));
+//					String news_type = CodeUtil.convertNewsType(resultMap.get("news_type").toString());
+//					String news_status = CodeUtil.convertNewsStatus(resultMap.get("news_status").toString());
+//					jsonObject.put("news_type", news_type);
+//					jsonObject.put("news_status", news_status);
+					jsonObject.put("create_time", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("create_time")));
+					jsonObject.put("update_time", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("update_time")));
+					jsonArray.add(jsonObject);
+				}
+				resultJson.put("total", count);
+				resultJson.put("data", jsonArray);
+			}else{
+				MyMongo.mRequestFail(request, "查询院线信息列表不存在");
+				return this.returnError(resultJson, ResMessage.Info_NoExist.code, request);
+			}
+			
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("查询院线信息列表失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询院线信息列表成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+}

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>影院总部管理系统</title>
+		<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
+		<script type="text/javascript" src="../js/jquery-1.11.2.min.js" ></script>
+		<script type="text/javascript" src="../js/My97DatePicker/WdatePicker.js"></script>
+		<script type="text/javascript" src="../js/ajaxfileupload.js"></script>
+		<script type="text/javascript" src="../js/public.js" ></script>
+		<script type="text/javascript" src="../js/materialupdate.js" ></script>
+		<script>
+			$(function(){
+				$("#updateMaterial").fadeIn(200);
+				$(document).scrollTop(document.body.scrollHeight);
+				var src = window.parent.$("#mainFrame").attr("src");
+				var material_id = src.replace("manager/MaterialUpdate.html?material_id=","");
+				$("#material_id").val(material_id);
+				getMaterialShow(material_id,"update");
+				
+			});
+			
+		</script>
+		<link rel="stylesheet" href="../css/base.css" />
+		<link rel="stylesheet" href="../css/main.css" />
+	</head>
+	<body>
+		<!-- 主面板 -->
+		<div class="main-box">
+			<div class="content-title">
+				<span>您当前位置：素材管理</span>
+<!-- 				<p class="search"><input placeholder="请输入您要查询的信息" /><i></i></p> -->
+				<div class="clear"></div>
+			</div>
+			
+			<!-- 数据区 -->
+			<div class="content-data">
+				<h3 class="title">素材中心</h3>
+				<!-- 面板 -->
+				<div class="panel" id="updateMaterial">	
+					<input type="hidden" id="material_id" value=""/>			
+					<table class="panel-tab">
+						<tr><td class="title">标题 :</td>
+							<td colspan="3"><input id='material_name' class="w" /></td>
+						</tr>
+						<tr><td class="title">内容：</td>
+								<td colspan="3"><textarea id="material_content" rows="6" cols="102"></textarea></td>
+						</tr>
+<!-- 						<tr><td class="title">下载地址 :</td> -->
+<!-- 							<td colspan="3"><input id='download_url' class="w" /></td> -->
+<!-- 						</tr> -->
+<!-- 						<tr><td class="title">提取码 :</td> -->
+<!-- 							<td colspan="3"><input id='fetch_code' class="w" /></td> -->
+<!-- 						</tr> -->
+<!-- 						<tr><td class="title">备注 :</td> -->
+<!-- 							<td colspan="3"><input id='remark' class="w" /></td> -->
+<!-- 						</tr> -->
+						
+
+					</table>
+					<p class="panel-btn">
+						<button onclick="updateMaterial();">修改</button>
+					</p>
+				</div>
+				
+			</div>
+		</div>
+		
+		
+	</body>
+</html>

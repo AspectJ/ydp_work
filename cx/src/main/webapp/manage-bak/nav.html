@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>影院总部管理系统</title>
+		<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
+				<script type="text/javascript" src="js/jquery-1.11.2.min.js" ></script>
+		<script type="text/javascript" src="js/nav.js" ></script>
+		<script type="text/javascript" src="js/public.js" ></script>
+		
+<script type="text/javascript">
+$(function(){
+	var admin_name = sessionStorage.getItem("adminname");
+	$("#admin_name").html(admin_name);
+	checkIsAdministrator();
+});
+
+function showAdminInfo() {
+	var admin_id = sessionStorage.getItem("adminid");
+	var page = "auser/adminInfoShow.html?adminid=" + admin_id;
+	window.parent.$("#mainFrame").attr("src",page);
+}
+
+//用来判断是否是全局超级管理员
+function checkIsAdministrator(){
+	var admin_id = sessionStorage.getItem("adminid");
+	//只有ID=100的才是全局超级管理员
+	if(admin_id == "100"){
+		
+	}else{
+		//隐藏系统管理员页面
+		$("#sysUser").attr("hidden","hidden");
+	}
+}
+</script>
+		<link rel="stylesheet" href="./css/base.css" />
+		<link rel="stylesheet" href="./css/nav.css" />		
+	</head>
+	<body>
+		<!-- 左侧导航 -->
+		<div class="nav">
+			<p class="logo">影院总部管理系统</p>
+			<div class="head">
+				<a href="javascript:void(0);" onclick="showAdminInfo();"><i class="img"></i></a>
+				<span id="admin_name"></span>
+				<p>
+					<a href="javascript:void(0);" onclick="showAdminInfo();"><i class="edit"></i></a>
+					<span class="quanxian" style="display: none;"></span>
+				</p>
+				<button onclick="parent.location.href='login.html'">退出登录</button>
+			</div>
+		
+			<!-- 导航 -->
+			<div class="menu">			
+				<div>
+					<h2 class="menu-title"><span class="yingyuan"></span>影院管理<i class="more"></i></h2>
+					<div class="menu-box">
+						<ul>
+<!-- 							<li href="manager/basicInfoList.html?page=joincinema">影院信息管理</li> -->
+							<li href="manager/cinemamanagerList.html">影院信息管理</li>
+							<li href="auser/userInfoList.html">用户管理</li>
+							<li href="auser/verifyRegisterUser.html">注册用户管理</li>
+						</ul>
+					</div>					
+				</div>		
+				<div style="display: none;">
+					<h2 class="menu-title"><span class="yingyuan"></span>关于楚湘<i class="more"></i></h2>
+					<div class="menu-box" >
+						<ul>
+							<li id="cinimeInfo"  href=""  onclick="checkIsAdministrator()">院线信息</li>
+						</ul>
+					</div>					
+				</div>
+				<div>
+					<h2 class="menu-title"><span class="paiqi"></span>信息管理<i class="more"></i></h2>
+					<div class="menu-box">
+						<ul>
+							<li href="manager/newsInfoList.html">院线资讯管理</li>
+							<li href="manager/activityList.html">最新活动管理</li>
+							<li href="manager/noticeList.html">发行通知管理</li>
+<!-- 							<li href="manager/basicInfoList.html?page=joincinema">影院加盟</li> -->
+<!-- 							<li href="manager/basicInfoList.html?page=theaterstyle">影院风采管理</li> -->
+<!-- 							<li href="manager/basicInfoList.html?page=partner">合作渠道</li> -->
+							<li href="manager/materialList.html">素材中心管理</li>
+							<li href="manager/carouselManager.html">轮播图管理</li>
+						</ul>
+					</div>					
+				</div>	
+				<div >
+					<h2 class="menu-title"><span class="yonghu"></span>系统管理<i class="more"></i></h2>
+					<div class="menu-box" >
+						<ul>
+							<li id="sysUser"  href="auser/adminInfoList.html" >系统用户管理</li>
+							<li id="update_password" href="auser/modifyPwd.html">修改密码</li>
+						</ul>
+					</div>					
+				</div>
+				<!-- <div>
+					<h2 class="menu-title"><span class="huiyuan"></span>会员卡<i class="more"></i></h2>
+					<div class="menu-box">
+						<ul>
+						</ul>
+					</div>
+				</div>
+				<div>
+					<h2 class="menu-title"><span class="paiqi"></span>排期管理<i class="more"></i></h2>
+					<div class="menu-box">
+						<ul>
+						</ul>
+					</div>
+				</div>
+				<div>
+					<h2 class="menu-title"><span class="qudao"></span>渠道管理<i class="more"></i></h2>
+					<div class="menu-box">
+						<ul>
+						</ul>
+					</div>
+				</div>
+				<div>
+					<h2 class="menu-title"><span class="yingxiao"></span>营销活动<i class="more"></i></h2>
+					<div class="menu-box">
+						<ul>
+						</ul>
+					</div>
+				</div>
+				<div>
+					<h2 class="menu-title"><span class="fenxi"></span>分析统计<i class="more"></i></h2>
+					<div class="menu-box">
+						<ul>
+						</ul>
+					</div>
+				</div> -->
+						
+			</div>
+		</div>
+
+
+	</body> 
+</html>

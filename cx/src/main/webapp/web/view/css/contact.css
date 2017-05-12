@@ -1,0 +1,97 @@
+/*
+ * 联系我们Logo
+ */
+.contact {
+	height: 80px;
+	width: 100%;
+	border-top: 2px solid #EE8295;
+	position: absolute;
+	top: 100px;
+	left: 0px;
+	background-color: #575757;
+	margin: 0px;
+}
+
+.contact img{
+	width: 100%;
+}
+
+.contact_customer_service {
+	background-color: #fff;
+	height: 280px;
+	margin-top: 40px;
+}
+
+.head-underline{
+	border-bottom: 1px solid #eb002a;
+}
+
+.contact_customer_service .headline,
+.company_address .headline {
+	background-color: #EB002A;
+	line-height: 50px;
+	width: 160px;
+	height: 50px;
+	text-align: center;
+	font-size: 18px;
+	color: #FFFFFF;
+}
+
+.company_address .content {
+  border: 1px solid #ddd;
+}
+
+.contact-way{
+	display: inline-block;
+  width: 360px;
+}
+
+.contact-way img{
+	float: left;
+	margin-top: 90px;
+}
+
+.contact-way .contact-info{
+	float: left;
+  width: 265px;
+	margin: 90px 0 0 15px;
+	color: #666;
+}
+
+.contact-way .contact-info .info-head{
+  font-size: 16px;
+}
+
+.contact-way .contact-info .info-body{
+	font-size: 25px;
+	line-height: 40px;
+}
+
+.company_address .content .address {
+	font-size: 18px;
+	color: #818181;
+	padding-top: 40px;
+	padding-left: 30px;
+}
+
+.company_address {
+	background-color: #fff;
+	height: 750px;
+}
+
+#container {
+	margin: 30px auto;
+	height: 540px;
+	width: 1120px;
+}
+
+#mark_cinema {
+	margin: 5px;
+	color: #2E2F32;
+}
+
+#mark_address {
+	margin: 5px;
+	font-size: 13px;
+	color: #2E2F32;
+}

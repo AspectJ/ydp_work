@@ -1,0 +1,43 @@
+/* .mask{position:absolute;width:100%;height:100%;top:0;left:0;z-index:-1;background: none!important;} */
+.mask1{clear: both;background: none!important;}
+.mask1 .registtext{width:380px;height:400px;background-color:#fff;margin:13.5% auto!important;}
+.mask1 .head{background-color:#EB002A;color:#F7F6F7;padding:14px 22px;font-weight:bold}
+.mask1 .head .cancel{background-color:#EB002A;vertical-align:middle;position:absolute;margin-left:290px;margin-top:-5px}
+.mask1 .registtext .tap{margin-left:30px;margin-top:20px;font-weight:bold;color:#A7A7A7;font-size:15px;margin-bottom:10px;text-align: left}
+.mask1 #account,.mask1 #pass,.mask1 #repass,.mask1 #realname,.mask1 #mobile,.mask1 #cinamename,.mask1 #email{letter-spacing: 1px; border:1px solid #DDDDDD;border-radius:5px;line-height:40px;font-size:15px;width:260px;box-shadow:0 0 5px 1px #DDDDDD;padding-left:60px}
+.mask1 .account i,.mask1 .pass i,.mask1 .repass i,.mask1 .realname i,.mask1 .mobile i,.mask1 .cinamename i,.mask1 .email i{position:absolute;margin-left:50px;margin-top:5px;padding:40px 5px;background-image:url(/img/login_vertical_bar.png);background-repeat:no-repeat; background-size: 2px 35px;}
+.mask1 .registtext .account{text-align:center}
+.mask1 #account{background-image:url(/img/login_account.png);background-repeat:no-repeat;background-position:5px}
+.mask1 .registtext .pass{margin-top:15px;text-align:center}
+.mask1 #pass{background-image:url(/img/login_pass.png);background-repeat:no-repeat;background-position:5px}
+.mask1 .registtext .repass{margin-top:15px;text-align:center}
+.mask1 #repass{background-image:url(/img/login_pass.png);background-repeat:no-repeat;background-position:5px}
+.mask1 .registtext .realname{margin-top:15px;text-align:center}
+.mask1 #realname{background-image:url(/img/regist_realname.png);background-repeat:no-repeat;background-position:5px}
+.mask1 .registtext .mobile{margin-top:15px;text-align:center}
+.mask1 .registtext .cinamename{margin-top:15px;text-align:center}
+.mask1 #mobile{background-image:url(/img/regist_mobile.png);background-repeat:no-repeat;background-position:5px}
+.mask1 #cinamename{background-image:url(/img/regist_cinema.png);background-repeat:no-repeat;background-position:5px}
+.mask1 .registtext .email{margin-top:15px;text-align:center}
+.mask1 #email{background-image:url(/img/regist_email.png);background-repeat:no-repeat;background-position:5px}
+.mask1 .tip{margin-top:15px;padding-left:20px;font-size:14px;color:#B9B8B8}
+.mask1 #remember{margin-left:10px;cursor:pointer}
+.mask1 .registtext .nextbtn{cursor:pointer;width:85%;background-color:#EB002A;margin:35px auto;padding:14px 0px;text-align:center;color:#fff;letter-spacing:10px;padding-left: 10px;font-weight:bold;border-radius:5px;box-shadow:0 0 2px 0px #EB002A}
+.mask1 .registtext .registbn{cursor:pointer;width:85%;background-color:#EB002A;margin:35px auto;padding:14px 0px;text-align:center;color:#fff;letter-spacing:10px;padding-left: 10px;font-weight:bold;border-radius:5px;box-shadow:0 0 2px 0px #EB002A}
+.mask1 .registtext input{outline:none;resize:none}
+
+.mask1 .text_error_tip{
+	position: absolute;
+	border: 1px solid;
+	margin-top: -34px;
+	font-size: 13px;
+	background-color: #EB002A;
+	color: #fff;
+	padding: 3px 7px;
+	border-radius: 5px;
+	border: none;
+	margin-left: 255px;
+}
+
+
+.bottom{/* bottom: 0; */}

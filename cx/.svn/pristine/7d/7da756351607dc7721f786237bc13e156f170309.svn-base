@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>楚湘影院总部管理系统</title>
+		<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
+		<link rel="stylesheet" href="css/base.css" />
+		<link rel="stylesheet" href="css/login.css" />
+	</head>
+	<body>
+		<form id="form1" name="form1" action="index.html">
+			<!-- 登录界面 -->
+			<div class="main-login">
+				<h2></h2>
+				<p class="inBox"  id="account"><i></i><input id="txtName" placeholder="请输入账号"  onfocus="choiceAccount()" onblur="lostAccount()"/></p>
+				<p class="inBox"  id="pwd"><i class="pass" ></i><input id="txtPass" placeholder="请输入密码" type="password"  onfocus="choicePwd()" onblur="lostPwd()"/></p>
+				<p class="submit">
+					<input type="submit" value="立即登录" />
+					<span id="msg">用户名或密码不正确，请重新填写!</span>
+				</p>
+			</div>
+		</form>
+		<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+		<script type="text/javascript" src="js/public.js" ></script>
+		<script type="text/javascript" src="js/login.js"></script>
+		<script>
+			$(function() {
+				form1.onsubmit = function() {
+				var flag = false;
+				
+				var txtName = $("#txtName").val();
+				var txtPass = $("#txtPass").val();
+				console.log("fuck" +txtName+txtPass );
+				if(txtName == "" || txtPass == ""){
+					$(".main-login input").blur();
+					return false;
+				}
+				
+				var params = {};
+				params.txtName = txtName;
+				params.txtPass = txtPass;
+
+				$.ajax({
+					url: requestUrl + "rest/adminInfo/selAdminInfo",
+					dataType: 'json',
+					data: params,
+					type: "POST",
+					async: false,
+       				jsonp: "jsonpCallback",
+       				success: function(data){
+       					var result = parseInt(data.result);
+        					switch(result){
+							case 1000:
+								var admin = data.data;
+								var adminname = admin.adminname;
+								var adminid = admin.adminid;
+								var adminstate = admin.state;
+								var cinemaid = admin.cinemaid;
+								if(adminstate == 0) {
+									alert("对不起，您是禁用状态，不能登录！");
+									$("#txtName").val("");
+									$("#txtPass").val("");
+									return;
+								}
+								$("#txtName").text(adminname);
+								sessionStorage.setItem("adminname", adminname);
+								sessionStorage.setItem("adminid",adminid);
+								sessionStorage.setItem("cinemaid",cinemaid);
+								msg.style.display = "none";
+								flag = true;
+								break;
+							case 1004:
+								msg.style.display = "block"; break;
+							case 1005:
+								$("#txtPass").val("");
+								msg.style.display = "block"; break;
+							default:
+								toolTip(data.msg); break;
+						}; 
+       				},
+       				error: function(XMLHttpRequest, textStatus, errorThrown){
+			        	alert(errorThrown);
+			        },
+      					timeout: 30000
+				});
+				return flag;
+				};
+			});
+		</script>
+	</body>
+</html>

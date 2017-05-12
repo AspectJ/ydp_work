@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>楚湘院线-电影</title>
+		<link rel="icon" href="img/favicon.ico" type="image/x-icon" />
+		<link rel="stylesheet" href="css/base.css" />
+		<link rel="stylesheet" href="css/main.css" />
+		<link rel="stylesheet" href="css/index.css" />
+		
+		<script type="text/javascript" src="js/lib/jquery/jq.min.js" ></script>
+		<script type="text/javascript" src="js/lib/jquery/jquery.cookie.js" ></script>
+		<script type="text/javascript" src="js/public.js" ></script>
+		<link rel="stylesheet" href="css/index.css" />
+		<script type="text/javascript" src="js/index.js" ></script>
+	</head>
+	<body>
+		<!-- 顶部登录部分 -->
+		<div class="top"></div>
+		<!-- Logo，地区，主菜单 -->
+		<div class="title"></div>
+		
+		<!-- 描述：轮播图 -->
+		<div class="carousel"></div>
+		
+		<!-- 资讯动态-->
+		<div class="dtzx">
+	    	<div class="headline">资讯动态</div>
+	    	<div class="more" onclick="document.location.href='dynamic/more.html?flag=0';">更多</div>
+	    	<div class="content">
+	    		<div class="dtzx_1">
+	    			<div class="head">电影政策</div>
+	    			<img src="#" />
+	    			<ul id="">
+	    			</ul>
+	    		</div>
+	    		<div class="dtzx_2">
+	    			<div class="head">行业资讯</div>
+	    			<img src="#" />
+	    			<ul id="">
+	    			</ul>
+	    		</div>
+	    		<div class="dtzx_3">
+	    			<div class="head">院线资讯</div>
+	    			<img src="#" />
+	    			<ul id="">
+	    			</ul>
+	    		</div>
+	    	</div>
+        </div>	
+		
+		<!--活动轮播-->
+		<!--<div style="clear: both"></div>-->
+		<div class="clear"></div>
+		<div class="active_carousel">
+			<img src="#" />
+			<div class="position_num">
+				<div class="cur"></div>
+				<div class=""></div>
+				<div class=""></div>
+				<div class=""></div>
+			</div>
+		</div>
+		
+        <!-- 公司新闻-->
+		<div class="news_center">
+	    	<div class="headline">楚湘动态</div>
+	    	<div class="more" onclick="document.location.href='dynamic/more.html?flag=1';">更多</div>
+	    	<div class="content">
+	    		<div class="first">
+	    			<img src="#" />
+    				<p></p>
+    				<div></div>
+	    		</div>
+	    		<ul><!--<li><span></span><label class="time"></label></li>--></ul>
+	    	</div>
+        </div>	
+        
+        <!-- 最新影片-->
+		<div class="news_movie">
+	    	<div class="headline">最新影片</div>
+	    	<div class="more">更多</div>
+	    	<div class="content"></div>
+        </div>	
+        
+        
+        <!-- 影院风采-->
+        <div class="clear"></div>
+		<div class="cinema">
+	    	<div class="headline">影院风采</div>
+	    	<div class="content">
+	    		<img class="left" src="img/index_right.png"/>
+ 	    		<div class="bg_img">
+	    			<img class="show" src="#" />
+	    			<div></div>
+	    		</div>
+	    		<div class="bg_img">
+	    			<img class="show" src="#" />
+	    			<div></div>
+	    		</div>
+	    		<div class="bg_img">
+	    			<img class="show" src="#" />
+	    			<div></div>
+	    		</div>
+	    		<div class="bg_img">
+	    			<img class="show" src="#" />
+	    			<div></div>
+	    		</div>
+	    		<img class="right" src="img/index_left.png"/>
+	    	</div>
+        </div>	
+        
+        <!-- 描述：底部 -->
+        <div class="bottom"></div>
+        
+        <!-- 在线资讯 -->
+        <div class="online_consultation"></div>
+	</body>
+</html>

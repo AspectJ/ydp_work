@@ -1,0 +1,106 @@
+package com.cx.rest.cinema.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.support.SqlSessionDaoSupport;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service("getCinemaInfoListDao")
+public class GetCinemaInfoListDaoImpl extends SqlSessionDaoSupport{
+
+	/**
+	 * 查询全部院线信息（List）
+	 */
+public List<Map<String,Object>> getCinemaInfoList (Map<String,Object> paramMap){
+	List<Map<String,Object>> cinemaList   =getSqlSession().selectList("cinemainfolist.getCinemaInfoList",paramMap);
+		return cinemaList ; 
+	}
+	/**
+	 * 新增主题图片信息
+	 * 
+	 * @param imageMap
+	 */
+	public Map<String, Object> insertImage(Map<String, Object> imageMap){
+		getSqlSession().insert("newsinfo.insertImage", imageMap);
+		return imageMap;
+	}
+	
+	/**
+	 * 新增院线基本信息
+	 * 
+	 * @param insertNewsMap
+	 */
+	public Map<String, Object> insertNewsInfo(Map<String, Object> insertNewsMap){
+		getSqlSession().insert("newsinfo.insertNewsInfo", insertNewsMap);
+		return insertNewsMap;
+	}
+	
+	
+	/**
+	 * 查询院线信息
+	 */
+	public Map<String, Object> getNewsInfo(Map<String, Object> newsMap){
+		Map<String, Object> paramMap = getSqlSession().selectOne("newsinfo.getNewsInfo", newsMap);
+		return paramMap;
+	}
+	
+	/**
+	 * 修改图片信息
+	 * 
+	 * @param newsMap
+	 */
+	public Map<String, Object> updateImageInfo(Map<String, Object> imageMap){
+		getSqlSession().update("newsinfo.updateImageInfo", imageMap);
+		return imageMap;
+	}
+	
+	/**
+	 * 修改院线信息
+	 * 
+	 * @param newsMap
+	 */
+	public Map<String, Object> updateNewsInfo(Map<String, Object> newsMap){
+		getSqlSession().update("newsinfo.updateNewsInfo", newsMap);
+		return newsMap;
+	}
+	
+	/**
+	 * 删除院线信息
+	 * 
+	 * @param newsMap
+	 */
+	public Map<String, Object> deleteNewsInfo(Map<String, Object> newsMap){
+		getSqlSession().delete("newsinfo.deleteNewsInfo", newsMap);
+		return newsMap;
+	}
+	
+	/**
+	 * 删除院线主题图片信息
+	 * 
+	 * @param newsMap
+	 */
+	public Map<String, Object> deleteImage(Map<String, Object> newsMap){
+		getSqlSession().delete("newsinfo.deleteImage", newsMap);
+		return newsMap;
+	}
+	
+
+	
+	/**
+	 * 查询院线信息总数量
+	 */
+	public Map<String, Object> getCinemaInfoListCount(Map<String, Object> cinimaInfoMap){
+		Map<String, Object> paramMap = getSqlSession().selectOne("cinemainfolist.getCinemaInfoListCount", cinimaInfoMap);
+		return paramMap;
+	}
+	
+	@Autowired
+	public void setSqlSessionFactory(SqlSessionFactory sqlSessionFactory) {
+		super.setSqlSessionFactory(sqlSessionFactory);
+	}
+//	
+	
+}

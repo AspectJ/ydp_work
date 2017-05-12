@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>影院总部管理系统</title>
+		<link rel="stylesheet" href="../css/base.css" />
+		<link rel="stylesheet" href="../css/main.css" />
+	</head>
+	<body>
+		<!-- 主面板 -->
+		<div class="main-box">
+			<div class="content-title">
+				<span>您当前位置：用户管理</span>
+				<!-- <p class="search"><input placeholder="请输入您要查询的信息" /><i></i></p> -->
+				<div class="clear"></div>
+			</div>
+			
+			<!-- 数据区 -->
+			<div class="content-data">
+				<h3 class="title">用户中心</h3>
+				<!-- 面板 -->
+				<div class="panel" id="showUserInfo">
+					<input type="hidden" id="user_id" value=""/>				
+					<table class="panel-tab">
+						<tr>
+							<td class="title">邮箱：</td>
+							<td id='email'></td>
+						</tr>
+						<tr><td class="title">手机号：</td>
+							<td id='mobile'></td>
+						<tr/>
+						<!--
+						<tr><td class="title">密码：</td>
+							<td id='password'></td>
+						</tr> -->
+						<tr><td class="title">昵称：</td>
+							<td id='nickname'></td>
+						</tr>
+						<tr><td class="title">真实姓名：</td>
+							<td id='realname'></td>
+						</tr>
+<!-- 					<tr><td class="title">性别：</td>
+							<td id='sex'></td>
+						</tr>
+						<tr><td class="title">生日：</td>
+							<td id='birthday'></td>
+						</tr> -->
+						<tr><td class="title">影院名称：</td>
+							<td id='cinema_name'></td>
+						</tr>
+						<tr><td class="title">创建时间：</td>
+							<td id='createtime'></td>
+						</tr>
+						<tr><td class="title">更改时间：</td>
+							<td id='modifytime'></td>
+						</tr>
+						<tr><td class="title">状态：</td>
+							<td id='state'></td>
+						</tr>
+					</table>
+				</div>
+				
+			</div>
+		</div>
+		
+		<script type="text/javascript" src="../js/jquery-1.11.2.min.js" ></script>
+		<script type="text/javascript" src="../js/public.js" ></script>
+ 		<script type="text/javascript" src="../js/userinfolist.js" ></script> 
+		<script>
+ 			$(function(){
+				$("#showUserInfo").fadeIn(200);
+				$(document).scrollTop(document.body.scrollHeight); 
+				
+ 				var src = window.parent.$("#mainFrame").attr("src");
+				var user_id = src.replace("auser/userInfoShow.html?userid=","");
+				$("#user_id").val(user_id);
+				getUserInfoShow(user_id); 
+			}); 
+			
+		</script> 
+	</body>
+</html>
+
+
+
+
+
+
+

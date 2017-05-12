@@ -1,0 +1,100 @@
+$(function() {
+	// Logo，地区，主菜单
+	LogoMenuTextLoad(3);
+	
+	// 底部导航
+	bottomTextLoad();
+	
+	var href = window.location.href;
+	var noti_id = "";
+	var index = href.lastIndexOf("=");
+	if(index != -1) {
+		noti_id = href.substring(index+1);
+	}else {
+		alert("news_id错误");
+	}
+	
+	//查询通知信息
+	$.ajax({
+		url: service_url + "notice/getNotice",
+		data: {
+			noti_id: noti_id,
+			updateFlag: 1
+		},
+		dataType: "jsonp",
+		jsonp: "jsonpCallback",
+		success: function(data) {
+			var data = data.data;
+			var noti_title = data.noti_title;
+			var update_time = data.update_time;
+			var noti_content = data.noti_content;
+			//将字符串的换行符转换成<br/>标签
+			noti_content = replaceAll(noti_content);
+			
+			var whole_url = data.whole_url;
+			var name = data.name;
+			var brows_times = data.brows_times;
+			$(".content h2").html(noti_title);
+			$(".cinema .see").html(brows_times);
+			if(typeof(name) == "undefined") {
+				$(".cinema .time").html(update_time);
+			}else {
+				$(".cinema .time").html(name+"："+update_time);
+			}
+			
+			if(whole_url != null && typeof(whole_url) != "undefined") {
+				var content = "资源：<a href='javascript:void(0);'>"+data.noti_document_url+"</a>";
+				$(".resourse").append(content);
+				$(".resourse a").bind("click", {url:whole_url}, function(event) {
+					window.location.href = service_url + "image/download?f=" + event.data.url;
+				});
+			}
+			console.log(noti_content);
+			$(".content .rules").html(noti_content);
+		}
+	});
+	
+	//页面右侧（获取其他发行通知）
+	$.ajax({
+		url: service_url + "notice/getOtherNotice",
+		dataType: "jsonp",
+		data: {
+			noti_id: noti_id
+		},
+		jsonp: "jsonpCallback",
+		success: function(data) {
+			var resultData = data.data;
+			var content = "";
+			for(var i = 0; i < resultData.length; i++) {
+				var noti_id = resultData[i].noti_id;
+				var noti_title = resultData[i].noti_title;
+				var noti_type = resultData[i].noti_type;
+				if(noti_type == 0) {
+					$(".other_notice div").html("其它发行通知");
+				}else {
+					$(".other_notice div").html("其它院线通知");
+				}
+				if(i < 3) {
+					content = "<li onclick='getNoticeDetail("+noti_id+");'><span class='red'>"+eval(i+1)+"</span><span class='noti_title'> "+noti_title+"</span></li>";
+				}else {
+					content = "<li onclick='getNoticeDetail("+noti_id+");'><span>"+eval(i+1)+"</span><span class='noti_title'> "+noti_title+"</span></li>";
+				}
+				$(".other_notice ul").append(content);
+			} 
+		}
+	});
+
+});
+
+function getNoticeDetail(noti_id) {
+	window.location.href = "notice.html?noti_id="+noti_id;
+}
+
+function replaceAll(str) {
+	if(str != null) {
+		str = str.replace(/\n/g,"<br/>");
+		str = str.replace(/ /g, "&nbsp;");
+		return str;
+	}
+}
+

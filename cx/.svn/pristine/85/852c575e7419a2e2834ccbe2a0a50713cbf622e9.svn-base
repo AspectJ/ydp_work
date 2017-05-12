@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="newsinfo">
+	<!-- 新增图片信息 -->	
+	<insert id="insertImage" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="imageid">
+		insert into t_image( org_path,create_time) values (#{org_path},#{create_time})
+	</insert>
+
+	<!-- 新增新闻信息 -->	
+	<insert id="insertNewsInfo" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="cinemaid">
+		insert into t_newsinfo( news_title,news_img,news_content,news_type,news_status,cinemaid,author,brows_times) 
+			values 
+		(#{news_title}, #{news_img}, #{news_content}, #{news_type}, #{news_status}, #{cinemaid},#{author}, #{brows_times})
+	</insert>
+	
+	<!-- 查询新闻信息 -->
+	<select id="getNewsInfo" parameterType="java.util.Map" resultType="java.util.Map">
+		select news.news_id,news.news_title,news.news_img,news.news_content,news.news_type,news.news_status,
+			news.cinemaid,news.create_time,news.update_time,news.author,news.brows_times,image.org_path 
+<!-- 			,news.audit_flag  -->
+		  from t_newsinfo news
+		  join t_image image on news.news_img = image.imageid 
+			where news_id = #{news_id} 
+		<if test="cinemaid != null and cinemaid != 0">
+			and cinemaid = #{cinemaid} 
+		</if>
+	</select>
+	
+	<!-- 修改图片信息 -->
+	<update id="updateImageInfo" parameterType="map">
+		update t_image set org_path = #{org_path} where imageid = #{imageid} 
+	</update>
+	
+	<!-- 修改新闻信息 -->
+	<update id="updateNewsInfo" parameterType="map">
+		update t_newsinfo set news_title = #{news_title}, audit_flag=0
+		<if test="news_content != null">
+			,news_content = #{news_content}
+		</if>
+		<if test="news_type != null">
+			,news_type = #{news_type}
+		</if>
+		<if test="news_status != null">
+			,news_status = #{news_status}
+		</if>
+		<if test="update_time != null">
+			,update_time = #{update_time}
+		</if>
+		<if test="author != null">
+			,author = #{author}
+		</if>
+		where news_id = #{news_id} 
+	</update>
+	
+	<update id="updateNewsInfo_Audit" parameterType="map">
+		update t_newsinfo set audit_flag = #{audit_flag} where news_id = #{news_id} 
+	</update>
+	
+	<!-- 删除新闻主题图片信息 -->
+	<delete id="deleteImage" parameterType="map">
+		delete from t_image where imageid = #{imageid} 
+	</delete>
+	
+	<!-- 删除新闻信息 -->
+	<delete id="deleteNewsInfo" parameterType="map">
+		delete from t_newsinfo where news_id = #{news_id} 
+	</delete>
+	
+	<!-- 新闻信息查询 -->
+	<select id="getNewsInfoList" parameterType="java.util.Map" resultType="java.util.Map">
+		select news.news_id,news.news_title,news.news_img,news.news_content,news.news_type,news.news_status,news.cinemaid,news.create_time,news.update_time,news.author,news.brows_times ,news.audit_flag, image.org_path
+		  from t_newsinfo news
+		  join t_image image on news.news_img = image.imageid
+		 where news_status = 0
+	  order by create_time desc limit ${pageSize} offset ${offsetNum} 
+	</select>
+	
+	<!-- 首页查询更多动态 -->
+	<select id="getMoreNewsInfo" parameterType="java.util.Map" resultType="java.util.Map">
+		select news_id, news_title, news_img, news_content, news_type, news_status,cinemaid,create_time,update_time,author,brows_times 
+		  from t_newsinfo 
+		where news_status = 0 AND audit_flag = 1
+		<if test="flag == 0">
+			AND news_type != 3
+		</if>
+		<if test="flag ==1">
+			AND news_type = 3
+		</if>
+		order by create_time desc limit ${pageSize} offset ${offsetNum} 
+	</select>
+	
+	
+	<!-- 新闻信息查询 -->
+	<select id="getNewsInfoListCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+		select count(*) from t_newsinfo 
+	</select>
+	
+	<!-- 首页查询更多动态条数 -->
+	<select id="getMoreNewsInfoCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+		SELECT count(*) FROM t_newsinfo
+		<if test="flag == 0">
+			WHERE news_type != 3
+		</if>
+		<if test="flag == 1">
+			WHERE news_type = 3
+		</if>
+	</select>
+	
+	<!-- 根据新闻状态查询新闻信息（首页展示） -->
+	<select id="selNewsByNewsType" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT news_id, news_title, news_type, news_img
+		  FROM t_newsinfo
+		 WHERE news_type = #{news_type} AND news_status = 0 AND news_id != #{Img_news_id} AND audit_flag = 1
+      ORDER BY create_time desc;
+	</select>
+	
+	<select id="selFreshImgNews" parameterType="java.lang.Integer" resultType="java.util.Map">
+		select news_id, news_title, b.org_path
+		  from t_newsinfo a 
+		  join t_image b on a.news_img = b.imageid
+		 where news_type = #{news_type} and news_status = 0 and b.org_path != '' and audit_flag = 1
+	  order by a.create_time desc limit 1 offset 0
+	</select>
+	
+	<!-- 根据图片Id查询图片路径 -->
+	<select id="getImgPath" parameterType="java.lang.Integer" resultType="java.util.Map">
+		SELECT imageid, org_path, create_time FROM t_image WHERE imageid = #{news_img};
+	</select>
+	
+	<!-- 查询热门新闻-->
+ 	<select id="getHotNews" parameterType="java.lang.Integer" resultType="java.util.Map">
+ 		SELECT news_id, news_title, news_content, org_path
+		  FROM t_newsinfo a join t_image b on b.imageid = a.news_img
+		 WHERE news_id != #{news_id} 
+		   AND news_type = (SELECT news_type FROM T_NEWSINFO where news_id = #{news_id})
+		   AND org_path != '' and audit_flag = 1
+	  ORDER BY brows_times desc
+		LIMIT 2 OFFSET 0; 
+	</select>
+	
+	<!-- 查询楚湘动态 -->
+	<select id="getCompanyDynamic" parameterType="java.lang.Integer" resultType="java.util.Map">
+ 		SELECT news_id, news_title, news_content, org_path, update_time, brows_times, a.create_time
+		  FROM t_newsinfo a join t_image b on b.imageid = a.news_img
+		 WHERE news_status = 0 AND news_type = 3 AND news_id != #{news_id} AND audit_flag = 1
+	  ORDER BY a.create_time desc
+	</select>
+	
+	<!-- 更新新闻点击量 -->
+	<select id="updateBrowsTimes" parameterType="java.util.Map">
+		UPDATE t_newsinfo SET brows_times = brows_times + 1 WHERE news_id = #{news_id};
+	</select>
+	
+	<!-- 查询一条带有图片的最新的楚湘动态（用于首页展示）-->
+	<select id="selFreshDynamicImg" resultType="java.util.Map">
+		select news_id, news_title, b.org_path, news_content
+		  from t_newsinfo a 
+		  join t_image b on a.news_img = b.imageid
+		 where news_type = 3 and news_status = 0 and b.org_path != '' and audit_flag = 1
+	  order by a.create_time desc limit 1 offset 0
+	</select>
+</mapper>

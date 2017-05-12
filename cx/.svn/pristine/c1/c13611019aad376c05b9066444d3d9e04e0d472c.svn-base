@@ -1,0 +1,29 @@
+.gycx{background:#fff;height:inherit}
+.gycx .leftText{width:240px;height:500px;float:left;background-color:#E7E8E9}
+.gycx .leftText .head{padding:15px 0px 15px 15px;background-color:#C7C8C9;color:#4C4C4C}
+
+.option{padding:15px 0px 15px 50px;color:#666767;cursor:pointer}
+.option.cur{padding:15px 0px 15px 46px;background-color:#fff;border-left:4px solid #EB002A}
+
+.rightText{float:right;background:#fff;height: 542px;}
+.head-underline{border-bottom: 1px solid #eb002a}
+.headline{background-color:#EB002A;line-height:50px;width:160px;height:50px;text-align:center;font-size:18px;color:#FFFFFF}
+.content{
+	margin-top: 10px;
+	padding-top: 0.5rem;
+	border-top: 2px solid #EB002A;
+	width: 905px;
+	height: 470px;
+	text-indent: 2rem;
+	line-height: 220%;
+	color: #666;
+	font-size: 17px;
+	border: 1px solid #ddd;
+}
+.content p{	text-indent: 2rem !important;
+	padding: 10px 25px !important;
+	line-height: 200% !important;
+	color: #666767 !important;
+	font-size: 16px !important;}
+.text_2, .text_3{display:none}
+.text_3 p{margin-left: -2rem;}

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>影院总部管理系统</title>
+		<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
+		<script type="text/javascript" src="../js/jquery-1.11.2.min.js" ></script>
+		<script type="text/javascript" src="../js/My97DatePicker/WdatePicker.js"></script>
+		<script type="text/javascript" src="../js/ajaxfileupload.js"></script>
+		<script type="text/javascript" src="../js/public.js" ></script>
+		<script type="text/javascript" src="../js/noticeupdate.js" ></script>
+		<script>
+			$(function(){
+				$("#updateNotice").fadeIn(200);
+				$(document).scrollTop(document.body.scrollHeight);
+				var src = window.parent.$("#mainFrame").attr("src");
+				var noti = src.replace("manager/noticeUpdate.html?noti_id=","");
+				$("#noti").val(noti);
+				getNoticeShow(noti,"update");
+				
+			});
+			
+		</script>
+		<link rel="stylesheet" href="../css/base.css" />
+		<link rel="stylesheet" href="../css/main.css" />
+	</head>
+	<body>
+		<!-- 主面板 -->
+		<div class="main-box">
+			<div class="content-title">
+				<span>您当前位置：首页/修改通知</span>
+<!-- 				<p class="search"><input placeholder="请输入您要查询的信息" /><i></i></p> -->
+				<div class="clear"></div>
+			</div>
+			
+			<!-- 数据区 -->
+			<div class="content-data">
+				<h3 class="title">通知信息</h3>
+				<!-- 面板 -->
+				<div class="panel" id="updateNotice">	
+					<input type="hidden" id="noti_id" value=""/>			
+					<table class="panel-tab">
+						<tr><td class="title">通知标题</td>
+							<td colspan="3"><input id='noti_title' class="w" /></td>
+						</tr>
+						<tr>
+							<td class="title">通知状态</td>
+							<td>
+								<select id="noti_status">
+									<option value="0">正式发布</option>
+									<option value="1">不可查阅</option>
+									<option value="2">草稿</option>
+								</select>
+							</td>							
+						</tr>
+						<tr>
+							<td class="title">通知类别</td>
+							<td>
+								<select id="noti_type">
+									<option value="0">发行通知</option>
+									<option value="1">院线通知</option>
+								</select>
+							</td>
+						</tr>
+						<tr style="display:none;" id="doc_show"><td class="title">上传文档：</td>
+							<td colspan="3">
+								<h4 class="h4flag"  id="doc_name"></h4>
+								<button  onclick="updateDocumentUpload();">修改</button>
+							</td>
+						</tr>
+						<tr style="display:none;" id="doc_update">
+							<td class="title">上传文档</td>
+							<td colspan="3" id="btnimg">
+							<input type="file" id="document_upload" name="document_upload">
+							<button onclick="ajaxDocumentUpload();">上传</button>
+							</td>
+						</tr>
+						<tr style="display:none;" id="doc_show"><td class="title"></td>
+							<td colspan="3">
+								<h4 id="doc_name"></h4>
+							</td>
+						</tr>
+						<tr id="add"><td class="title">&nbsp;</td>
+							<td colspan="3">
+								<button onclick="addTextArea();">添加文本</button> 
+								<button onclick="addImage();">添加图片</button>
+							</td>
+						</tr>
+					</table>
+					<p class="panel-btn">
+						<button onclick="updateNotice();">修改</button>
+					</p>
+				</div>
+				
+			</div>
+		</div>
+		
+		
+	</body>
+</html>

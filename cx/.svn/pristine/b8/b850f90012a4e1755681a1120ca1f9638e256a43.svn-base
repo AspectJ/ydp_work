@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="adminInfo">
+	<!-- 查询管理员信息(登陆) -->
+	<select id="selAdminInfo" parameterType="java.util.Map" resultType="java.util.Map">
+		select adminname, adminpwd, adminid, cinemaid, create_time, last_login_time, nickname, state
+		  from t_admin
+		 where adminname = #{adminname};
+	</select>
+	
+	<update id="update_lastLoginTime">
+		UPDATE t_admin SET last_login_time= #{last_login_time} WHERE adminname = #{adminname};
+	</update>
+	
+	<!-- 查询管理员信息 -->
+	<select id="selSingleAdmin" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT adminname, adminpwd, adminid, a.cinemaid, a.create_time, last_login_time, nickname, state,a.audit_flag, b.name
+  		  FROM t_admin a left outer join t_cinemainfo b on a.cinemaid = b.cinemaid
+		WHERE adminid = #{adminid};
+	</select>
+	
+	<select id="selAdminById" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT adminname, cinemaid FROM t_admin WHERE adminid = #{adminid};
+<!-- 		SELECT adminname, adminpwd, adminid, cinemaid, create_time, last_login_time, nickname, state,audit_flag -->
+<!--   		  FROM t_admin -->
+<!-- 		 WHERE adminid = #{adminid}; -->
+	</select>
+	
+	<!-- 查询全部管理员信息列表 -->
+	<select id="getAdminInfoListCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+		select count(*) from t_admin
+	</select>
+	<select id="getAdminInfoList" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT adminname, adminpwd, adminid, a.cinemaid, a.create_time, last_login_time, nickname, state, b.name
+  		  FROM t_admin a left outer join t_cinemainfo b on a.cinemaid = b.cinemaid
+  	  order by create_time desc
+   		limit #{pageSize} offset #{offsetNum}; 
+	</select>
+	
+	<!-- 查询所有影院ID -->
+	<select id="getCinemaIdList" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT cinemaid, name FROM t_cinemainfo
+	</select>
+	
+	<!-- 添加管理员用户信息 -->
+	<insert id="insertAdminInfo" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="adminid">
+		insert into t_admin(adminname,adminpwd,cinemaid,nickname,audit_flag) 
+			values(#{adminname},#{adminpwd},#{cinemaid},#{nickname},#{audit})
+	</insert>
+	
+	<!-- 删除单条管理员信息 -->
+	<delete id="deleteAdminInfo" parameterType="java.util.Map">
+		delete from t_admin where adminid = #{adminid};
+	</delete>
+	
+	<!-- 更改管理员信息 -->
+	<update id="updateAdminInfo" parameterType="java.util.Map">
+		UPDATE t_admin
+   		   SET adminname= #{adminname}, cinemaid=#{cinemaid}, 
+   		   	   nickname= #{nickname}, state= #{state},
+   		   	   audit_flag = #{audit}
+ 		 WHERE adminid = #{adminid};
+	</update>
+	
+	<select id="modifyPwd" parameterType="java.util.Map">
+		UPDATE t_admin SET adminpwd = #{new_adminpwd} WHERE adminid = #{adminid}
+	</select>
+</mapper>

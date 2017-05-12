@@ -1,0 +1,284 @@
+$(function() {
+	// Logo，地区，主菜单
+	LogoMenuTextLoad(1);
+	
+	// 轮播图
+	carouselTextLoad("index");
+	// 底部导航
+	bottomTextLoad();
+	
+	CommAjaxLoad("movie/showing",{type:0,cityCode:"430100"}, 
+		function(data){
+			var movie_html = '<div class="first">';
+			movie_html += '<img src="'+ data[0].poster +'!200" />';
+			movie_html += '<p><span class="movie_title" onclick="javascript:window.location.href=\'movies/detail.html?movieid='+ data[0].movieid +'\'">'+ data[0].moviename +'</span><span class="remark">'+ data[0].remark +'</span></p>';
+			movie_html += '<div>'+ (data[0].director != null ? truncate(data[0].director, 20) : "") +'</br>';
+			movie_html += truncate(data[0].leadingRole, 20) +'</br>';
+			movie_html += (data[0].movietype != null ? truncate(data[0].movietype, 20) : "") +'</div>';
+			movie_html += '<span class="movie_show" onclick="javascript:window.location.href=\'movies/detail.html?movieid='+ data[0].movieid +'\'">电影详情</span></div>';
+			movie_html += '<div class="clear"></div>';
+			var length = data.length > 5 ? 5 : data.length;
+			movie_html += '<ul id="">';
+			for(var i=1; i<length; i++){
+				var movie = data[i];
+				movie_html += '<li onclick="javascript:window.location.href=\'movies/detail.html?movieid='+ movie.movieid +'\'"><span></span>'+ movie.moviename +'<label class="time">'+ movie.remark +'</label></li>';
+			}
+			movie_html += '</ul>';
+			$(".news_movie .content").html(movie_html);
+			$(".news_movie .more").on("click", function(){ window.location.href="movies/detail.html?movieid=" + data[0].movieid });
+		}
+	);
+});
+
+
+//必须登录才能进入院线家园
+function checkLogin() {
+	if(sessionStorage.getItem("nickname") == null) {
+		loginTextLoad();
+		return;
+	}
+	window.location.href = "homeland.html";
+}
+
+
+$(function(){
+	//新闻中心-->电影政策
+	$.ajax({
+		url: service_url + "newsinfo/selNewsByNewsType",
+		dataType: "jsonp",
+		jsonp: "jsonpCallback",
+		data: {
+			news_type: 0
+		},
+		success: function(data) {
+			var resultData = data.data;
+			var ImgPath = data.Img_path;
+			var length = resultData.length;
+			if(length > 5) {
+				length = 5;
+			}
+			//初始化
+			$(".dtzx_1 ul").empty();
+			//添加图片路径及其点击事件
+			$(".dtzx_1 img").attr("src",ImgPath);
+			$(".dtzx_1 img").click({news_id: data.Img_news_id}, function(event) {
+				var news_id = event.data.news_id;
+				showNewsDetail(news_id);
+			});
+			//添加图片对应的第一条资讯信息
+			$(".dtzx_1 ul").append("<li class='first' onclick='showNewsDetail("+data.Img_news_id+");'><span></span>"+data.Img_NewsTitle+"</li>");
+			for(var i = 0; i < length; i++) {
+				var news_title = resultData[i].news_title;
+				var news_id = resultData[i].news_id;
+				var content = "<li onclick='showNewsDetail("+news_id+");'><span></span>"+news_title+"</li>";
+				$(".dtzx_1 ul").append(content);
+			}
+		}
+	});
+	
+	//新闻中心-->行业资讯
+	$.ajax({
+		url: service_url + "newsinfo/selNewsByNewsType",
+		dataType: "jsonp",
+		jsonp: "jsonpCallback",
+		data: {
+			news_type: 1
+		},
+		success: function(data) {
+			var resultData = data.data;
+			var ImgPath = data.Img_path;
+			var length = resultData.length;
+			if(length > 5) {
+				length = 5;
+			}
+			//初始化
+			$(".dtzx_2 ul").empty();
+			//添加图片路径
+			$(".dtzx_2 img").attr("src",ImgPath);
+			$(".dtzx_2 img").click({news_id: data.Img_news_id}, function(event) {
+				var news_id = event.data.news_id;
+				showNewsDetail(news_id);
+			});
+			//添加图片对应的第一条资讯信息
+			$(".dtzx_2 ul").append("<li class='first' onclick='showNewsDetail("+data.Img_news_id+");'><span></span>"+data.Img_NewsTitle+"</li>");
+			for(var i = 0; i < length; i++) {
+				var news_title = resultData[i].news_title;
+				var news_id = resultData[i].news_id;
+				var content = "<li onclick='showNewsDetail("+news_id+");'><span></span>"+news_title+"</li>";
+				$(".dtzx_2 ul").append(content);
+			}
+		}
+	});
+	
+	//新闻中心-->院线资讯
+	$.ajax({
+		url: service_url + "newsinfo/selNewsByNewsType",
+		dataType: "jsonp",
+		jsonp: "jsonpCallback",
+		data: {
+			news_type: 2
+		},
+		success: function(data) {
+			var resultData = data.data;
+			var ImgPath = data.Img_path;
+			var length = resultData.length;
+			if(length > 5) {
+				length = 5;
+			}
+			//初始化
+			$(".dtzx_3 ul").empty();
+			//添加图片路径
+			$(".dtzx_3 img").attr("src", ImgPath);
+			$(".dtzx_3 img").click({news_id: data.Img_news_id}, function(event) {
+				var news_id = event.data.news_id;
+				showNewsDetail(news_id);
+			});
+			//添加图片对应的第一条资讯信息
+			$(".dtzx_3 ul").append("<li class='first' onclick='showNewsDetail("+data.Img_news_id+");'><span></span>"+data.Img_NewsTitle+"</li>");
+			for(var i = 0; i < length; i++) {
+				var news_title = resultData[i].news_title;
+				var news_id = resultData[i].news_id;
+				var content = "<li onclick='showNewsDetail("+news_id+");'><span></span>"+news_title+"</li>";
+				$(".dtzx_3 ul").append(content);
+			}
+		}
+	});
+	
+});
+
+function showNewsDetail(news_id) {
+	window.location.href = "dynamic/news.html?news_id="+news_id;
+}
+
+$(function(){
+	//楚湘动态
+	$.ajax({
+		url: service_url + "newsinfo/getCompanyDynamic",
+		type: "POST",
+		dataType: "jsonp",
+		jsonp: "jsonpCallback",
+		success: function(data) {
+			resultData = data.data;
+			var ImgObject = data.ImgObject;
+			console.log(ImgObject);
+			var titleContent = "<span class='dynamic_title' onclick='showNewsDetail("+ImgObject.news_id+");'>"+ImgObject.news_title+"</span>";
+			$(".news_center .first img").attr("src", ImgObject.org_path);
+			$(".news_center .first p").html(truncate(titleContent, 200));
+			$(".news_center .first div").html(truncate(ImgObject.news_content, 75));
+			
+			var length = resultData.length;
+			if(length > 4) {
+				length = 4;
+			}
+			$(".news_center ul").empty();
+			for(var i = 0; i < length; i++) {
+				var titleContent = "<li onclick='showNewsDetail("+resultData[i].news_id+");'><span></span>"+ truncate(resultData[i].news_title, 28) +"<label class='time'>"+resultData[i].create_time+"</label></li>";
+				$(".news_center .content ul").append(titleContent);
+			}
+		}
+	});
+	
+	
+	//影院风采
+	$.ajax({
+		url: service_url + "cinema/getJoinCinemaShow",
+		type: "POST",
+		dataType: "jsonp",
+		jsonp: "jsonpCallback",
+		success: function(data) {
+			var resultData = data.data;
+			for(var i = 0; i < 4; i++) {
+				$(".cinema .content .show:eq("+i+")").attr("src", resultData[i].org_path);
+				$(".cinema .bg_img:eq("+i+") div").html(resultData[i].j_name);
+			}
+			
+			var index = 0;
+			var size = resultData.length;
+			//点击上一张
+			$(".left").bind("click", function() {
+				if(index == 0) {
+					index = size - 1;
+				}else {
+					index = index - 1;
+				}
+				//清空图片缓存
+				$(".cinema .content .show").removeAttr("src");
+				for(var i = 0; i < 4; i++) {
+					$(".cinema .content .show:eq("+i+")").attr("src", resultData[(index+i)%size].org_path);
+					$(".cinema .bg_img:eq("+i+") div").html(resultData[(index+i)%size].j_name);
+				}
+			});
+			
+			//点击下一张
+			$(".right").bind("click", function() {
+				if(index == size - 1) {
+					index = 0;
+				}else {
+					index = index + 1;
+				}
+				//清空图片缓存
+				$(".cinema .content .show").removeAttr("src");
+				for(var i = 0; i < 4; i++) {
+					$(".cinema .content .show:eq("+i+")").attr("src", resultData[(index+i)%size].org_path);
+					$(".cinema .bg_img:eq("+i+") div").html(resultData[(index+i)%size].j_name);
+				}
+			});
+		}
+	});
+});
+
+//活动轮播图
+$(document).ready(function() {
+	$.ajax({
+		url: service_url + "activity/getActivityList",
+		type: "POST",
+		async: true,
+		data: {
+			pageSize: 4,
+			offsetNum: 0,
+			hasImg: "true",
+			audit_flag: "true"
+		},
+		dataType: "json",
+		jsonp: "jsonpCallback",
+		complete: {},
+		success: function(data) {
+			switch(data.result) {
+				case 1000:
+					var resultData = data.data;
+					console.log(resultData);
+					if(resultData != null && resultData.length > 0) {
+						$(".active_carousel img").attr("src", resultData[0].org_path);
+						$(".active_carousel img").bind("click", function() {
+							window.location.href = "activity_detail.html?acti_id=" + resultData[0].acti_id;
+						});
+						var index = 0;
+						setInterval(function() {
+							//图片轮换
+							if(index == resultData.length -1) {
+								index = 0;
+							}else {
+								index = index + 1;
+							}
+							$(".active_carousel img").attr("src", resultData[index].org_path);
+							$(".active_carousel img").bind("click", function() {
+								window.location.href = "activity_detail.html?acti_id=" + resultData[index].acti_id;
+							});
+							$(".active_carousel .position_num div").removeClass();
+							$(".active_carousel .position_num div").eq(index).addClass("cur");
+						}, 3000);
+						
+					}
+					break;
+				default: 
+					break;
+			}
+		}
+			
+	});
+});
+
+
+
+
+

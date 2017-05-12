@@ -1,0 +1,161 @@
+package com.cx.rest.movie;
+
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+
+import org.jboss.resteasy.annotations.cache.NoCache;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cx.bean.ResMessage;
+import com.cx.filter.BaseServlet;
+import com.cx.util.CodeUtil;
+import com.mongo.MyMongo;
+import com.ydp.servier.bean.DataMessage;
+import com.ydp.servier.facade.IServiceMovie;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+@Path("rest/movie")
+@NoCache
+@Service
+public class MovieRest extends BaseServlet
+{
+	@Autowired
+	private IServiceMovie serviceMovie;
+	
+	/**
+	 * 正在热映
+	 */
+	@GET
+	@POST
+	@Path("/showing")
+	@Produces("application/json;charset=UTF-8")
+	public String showing(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		
+		String type = request.getParameter("type"); // 0：热映，1：即将上映
+		String cityCode = request.getParameter("cityCode");
+		
+		try
+		{
+			if (CodeUtil.checkParam(type, cityCode))
+			{
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			
+			DataMessage dataMessage = null;
+			if("0".equals(type)){
+				dataMessage = serviceMovie.movieList(cityCode);
+			}else {
+				dataMessage = serviceMovie.immovieList();
+			}
+			
+			if (dataMessage.isSuccess())
+			{
+				String hotMovie = (String) dataMessage.getData();
+				JSONArray hostMovieArr = JSONArray.fromObject(hotMovie);
+				
+				JSONArray resultmovieArr = new JSONArray();
+				for (Object object : hostMovieArr)
+				{
+					JSONObject movie = (JSONObject) object;
+					JSONObject resultMovie = new JSONObject();
+					
+					resultMovie.put("movieid", movie.get("movieid"));
+					resultMovie.put("moviename", movie.get("moviename"));
+					resultMovie.put("remark", movie.get("moviescore"));
+					resultMovie.put("director", movie.get("director"));
+					resultMovie.put("leadingRole", movie.get("protagonist"));
+					resultMovie.put("poster", movie.get("poster"));
+					resultMovie.put("movietype", movie.get("movietype"));
+					resultmovieArr.add(resultMovie);
+				}
+				resultJson.put("data", resultmovieArr);
+			}
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("上映电影", e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("上映电影",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 影片详情
+	 */
+	@SuppressWarnings("unchecked")
+	@GET
+	@POST
+	@Path("/movieDetail")
+	@Produces("application/json;charset=UTF-8")
+	public String movieDetail(@Context HttpServletRequest request, @Context HttpServletResponse response)
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		
+		String movieid = request.getParameter("movieid");
+		
+		if (CodeUtil.checkParam(movieid))
+		{
+			MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+			return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+		}
+		
+		try
+		{
+			DataMessage dataMessage = serviceMovie.movieMess(movieid);
+			if (dataMessage.isSuccess())
+			{
+				Map<String, String> movieMap = (Map<String, String>) dataMessage.getData();
+			
+				JSONObject jsonObject = new JSONObject();
+				
+				if (movieMap != null)
+				{
+					CodeUtil.jsonPutVlue(jsonObject, movieMap, "movieid", "showid", "");
+					CodeUtil.jsonPutVlue(jsonObject, movieMap, "moviename", "showName", "");
+					CodeUtil.jsonPutVlue(jsonObject, movieMap, "poster", "");
+					CodeUtil.jsonPutVlue(jsonObject, movieMap, "feature", "");
+					CodeUtil.jsonPutVlue(jsonObject, movieMap, "stagePhoto", "");
+					CodeUtil.jsonPutVlue(jsonObject, movieMap, "director", "");
+					CodeUtil.jsonPutVlue(jsonObject, movieMap, "movielength", "duration", "");
+					CodeUtil.jsonPutVlue(jsonObject, movieMap, "movietype", "movieType", "");
+					CodeUtil.jsonPutVlue(jsonObject, movieMap, "protagonist", "leadingRole", "");
+					CodeUtil.jsonPutVlue(jsonObject, movieMap, "releasedtime", "openDay", "");
+					CodeUtil.jsonPutVlue(jsonObject, movieMap, "moviescore", "remark", "");
+					CodeUtil.jsonPutVlue(jsonObject, movieMap, "movietype", "movietype", "");
+					CodeUtil.jsonPutVlue(jsonObject, movieMap, "moviearea", "moviearea", "");
+				}
+				resultJson.put("data", jsonObject);
+			}
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("影片详情", e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("影片详情",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+}

@@ -1,0 +1,26 @@
+.left_activity{margin-top: 120px;width: 900px;float: left;background-color: #fff;height:auto;min-height: 560px;}
+.left_activity .img{margin:0px auto; text-align: center;}
+.left_activity .headImg{padding: 3px;width: 300px; height: 420px;}
+.left_activity .view{line-height: 50px; color: #A4A4A5;}
+.left_activity .view .time{float:none !important;margin-left: 60px;font-size: 16px;color:#666767;}
+.left_activity .view .see{margin-left: 510px;padding-left: 50px;font-size: 16px;color:#666767;background-image: url(/img/dynamic_visit.png);background-repeat: no-repeat;}
+.left_activity .content{border-top: 1px solid #CCCDCE; margin: 0px 10px;}
+.left_activity .content h2{text-align: center;padding-top: 50px;padding-bottom: 10px;}
+.left_activity .content p{padding: 10px 25px; line-height: 200%; color: #666767;}
+.left_activity .content p img{width: 740px; padding: 10px;}	
+.left_activity .content	.share{padding-bottom: 60px;padding-top: 10px;padding-left: 500px; color: #A7A8A8;}
+.left_activity .content	.share img{vertical-align: middle; margin-left: 20px;}
+	
+.other_activity{margin-top: 120px;width: 280px;float: right;}
+.other_activity .other{line-height: 50px; border: 1px solid #A7A8A8; font-size: 17px;font-weight: bold; color: #666767; padding-left: 12px;}
+.other_activity ul{border: 1px solid #A7A8A8; font-size: 16px;color: #666767; padding: 15px 0 15px 20px;}
+.other_activity ul li{list-style-type: none;padding: 6px 0;white-space: nowrap;width: 250px;overflow: hidden;text-overflow:ellipsis;color: #929394;}
+.other_activity ul li .hot{color:#eb002a}
+.other_activity ul li:hover{cursor: pointer;text-decoration: underline;color:#6495ED}
+
+.other_activity img{border: 1px solid #A7A8A8;padding: 5px 8px; margin-top: 20px;width: 260px;height:177px;}
+.other_activity div div{position:absolute; z-index:2; left:10px; top:170px;font-size:15px;font-weight:bold;color:white;overflow:hidden;white-space:nowrap;width:245px;text-overflow:ellipsis;margin:8px 2px}
+.other_activity div div:hover{text-decoration: underline; color:#6495ED;cursor: pointer;}
+
+.bottom_top{height:50px; clear:both;} 
+.bottom{clear: both !important;}

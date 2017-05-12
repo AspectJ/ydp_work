@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>影院总部管理系统</title>
+		<link rel="stylesheet" href="../css/base.css" />
+		<link rel="stylesheet" href="../css/main.css" />
+	</head>
+	<body>
+		<!-- 主面板 -->
+		<div class="main-box">
+			<div class="content-title">
+				<span>您当前位置：修改系统用户</span>
+				<!-- <p class="search"><input placeholder="请输入您要查询的信息" /><i></i></p> -->
+				<div class="clear"></div>
+			</div>
+			
+			<!-- 数据区 -->
+			<div class="content-data">
+				<h3 class="title">管理员中心</h3>
+				<!-- 面板 -->
+				<div class="panel" id="adminInfoUpdate">
+					<input type="hidden" id="admin_id" value=""/>				
+					<table class="panel-tab">
+						<tr>
+							<td class="title">用户名：</td>
+							<td><input type="text" id='admin_name' readonly="readonly"/></td>
+						</tr>
+						<tr><td class="title">昵称：</td>
+							<td><input id='admin_nickname'/></td>
+						<tr/>
+						<tr><td class="title">院线名称：</td>
+							<td  id="cinema_name"></td>
+						</tr>
+						<tr><td class="title">状态：</td>
+							<td><select id="admin_state" style="width:80px;">
+									<option value="0">可用</option>
+									<option value="1">禁用</option>
+								</select>
+							</td>
+						</tr>
+						<tr><td class="title">能否审核：</td>
+							 <td><input id='checkbox_audit' type="checkbox" /></td>
+						</tr>
+					</table>
+					<p class="panel-btn">
+						<button onclick="updateAdminInfo();">更改</button>
+					</p>
+				</div>
+				
+			</div>
+		</div>
+		
+		<script type="text/javascript" src="../js/jquery-1.11.2.min.js" ></script>
+		<script type="text/javascript" src="../js/public.js" ></script>
+ 		<script type="text/javascript" src="../js/admininfoupdate.js" ></script> 
+		<script>
+ 			$(function(){
+				$("#adminInfoUpdate").fadeIn(200);
+				$(document).scrollTop(document.body.scrollHeight);
+				
+				var src = window.parent.$("#mainFrame").attr("src");
+				var admin_id = src.replace("auser/adminInfoUpdate.html?adminid=","");
+				$("#admin_id").val(admin_id);
+				getAdminInfoShow(admin_id, "update");
+			}); 
+			
+		</script>
+	</body>
+</html>
+
+
+
+
+
+
+

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="activity">
+
+	<!-- 新增最新活动信息 -->	
+	<insert id="insertActivity" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="acti_id">
+		insert into t_activity( acti_title,acti_img,acti_content,acti_status,cinemaid,author,brows_times,
+			start_time,end_time) 
+		values (#{acti_title}, #{acti_img}, #{acti_content}, #{acti_status}, #{cinemaid}, #{author},#{brows_times}, 
+			#{start_time}, #{end_time})
+	</insert>
+	
+	
+	<!-- 查询最新活动信息 -->
+	<select id="getActivity" parameterType="java.util.Map" resultType="java.util.Map">
+		select acti.acti_id, acti.acti_title, acti.acti_img, acti.acti_content, acti.acti_status, acti.cinemaid,
+			acti.create_time, acti.update_time, acti.author, acti.brows_times, acti.start_time, acti.end_time,
+			image.org_path 
+		 from t_activity acti join t_image image on acti.acti_img = image.imageid 
+	  where acti.acti_id = #{acti_id} 
+	</select>
+	
+	<!-- 修改最新活动信息 -->
+	<update id="updateActivity" parameterType="map">
+		update t_activity set acti_title = #{acti_title}, audit_flag = 0
+			<if test="acti_content != null">
+				,acti_content = #{acti_content}
+			</if>
+			<if test="acti_status != null">
+				,acti_status = #{acti_status}
+			</if>
+			<if test="update_time != null">
+				,update_time = #{update_time}
+			</if>
+			<if test="start_time != null">
+				,start_time = #{start_time}
+			</if>
+			<if test="end_time != null">
+				,end_time = #{end_time}
+			</if>
+			<if test="author != null">
+				,author = #{author}
+			</if>
+		where acti_id = #{acti_id} 
+	</update>
+	
+	<update id="updateActivity_Audit" parameterType="map">
+		update t_activity set audit_flag = #{audit_flag} where acti_id = #{acti_id} 
+	</update>
+	
+	<!-- 删除最新活动信息 -->
+	<delete id="deleteActivity" parameterType="map">
+		delete from t_activity where acti_id = #{acti_id} 
+	</delete>
+	
+	<!-- 最新活动信息查询 -->
+	<select id="getActivityListCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+		select count(*) from t_activity
+		where 1 = 1
+		<if test='audit_flag != null and audit_flag == "1"'>
+			AND audit_flag = 1 
+			AND acti_status = 0
+		</if>
+	</select>
+	<select id="getActivityList" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT acti.acti_id,acti.acti_title,acti.acti_img,acti.acti_content,acti.acti_status,acti.cinemaid,
+			acti.create_time,acti.update_time,acti.author,acti.brows_times, acti.start_time,acti.end_time , 
+			image.org_path, acti.audit_flag
+		 FROM t_activity acti join t_image image on acti.acti_img = image.imageid
+		WHERE 1 = 1
+		<!-- 查询审核通过的 -->
+		<if test='audit_flag != null and audit_flag == "1"'>
+			AND acti.audit_flag = 1 
+			AND acti.acti_status = 0
+		</if>
+		ORDER BY acti.create_time desc LIMIT ${pageSize} OFFSET ${offsetNum}
+	</select>
+	
+	
+	<!-- 前台查看    楚湘动态   最新活动   信息 -->
+	<select id="getFrontActivityList" resultType="java.util.Map">
+		SELECT acti_id, acti_title, acti_img, update_time, org_path, acti_content, start_time, end_time
+		  FROM t_activity a join t_image b ON a.acti_img = b.imageid
+	  ORDER BY a.create_time desc;
+	</select>
+	<!-- 更新活动点击量 -->
+	<update id="updateBrowsTimes" parameterType="java.util.Map">
+		  UPDATE t_activity SET brows_times = brows_times + 1 WHERE acti_id = #{acti_id};
+	</update>
+	
+	<!-- 查询热门活动信息 -->
+	<select id="getHotActivity" resultType="java.util.Map">
+		SELECT acti_id, acti_title, acti_content, org_path
+		  FROM t_activity a join t_image b on a.acti_img = b.imageid
+		 WHERE audit_flag = 1
+		ORDER BY brows_times desc, a.create_time desc
+		LIMIT 5 OFFSET 0; 
+	</select>
+</mapper>

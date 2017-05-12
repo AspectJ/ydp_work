@@ -1,0 +1,10 @@
+import React, { PropTypes } from 'react'
+import { Table, pagination, Icon, Button, Popconfirm } from 'antd'
+
+let NewsManage = () => {
+  return (
+    <div></div>
+  );
+};
+
+export default NewsManage

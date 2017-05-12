@@ -1,0 +1,31 @@
+import React from 'react'
+import { Menu, Icon } from 'antd'
+import { Link } from 'dva/router'
+import styles from './AsideBar.less'
+
+const SubMenu = Menu.SubMenu;
+
+let AsideBar = () => {
+  return (
+    <aside className={styles.antLayoutSider}>
+      <Menu mode="inline" defaultSelectedKeys={['1']} defaultOpenKeys={['sub1', 'sub2', 'sub3']}>
+        <SubMenu key="sub1" title={<span><i className={"anticon " + styles.iconCinema}></i>影院管理</span>}>
+          <Menu.Item key="1"><Link to='/cx/cinemalist'>影院信息管理</Link></Menu.Item>
+          <Menu.Item key="2"><Link to='/cx/usersmanage'>平台用户管理</Link></Menu.Item>
+        </SubMenu>
+        <SubMenu key="sub2" title={<span><Icon type="calendar" />信息管理</span>}>
+          <Menu.Item key="3"><Link to="/cx/newsmanage">院线资讯管理</Link></Menu.Item>
+          <Menu.Item key="4"><Link to="/cx/activesmanage">最新活动管理</Link></Menu.Item>
+          <Menu.Item key="5"><Link to="/cx/releasesmanage">发行通知管理</Link></Menu.Item>
+          <Menu.Item key="6"><Link to="/cx/sourcesmanage">素材中心管理</Link></Menu.Item>
+          <Menu.Item key="7"><Link to="/cx/bannermanage">轮播管理</Link></Menu.Item>
+        </SubMenu>
+        <SubMenu key="sub3" title={<span><Icon type="team" />系统管理</span>}>
+          <Menu.Item key="8"><Link to="/cx/adminsnamage">系统用户管理</Link></Menu.Item>
+        </SubMenu>
+      </Menu>
+    </aside>
+  );
+}
+
+export default AsideBar

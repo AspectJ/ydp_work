@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>楚湘院线-院线家园</title>
+		<link rel="icon" href="img/favicon.ico" type="image/x-icon" />
+		<link rel="stylesheet" href="css/base.css" />
+		<link rel="stylesheet" href="css/main.css" />
+		<link rel="stylesheet" href="css/about.css" />
+		
+		<script type="text/javascript" src="js/lib/jquery/jq.min.js" ></script>
+		<script type="text/javascript" src="js/lib/jquery/jquery.cookie.js" ></script>
+		<script type="text/javascript" src="js/public.js" ></script>
+		<script type="text/javascript" src="js/about.js" ></script>
+	</head>
+	<body>
+		<!-- 顶部登录部分 -->
+		<div class="top"></div>
+		<!-- Logo，地区，主菜单 -->
+		<div class="title"></div>
+		<!-- 描述：轮播图 -->
+		<div class="carousel"></div>
+        
+        <div class="clear" style="margin-top: 520px;"></div>
+        <div class="gycx">
+        	<div class="leftText">
+				<div class="head">关于楚湘</div>    
+				<div class="view1" target="text_1"><div class="option cur">楚湘简介</div></div>
+				<div class="view2" target="text_2"><div class="option">公司理念</div></div>
+				<div class="view3" target="text_3"><div class="option">院线资质</div></div>
+        	</div>
+        	<div class="rightText">
+        		<div class="text_1">
+		        	<div class="headline">楚湘简介</div>
+		        	<div class="content">
+		        		<p>湖南楚湘影业有限责任公司位于美丽富饶湖南省长沙市开福区烈士公园旁,于二OO一年广播电影电视总局批准成立全国跨省电影发行院线，由湖南省电影发行放映中心、湖南大剧院、湖南省演出公司共同出资叁佰万元人民币组成，隶属于湖南省文化厅、湖南省电视台。湖南楚湘影业有限责任公司主要经营全国范围内电影发行；音像制品批发、零售；设计，制作影视广告，代理影视，印刷品广告；投资文化娱乐业,提供商业礼仪服务。自二OO一年运营至今，楚湘院线已拥有影院有百余家，分布在广东、江苏、江西、内蒙、湖北、山东、河北等省和湖南省14个地州市。在省内行业中极具影响力。湖南楚湘影业有限责任公司本着“以诚待人、以信为本、共同发展”的宗旨，与您携手并进，共创辉煌！</p>
+		        		<p>近年来，中国电影发展速度突飞猛进，随着全国城市化进程的加快，现代化影城在各地建设如雨后春笋。电影院作为与购物商场相互呼应的主要商业业态已完全形成。电影院对购物中心有聚集人气、提高留客时间、客流导向性、提高档次与长久的时尚周期、增加招商号召力与引领性等复合性的功能作用，电影院是当之无愧的主力，我们真诚希望与开发商合作，最大化地实现双方的互惠共赢。</p>
+		        	</div>
+		        </div>
+		        
+		        <!--楚湘风采-->
+		        <div class="text_2">
+		        	<div class="headline">公司理念</div>
+		        	<div class="content">
+		        		<p>楚湘院线专注于影院投资建设、开发合作、经营管理、专业培训，以及影视制作、广告经营等电影产业中各个环节的运营、服务。旗下自营、合作加盟影院，遍布中国15个省市自治区。楚湘院线一直秉承着为加盟影院全心全意地提供一站式服务的宗旨，为影院提供系列的全方位专业服务。</p>
+		        	</div>
+		        </div>
+
+		        <div class="text_3">
+		        	<div class="headline">院线资质</div>
+		        	<div class="content">
+						<p> 1、国家广电总局批准的全国首批跨省院线；</p>
+						<p> 2、拥有全国同步影片发行的合法资质；</p>
+						<p> 3、拥有高度专业的影院经营模式，优越的院线加盟条件；</p>
+						<p> 4、致力于为旗下加盟影院输出现代影院的经营理念和管理经验。</p>
+		        	</div>
+		        </div>
+        	</div>
+        </div>
+
+        <!-- 描述：底部 -->
+        <div class="clear"></div>
+        <div class="bottom"></div>
+        
+        <!-- 在线资讯 -->
+        <div class="online_consultation"></div>
+	</body>
+</html>

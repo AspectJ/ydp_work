@@ -1,0 +1,279 @@
+var pageSize = 6;
+var offsetNum = 0;
+$(function() {
+	// Logo，地区，主菜单
+	LogoMenuTextLoad(1);
+
+	// 轮播图
+	carouselTextLoad("index");
+
+	// 底部导航
+	bottomTextLoad();
+
+	CommAjaxLoad("movie/showing",{type:0,cityCode:"430100"},
+		function(data) {
+			$('.zxyp .clearfix img').attr('src', (!!data[0].poster ?  data[0].poster : default_img)); 	//最新影片图片
+			//查看电影详情
+            $('.zxyp .clearfix img, .zxyp .clearfix .item-title .name, .zxyp .clearfix .item-intro .btn').on('click', function(){showMovieDetail(data[0].movieid)});
+			$('.zxyp .clearfix .item-title .name').html(data[0].moviename);		//电影名称
+			$('.zxyp .clearfix .item-title .rank').html(data[0].remark);		//电影评分
+			//电影导演 / 主演 / 类型
+			var content = '<div>' + (!!data[0].director ? truncate(data[0].director, 20) : "") +
+				              '<br>'+ (!!data[0].leadingRole ? truncate(data[0].leadingRole, 20) : "") +
+											'<br>' + (!!data[0].movietype ? truncate(data[0].movietype, 20) : "") +
+				          '</div>';
+			//电影介绍
+			$('.zxyp .clearfix .item-intro .detail').empty().append(content);
+
+
+			var length = data.length > 4 ? 4 : data.length;
+      		$('.zxyp ul').empty();  //清空<ul>里的数据，重新装填
+
+			for(var i = 1; i < length; i++) {
+				content  = '<li class="item-title" onclick="showMovieDetail('+data[i].movieid+')">';
+				content += 		'<span class="name pointer"><i>'+i+'</i>'+data[i].moviename+'</span>';
+				content += 		'<span class="rank">'+data[i].remark.toFixed(1)+'</span>';
+				content += '</li>';
+        	$('.zxyp ul').append(content);  //电影介绍
+			}
+		}
+	);
+});
+
+function showMovieDetail(movieid) {
+	window.location.href = './movies/detail.html?movieid=' + movieid;
+}
+
+
+//必须登录才能进入院线家园
+function checkLogin() {
+	if(localStorage.getItem("nickname") == null) {
+		loginTextLoad();
+		return;
+	}
+	window.location.href = "homeland.html";
+}
+
+
+$(function(){
+	//新闻中心-->电影政策
+	$.ajax({
+		url: service_url + "newsinfo/getNewsListByType",
+		dataType: "jsonp",
+		jsonp: "jsonpCallback",
+		data: {
+			news_type: 0,
+			pageSize: 10,
+			offsetNum: 0
+		},
+		success: function(data) {
+			var resultData = data.data;
+            var content = '';
+			if(resultData != null && resultData.length >0) {
+                $("div.slide-tab ul#dyzc").empty();
+				for(var i = 0; i < resultData.length; i++) {
+					content = '<li onclick="showNewsDetail('+resultData[i].news_id+')"><span class="item-title">'+ resultData[i].news_title +'</span><span class="item-time">'+ resultData[i].create_time.substr(0,10)+'</span></li>';
+					$("div.slide-tab ul#dyzc").append(content);
+				}
+			}
+		}
+	});
+
+	//新闻中心-->行业资讯
+	$.ajax({
+		url: service_url + "newsinfo/getNewsListByType",
+		dataType: "jsonp",
+		jsonp: "jsonpCallback",
+		data: {
+			news_type: 1,
+            pageSize: 10,
+            offsetNum: 0
+		},
+        success: function(data) {
+            var resultData = data.data;
+            var content = '';
+            if(resultData != null && resultData.length >0) {
+                $("div.slide-tab ul#hyzx").empty();
+                for(var i = 0; i < resultData.length; i++) {
+                    content = '<li onclick="showNewsDetail('+resultData[i].news_id+')"><span class="item-title">'+ resultData[i].news_title +'</span><span class="item-time">'+ resultData[i].create_time.substr(0,10)+'</span></li>';
+                    $("div.slide-tab ul#hyzx").append(content);
+                }
+            }
+        }
+	});
+
+	//新闻中心-->院线资讯
+	$.ajax({
+		url: service_url + "newsinfo/getNewsListByType",
+		dataType: "jsonp",
+		jsonp: "jsonpCallback",
+		data: {
+			news_type : 2,
+			pageSize : 2,
+			offsetNum : 0
+		},
+		success: function(data) {
+			var resultData = data.data;
+			var default_img = '../img/yxzx.png';
+			if(resultData != null && resultData.length > 0) {
+				for(var i = 0 ; i < resultData.length; i++) {
+                    var img_path = (!!resultData[i].org_path ?  resultData[i].org_path : default_img);
+                    $("div.yxzx .item:eq(" + i + ") img").attr("src", img_path);
+                    $("div.yxzx .item").bind("click", {news_id:resultData[i].news_id}, function(event){showNewsDetail(event.data.news_id)});
+                    $("div.yxzx .item:eq(" + i + ") .item-title").html(resultData[i].news_title);
+                    $("div.yxzx .item:eq(" + i + ") .item-intro").html(disposeHtmlTag(resultData[i].news_content));
+				}
+
+			}
+		}
+	});
+
+
+	// slide-tab
+	$('.slide-tab h1').click(function(){
+		if(!$(this).hasClass('current')) return;
+
+		// title
+		$(this).removeClass('current').siblings('h1').addClass('current');
+
+		// more
+		var more = $(this).siblings('a.current');
+		more.removeClass('current').siblings('a').addClass('current');
+
+		// list
+		var list = $(this).parent('.section-header').siblings('.section-body').children('.current');
+		list.removeClass('current').siblings('ul').addClass('current');
+	});
+});
+
+function showNewsDetail(news_id) {
+	window.location.href = "dynamic/news.html?news_id="+news_id;
+}
+
+$(function(){
+	//楚湘动态
+	$.ajax({
+		url: service_url + "newsinfo/getNewsListByType",
+		type: "POST",
+		dataType: "jsonp",
+		data: {
+            news_type: 3,
+			pageSize: 5,
+			offsetNum: 0
+		},
+		jsonp: "jsonpCallback",
+		success: function(data) {
+			resultData = data.data;
+            var default_img_cxdt = '../img/cxdt.png';
+			var first = '<div class="item-title pointer" onclick="showNewsDetail(' + resultData[0].news_id + ')">' + resultData[0].news_title + '</div><div class="item-intro">' + disposeHtmlTag(resultData[0].news_content) + '</div>';
+			$('.cxdt .first-item .item-info').empty().html(first);
+			$('.cxdt .first-item img').attr('src', (!!resultData[0].org_path ?  resultData[0].org_path : default_img_cxdt));
+            $('.cxdt .first-item img').bind('click', {news_id: resultData[0].news_id}, function(event){showNewsDetail(event.data.news_id)});
+
+			var titleContent = '';
+			for(var i = 1; i < resultData.length; i++) {
+				 titleContent += "<li onclick='showNewsDetail("+resultData[i].news_id+")'><span class='item-title'>" + resultData[i].news_title + "</span><span class='item-time'>" + resultData[i].create_time.substr(0,10) + "</span></li>";
+			}
+			$(".cxdt ul").html(titleContent);
+		}
+	});
+
+
+	//影院风采
+	$.ajax({
+		url: service_url + "cinema/getJoinCinemaShow",
+		type: "POST",
+		dataType: "jsonp",
+		jsonp: "jsonpCallback",
+		success: function(data) {
+			var resultData = data.data;
+			var default_img_yyfc = '../img/yyfc.png';
+			for(var i = 0; i < 4; i++) {
+				$(".cinema .content .show:eq("+i+")").attr("src", (!!resultData[i].org_path ? resultData[i].org_path : default_img_yyfc));
+				$(".cinema .bg_img:eq("+i+") div").html(resultData[i].j_name);
+			}
+
+			var index = 0;
+			var size = resultData.length;
+			//点击上一张
+			$(".left").bind("click", function() {
+				if(index == 0) {
+					index = size - 1;
+				}else {
+					index = index - 1;
+				}
+				//清空图片缓存
+				$(".cinema .content .show").removeAttr("src");
+				for(var i = 0; i < 4; i++) {
+					$(".cinema .content .show:eq("+i+")").attr("src", (!!resultData[(index+i)%size].org_path ? resultData[(index+i)%size].org_path : default_img_yyfc));
+					$(".cinema .bg_img:eq("+i+") div").html(resultData[(index+i)%size].j_name);
+				}
+			});
+
+			//点击下一张
+			$(".right").bind("click", function() {
+				if(index == size - 1) {
+					index = 0;
+				}else {
+					index = index + 1;
+				}
+				//清空图片缓存
+				$(".cinema .content .show").removeAttr("src");
+				for(var i = 0; i < 4; i++) {
+					$(".cinema .content .show:eq("+i+")").attr("src", (!!resultData[(index+i)%size].org_path ? resultData[(index+i)%size].org_path : default_img_yyfc));
+					$(".cinema .bg_img:eq("+i+") div").html(resultData[(index+i)%size].j_name);
+				}
+			});
+		}
+	});
+});
+
+//活动轮播图
+$(document).ready(function() {
+	$.ajax({
+		url: service_url + "activity/getActivityList",
+		type: "POST",
+		data: {pageSize: 5, offsetNum: 0, audit_flag: 1},
+		dataType: "json",
+		jsonp: "jsonpCallback",
+		complete: {},
+		success: function(data) {
+			switch(data.result) {
+				case 1000:
+					var resultData = data.data;
+					var default_img_hdlb = '../img/hdlb.png';
+					if(resultData != null && resultData.length > 0) {
+						$(".active_carousel img").attr("src", (!!resultData[0].org_path ? resultData[0].org_path : default_img_hdlb));
+						$(".active_carousel img").on("click", function() {
+							window.location.href = "activity_detail.html?acti_id=" + resultData[0].acti_id;
+						});
+						var index = 0;
+						setInterval(function() {
+							//图片轮换
+							if(index == resultData.length -1) {
+								index = 0;
+							}else {
+								index = index + 1;
+							}
+							$(".active_carousel img").attr("src", (!!resultData[index].org_path ? resultData[index].org_path : default_img_hdlb));
+							$(".active_carousel img").bind("click", function() {
+								window.location.href = "activity_detail.html?acti_id=" + resultData[index].acti_id;
+							});
+							$(".active_carousel .position_num div").removeClass();
+							$(".active_carousel .position_num div").eq(index).addClass("cur");
+						}, 3000);
+					}
+					break;
+				default:
+					break;
+			}
+		}
+
+	});
+});
+
+
+//查看资讯详细
+function showNewsDetail(news_id) {
+    window.location.href = "./dynamic/news.html?news_id="+news_id;
+}

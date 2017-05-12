@@ -1,0 +1,40 @@
+.film{position:absolute;top:480px;left:0;width:100%;background-color:#F7F9FA;padding-top:20px;padding-bottom:20px}
+.film .showing{width:840px;height:540px;float:left;margin:10px 10px 10px 40px;padding-top:10px}
+.film .showing .film_lab{font-size:18px;color:#A7A7A7;font-weight:bold}
+.film .showing .film_lab span{margin-right:10px;padding-bottom:6px;cursor:pointer}
+.film .showing .film_lab .cur{color:#EB002A;border-bottom:3px solid #EB002A}
+.film .showing .films{margin-top:6px;border-top:1px solid #E5E5E5}
+.film .showing .films table{margin-top:5px;width:100%;height:100%;}
+.film .showing .films table tr{height:250px;}
+.film .showing .films table td{padding-left: 7px;}
+.film .showing .films table td .showmovie{width:150px;color:#fff;font-size:12px;font-weight:bold; background-repeat: no-repeat;}
+.film .showing .films table td .showmovie .movie_mess{padding-top:20px;height:185px;}
+.film .showing .films table td .showmovie .moviename{position: absolute; margin-top: -20px; margin-left: 10px; width: 132px}
+.film .showing .films table td .showmovie .moviename span{float: right;}
+.film .showing .films table td .buy_ticket{font-weight:bold;background-color:#EB002A;cursor:pointer;text-align:center;padding:8px 0px;width: 100%;margin-left: 0;}
+.film .showing .films table td .showmovie .movie_mess p{display:none;line-height:100%;margin:15px 15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.film .showing .films table td .showmovie .moviename{height:20px;}
+.film .showing .films table td .showmovie .mouseover{background: rgba(0,0,0,0.6)!important;}
+
+.film .quick{width:230px;height:540px;float:right;margin:10px 40px 10px 10px;padding-top:10px}
+.film .quick .quick_lab{font-size:18px;font-weight:bold;color:#494848;padding-bottom:6px;cursor:pointer}
+.film .quick .quick_bn{border:1px solid #E5E5E5;line-height:65px;text-align:center;margin-bottom:15px}
+.film .quick .quick_bn button{color:#fff;background-color:#EB002A;height:50px;vertical-align:middle;font-size:25px;border:none;width:220px;cursor:pointer}
+.film .quick .hot{background-color:#F4F4F4;width:100%;height:400px}
+.film .quick .hot ul{margin-top:0px;padding-top:10px}
+.film .quick .hot li{list-style-type:none;padding:15px 0px 15px 0px;font-weight:bold;vertical-align:middle;}
+.film .quick .hot li div{background-color:#888989;text-align:center;font-size:18px;float:left;margin-left:-20px;color:#F7F6F7;padding:6px 12px 5px 11px;border-radius:20px}
+.film .quick .hot li .hostest{background-color:#EB002A}
+.film .quick .hot li a{text-decoration:none;margin-left:10px;vertical-align:middle;color:#5C5B5B;font-size:21px}
+
+.cinema{position:absolute;top:1100px;left:0;width:100%;background-color:#F7F9FA;padding-top:20px;padding-bottom:20px}
+.cinema .hot_cinema{width:840px;height:500px;float:left;margin:10px 10px 10px 40px;padding-top:10px}
+.cinema .hot_cinema .lab,.cinema .activity .lab{font-size:18px;font-weight:bold;color:#494848;padding-bottom:6px;cursor:pointer}
+.cinema .hot_cinema .mess{color:#CACACA;font-size:11px;float:right;text-align:right;width:500px;margin-right:10px;margin-top:-25px}
+.cinema .hot_cinema .cinemas .cinema_div{border-top:1px solid #E5E5E5;height:120px;font-weight:bold}
+.cinema .hot_cinema .cinemas .cinema_div img{vertical-align:middle;margin-right:8px}
+.cinema .hot_cinema .cinemas .cinema_div .cinemaName{font-size:22px;color:#606060;margin-top:20px}
+.cinema .hot_cinema .cinemas .cinema_div .cinemaAddress{font-size:15px;color:#A7A8A8;margin-top:20px;margin-left:10px}
+.cinema .hot_cinema .cinemas .cinema_div .cinema_buy_ticket{font-size:15px;font-weight:bold;color:#fff;border-radius:8px;background-color:#EB002A;width:120px;height:33px;border:none;float:right;right:20px;margin-top:-40px}
+.cinema .activity{width:230px;height:500px;float:right;margin:10px 40px 10px 10px;padding-top:10px}
+.cinema .activity .new_active{background-color:#F4F4F4;width:100%;height:460px}

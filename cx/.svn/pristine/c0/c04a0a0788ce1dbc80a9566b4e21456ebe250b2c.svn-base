@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>影院总部管理系统</title>
+  <link rel="stylesheet" href="/cx/m/index.css" />
+</head>
+<body>
+
+<div id="root"></div>
+
+<script src="/cx/m/common.js"></script>
+<script src="/cx/m/index.js"></script>
+
+</body>
+</html>

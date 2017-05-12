@@ -1,0 +1,717 @@
+var pageCount = 0;
+var pageSize = 10;
+var offsetNum = 0;
+var currentpage = "";
+var cinimaStyle ;
+var loadCityData_flag = true;
+// var update_choice_CityData ;
+
+$(function() {
+	var src = window.parent.$("#mainFrame").attr("src");
+	currentpage = src.replace("manager/basicInfoList.html?page=","");
+
+	var url = "";
+	if(currentpage == "partner"){//合作渠道
+		$("#title").html("合作渠道");
+		$("#basic_index").html("您当前位置：首页/合作渠道");
+		url = requestUrl + "rest/partner/getPartnerChannelList";
+	}else if(currentpage == "joincinema"){
+		$("#title").html("加盟院线");
+		$("#basic_index").html("您当前位置：首页/加盟院线");
+		url = requestUrl + "rest/join/getJoinCinemaList";
+	}else if(currentpage == "theaterstyle"){
+		$("#title").html("院线风采");
+		$("#basic_index").html("您当前位置：首页/院线风采");
+		url = requestUrl + "rest/style/getTheaterStyleList";
+	}
+    // 初始化数据(显示第一页)
+    InitData(0);
+    loadCityData();
+    
+    // ★分页主函数(新闻类别ID，排序字段，排序类型，页大小，页索引，总条数)
+    function InitData(pageindx) {
+    	var num = 0;
+    	var index = pageindx + 1;
+    	if(index != 0){
+    		num = (index - 1) * pageSize;
+    	}
+    	// Ajax取出分页列表数据
+        $.ajax({
+            type: "POST",
+            cache: false,
+            dataType: "json", // 数据格式:JSON
+            url: url,
+            data : {
+    			pageSize : pageSize,
+    			offsetNum : num
+    		},
+    		jsonp : "jsonpCallback",
+    		success : function(data) {
+    			var result = parseInt(data.result);
+    			switch(result){
+    				case 1000 :
+    					var resultData = data.data;
+    					pageCount = data.total;
+    					
+    					$("#Pagination").pagination(pageCount, {
+    			            callback: pageselectCallback,
+    			            prev_text: '« 上一页',
+    			            next_text: '下一页 »',
+    			            items_per_page: pageSize,     // 每页显示条数
+    			            current_page: pageindx,  // 当前页索引,这里0为第一页
+    			            num_display_entries: 3,  // 前面显示几个按钮
+    			            num_edge_entries: 2  // 后面显示几个按钮
+    			        });
+    			        
+    					$("#result tr:gt(0)").remove();
+    					if(resultData != null && resultData.length > 0){
+    						if(currentpage == "partner"){//合作渠道
+								$("#th_name").html("渠道名称");
+							}else if(currentpage == "joincinema"){//加盟院线
+								$("#th_name").html("加盟院线");
+							}else if(currentpage == "theaterstyle"){
+								$("#th_name").html("影院风采");
+							}	
+    						for (var i=0; i<resultData.length; i++) {
+								var id = resultData[i].id;
+    							var name = resultData[i].name;
+    							var create_time = resultData[i].create_time;
+    							var img = resultData[i].img;
+    							var row = i + 1;
+    							var content = "<tr id='row_"+row+"'><td><input type='checkbox' name='check_id' id='check_"+id+"' value='"+id+"' datavalue='"+img+"'/>";
+    							content += "</td><td>"+name+"</td><td>"+create_time+"</td>";
+    							content += "<td><a href='javascript:void(0);' onclick='showInfo("+id+");'>查看</a>&nbsp;&nbsp;";
+    							content += "<a href='javascript:void(0);' onclick='updateInfo("+id+");'>修改</a>&nbsp;&nbsp;";
+    							content += "<a href='javascript:void(0);' onclick='delInfo("+id+","+img+");'>删除</a></td><tr>";
+    							if(i == 0){
+    								$("#row_title").after(content);
+    							}else{
+    								$("#row_"+i).after(content);
+    							}
+							}
+    					}
+    					break;
+    				case 1001 :
+    					break;
+    				default:
+    					break;
+    			}
+    		},
+ 
+        });
+ 
+      //处理翻页,page_id为当前页索引(0为第一页)
+        function pageselectCallback(page_id, jq) {
+            InitData(page_id);
+        }
+        
+        if(pageCount != 0){
+        	// 加入分页插件的绑定，第一个参数pageCount为总共多少条数据
+            $("#Pagination").pagination(3, {
+                callback: pageselectCallback,
+                prev_text: '« 上一页',
+                next_text: '下一页 »',
+                items_per_page: pageSize,     // 每页显示条数
+                current_page: pageindx,  // 当前页索引,这里0为第一页
+                num_display_entries: 3,  // 前面显示几个按钮
+                num_edge_entries: 2  // 后面显示几个按钮
+            });
+        }
+        
+    } 
+    
+    
+    $(".add").on("click", function(){
+    	$("#dataList").hide();
+    	$("#dataAdd").show();
+    	if(currentpage == "joincinema"){
+    	$("#add_joinCinema").show();
+    	}
+    	$("#addInfo").fadeIn(200);
+		$(document).scrollTop(document.body.scrollHeight);
+    	if(currentpage == "partner"){//合作伙伴
+    		$("#add_title").html("合作渠道");
+    		$("#btnuploadimg").append("<span id='sp1' style='color:red'  ''> 建议 图片尺寸：200*70 (像素) </span>");
+    	}else if(currentpage == "joincinema"){
+    		$("#add_title").html("加盟院线");
+    		$("#btnuploadimg").append("<span id='sp1' style='color:red'  ''> 建议 图片尺寸：200*200 (像素) </span>");
+    	}else if(currentpage == "theaterstyle"){
+    		$("#add_cinemastyle").show();
+			$("#add_title").html("院线风采");
+			$("#btnuploadimg").append("<span id='sp1' style='color:red'  ''> 建议 图片尺寸：284*154 (像素) </span>");
+		}	
+	});
+    
+ //   $("#add_type").bind("change",checkType());
+    
+    
+    $("#add_img,update_img").change(function(){
+		var img = $(this).val();
+		if(img == ""){
+			alert("请选择一张图片");
+			return false;
+		}else{
+			var extStart = img.lastIndexOf(".");
+			var ext = img.substring(extStart,img.length).toUpperCase();
+			if(ext!=".BMP" && ext!=".PNG" && ext!=".GIF" && ext!=".JPG" && ext!=".JPEG"){
+				alert("图片限于png,gif,jpeg,jpg,bmp格式");
+				$(this).val("");
+				return;
+			}
+		}
+	});
+	
+	//删除选中
+	$(".delSelect").on("click",function(){
+		if(window.confirm('你确定要删除选中的内容吗？')){
+			var id = document.getElementsByName("check_id");
+			var ids = "";
+			var imgs = "";
+			if(id.length == 0){
+				alert("请至少选中一条内容进行删除");return;
+			}else{
+				var count=0;
+				for(var i=0;i<id.length; i++){              
+					if(id[i].checked){
+						ids = ids + id[i].value+",";
+						imgs = imgs + $("#check_"+id[i].value).attr("datavalue")+",";
+						count++;
+					}                                
+				}
+				if(count==0){       
+					alert("请至少选中一条内容进行删除");return;
+				}else{
+					//执行删除操作
+					deleteChooseInfo(ids,imgs,1);
+				}
+			}
+			
+	    }else{
+	       return false;
+	    }
+	});
+ 
+});
+
+function checkType(){
+	cinimaStyle = 	$("#add_type").val() ;
+	if(cinimaStyle == '0')
+	{
+        $("#sp1").html("建议 图片尺寸：284*154 (像素)");
+	}
+	if(cinimaStyle == '1')
+	{
+        $("#sp1").html("建议 图片尺寸：856*286  (像素)");
+	}
+	if(cinimaStyle == '2')
+	{
+        $("#sp1").html("建议 图片尺寸：276*286  (像素)");
+	}
+	
+	cinimaStyle = $("#update_type").val();
+	if(cinimaStyle == '0')
+	{
+        $("#sp2").html("建议 图片尺寸：284*154 (像素)");
+	}
+	if(cinimaStyle == '1')
+	{
+        $("#sp2").html("建议 图片尺寸：856*286  (像素)");
+	}
+	if(cinimaStyle == '2')
+	{
+        $("#sp2").html("建议 图片尺寸：276*286  (像素)");
+	}
+}
+
+function delInfo(id,img){
+	if(window.confirm('你确定要删除此内容吗？')){
+		deleteChooseInfo(id,img,0);
+    }else{
+       return false;
+    }
+}
+
+function deleteChooseInfo(id,img,type){
+	var url = "";
+	if(type == 0){
+		if(currentpage == "partner"){//合作伙伴
+			url = requestUrl + "rest/partner/deletePartnerChannel";
+		}else if(currentpage == "joincinema"){
+			url = requestUrl + "rest/join/deleteJoinCinema";
+		}else if(currentpage == "theaterstyle"){
+			url = requestUrl + "rest/style/deleteTheaterStyle";
+		}
+	}else{
+		if(currentpage == "partner"){//合作伙伴
+			url = requestUrl + "rest/partner/deletePartnerChannels";
+		}else if(currentpage == "joincinema"){
+			url = requestUrl + "rest/join/deleteJoinCinemas";
+		}else if(currentpage == "theaterstyle"){
+			url = requestUrl + "rest/style/deleteTheaterStyles";
+		}
+	}
+	
+	$.ajax({
+		url : url,
+		type : 'post',
+		dataType : 'jsonp',
+		data : {
+			imageid : img,
+			id : id,
+		},
+		jsonp : "jsonpCallback",
+		success : function(data) {
+			var result = parseInt(data.result);
+			switch(result){
+				case 1000 :
+					var resultData = data.data;
+					alert("删除成功");
+					window.parent.$("#mainFrame").attr("src","manager/basicInfoList.html?page="+currentpage);
+					break;
+				case 1001 :
+					break;
+				default:
+					break;
+			}
+		},
+		error : function(XMLHttpRequest, textStatus, errorThrown) {
+		},
+		timeout : 32000
+	});
+}
+
+
+function showInfo(id){
+	$("#dataList").hide();
+	$("#dataShow").show();
+	$("#showInfo").fadeIn(200);
+	$(document).scrollTop(document.body.scrollHeight);
+	if(currentpage == "partner"){//合作伙伴
+		$("#show_title").html("合作渠道");
+	}else if(currentpage == "joincinema"){
+		$("#show_title").html("加盟院线");
+	}else if(currentpage == "theaterstyle"){
+		$("#show_cinemastyle").show();
+		$("#show_title").html("院线风采");
+	}
+	getInfoShow(id,"show");
+}
+
+function updateInfo(id){
+	$("#dataList").hide();
+	$("#dataShow").hide();
+	$("#dataUpdate").show();
+	$("#update_area").show();
+	$("#updateInfo").fadeIn(200);
+	$(document).scrollTop(document.body.scrollHeight);
+	update_JoinCinema_choiceCityData_Default(id);
+	
+	if(currentpage == "partner"){//合作伙伴
+		$("#update_title").html("合作渠道");
+		$("#update_area").hide();
+		$("#btnuploadimg_update").append("<span id='sp2' style='color:red'  ''> 建议 图片尺寸：200*70 (像素) </span>");
+	}else if(currentpage == "joincinema"){
+		$("#update_title").html("加盟院线");
+		$("#btnuploadimg_update").append("<span id='sp2' style='color:red'  ''> 建议 图片尺寸：200*200 (像素) </span>");
+	}else if(currentpage == "theaterstyle"){
+		$("#update_cinemastyle").show();
+		$("#update_title").html("院线风采");
+		$("#update_area").hide();
+		$("#btnuploadimg_update").append("<span id='sp2' style='color:red'  ''> 建议 图片尺寸：284*154 (像素) </span>");
+	}
+
+	
+	getInfoShow(id,"update");
+}
+
+
+//检查是否选择图片上传
+function checkImg(id){
+	var img = $("#"+id).val();
+	if(img == ""){
+		alert("请选择一张图片");
+		return false;
+	}else{
+		var extStart = img.lastIndexOf(".");
+		var ext = img.substring(extStart,img.length).toUpperCase();
+		if(ext!=".BMP" && ext!=".PNG" && ext!=".GIF" && ext!=".JPG" && ext!=".JPEG"){
+			alert("图片限于png,gif,jpeg,jpg,bmp格式");
+			$("#"+id).val("");
+			return false;
+		}else{
+			return true;
+		}
+	}
+}
+
+/**
+  * 异步上传图片
+  */
+function ajaxThemeImgUpload(img) {
+	var check = checkImg(img);
+	var checkjoincinema = currentpage;
+	var flag = "";
+	if($("#dataUpdate").css("display")=='none'){
+	cinimaStyle = 	$("#add_type").val() ;
+}else{
+	cinimaStyle = $("#update_type").val();
+}
+	if(checkjoincinema =="joincinema")
+		{
+			flag = "joincinema";
+		}else if(checkjoincinema == "partner"){
+			flag = "partner";
+		}else{
+			flag = "null";
+		}
+	if(check){
+		var oldImg = "joincinema";
+		$.ajaxFileUpload({
+		    url: requestUrl + "rest/image/newsThemeImgUpload", //用于文件上传的服务器端请求地址
+			secureuri: false, //是否需要安全协议，一般设置为false
+			fileElementId: img, //文件上传域的ID
+			dataType: 'json', //返回值类型 一般设置为json
+			data : {oldImg : oldImg,cinimaStyle : cinimaStyle,flag : flag},
+			success: function (data){
+				var Data = eval('(' + data + ')');
+				var imgName = Data.data.imgName;
+				var imgUrl = Data.data.imgUrl;
+				var picUrl = Data.data.picUrl;
+				
+				$("#"+img+"_show").show();
+		//		$("#"+img+"show").attr("src",requestUrl +"rest/image/download?f=" + imgUrl);
+				$("#"+img+"show").attr("src", requestUrl +picUrl);
+				$("#"+img+"show").attr("picurl",picUrl);
+			   console.log("类型为  ： " +  cinimaStyle);
+			},
+			error: function (data, e){
+				console.log("失败咯！");
+			}
+		});
+	}
+}
+
+
+//保存信息
+function addInfo(){
+	var cinemaid = sessionStorage.getItem("cinemaid");
+	var type = "";
+	var area = $("#add_area option:selected").val();
+	var name = encodeURIComponent($("#add_name").val());
+	
+	var name_length = $("#add_name").val() ;
+	if(name_length.length > 40 )
+		{
+		
+		alert("名称不能超过40个字");
+		return;
+		}
+	
+	var img = $("#add_imgshow").attr("src");
+	var remark = encodeURIComponent($("#add_remark").val());
+	var url = "";
+	var adminid = sessionStorage.getItem("adminid");
+	if(currentpage == "partner"){//合作伙伴
+		url= requestUrl + "rest/partner/addPartnerChannel";
+	}else if(currentpage == "joincinema"){
+		url= requestUrl + "rest/join/addJoinCinema";
+	}else if(currentpage == "theaterstyle"){
+		type = $("#add_type").val();
+		url= requestUrl + "rest/style/addTheaterStyle";
+	}
+	if(name == ""){
+		alert("请编辑名称");
+		return;
+	}else if(img == ""){
+		alert("请上传一张主题图片");
+		return;
+	}
+	
+	$.ajax({
+		url : url,
+		type : 'post',
+		dataType : 'jsonp',
+		contentType: "application/x-www-form-urlencoded; charset=utf-8", 
+		data : {
+			cinemaid : cinemaid,
+			area:area,
+			name : name,
+			img : img,
+			type : type,
+			remark : remark,
+			adminid:adminid
+		},
+		jsonp : "jsonpCallback",
+		//jsonpCallback : "success_jsonpCallback",
+		success : function(data) {
+			var result = parseInt(data.result);
+			var msg = data.msg;
+			switch(result){
+				case 1000 :
+					var resultData = data.data;
+					alert("新增成功");
+					var page = "manager/basicInfoList.html?page="+currentpage;
+					window.parent.$("#mainFrame").attr("src",page);
+					break;
+				default: 
+					alert("操作异常");
+					break;
+			}
+		},
+		error : function(XMLHttpRequest, textStatus, errorThrown) {
+		    alert("操作异常");
+		},
+		timeout : 32000
+	});
+}
+
+
+//获取信息显示在页面可进行修改
+function getInfoShow(id,type){
+	var url = "";
+	if(currentpage == "partner"){//合作伙伴
+		url= requestUrl + "rest/partner/getPartnerChannel";
+	}else if(currentpage == "joincinema"){
+		url= requestUrl + "rest/join/getJoinCinema";
+	}else if(currentpage == "theaterstyle"){
+		url= requestUrl + "rest/style/getTheaterStyle";
+	}
+	$.ajax({
+		url : url,
+		type : 'post',
+		dataType : 'jsonp',
+		data : {
+			id : id
+		},
+		jsonp : "jsonpCallback",
+		success : function(data) {
+			var result = parseInt(data.result);
+			switch(result){
+				case 1000 :
+					var resultData = data.data;
+					if(type == "show"){//显示页面
+						showInfoContent(resultData);
+					}else{
+						updateInfoContent(resultData);
+					}
+					break;
+				case 1001 :
+					break;
+				default:
+					break;
+			}
+		},
+		error : function(XMLHttpRequest, textStatus, errorThrown) {
+		},
+		timeout : 32000
+	});
+}
+
+function showInfoContent(resultData){
+	$("#show_id").val(resultData.id);
+	
+	$("#show_name").html(resultData.name);
+	$("#show_remark").html(resultData.remark);
+	$("#show_img").attr("src",resultData.org_path);
+	if(currentpage=="joincinema"){
+		$("#city_name").text(resultData.city_name);
+		$("#show_area").show();
+	}
+
+	
+	if(currentpage == "theaterstyle"){
+		$("#show_type").html(resultData.type_name);
+	}
+}
+
+function toUpdateInfo(){
+	var id = $("#show_id").val();
+	updateInfo(id);
+}
+
+
+function updateInfoContent(resultData){
+	$("#update_id").val(resultData.id);
+	$("#update_name").val(resultData.name);
+	$("#imageid").val(resultData.img);
+	$("#update_img_toshow").attr("src",resultData.org_path);
+	$("#update_remark").html(resultData.remark);
+	if(currentpage == "theaterstyle"){
+		console.log("type:"+resultData.type);
+		$("#update_type").val(resultData.type);
+	}
+}
+
+function updateThemeImg(){
+	$("#update_show_img_tr").hide();
+	$("#update_img_tr").show();
+}
+
+function doUpdateInfo(){
+	var id = $("#update_id").val();
+	var name = encodeURIComponent($("#update_name").val());
+	var area = $("#update_city_name option:selected").val();
+	var name_length = $("#add_name").val() ;
+	if(name_length.length > 40 )
+		{
+		
+		alert("名称不能超过40个字，添加失败!");
+		return;
+		}
+	
+	var imageid = $("#imageid").val();
+	var remark = encodeURIComponent($("#update_remark").val());
+	var org_path = $("#update_imgshow").attr("src");
+	var image_change = "0";
+	if(org_path == ""){
+		image_change = "1";
+		org_path = $("#update_img_toshow").attr("src"); 
+	}
+	var type = "";
+	var url= "";
+	var adminid = sessionStorage.getItem("adminid");
+	if(currentpage == "partner"){//合作伙伴
+		url= requestUrl + "rest/partner/updatePartnerChannel";
+	}else if(currentpage == "joincinema"){
+		url= requestUrl + "rest/join/updateJoinCinema";
+	}else if(currentpage == "theaterstyle"){
+		type = $("#update_type").val();
+		url= requestUrl + "rest/style/updateTheaterStyle";
+	}
+	if(name == ""){
+		alert("请编辑名称");
+		return;
+	}else if(org_path == ""){
+		alert("请上传一张主题图片");
+		return;
+	}
+	
+	$.ajax({
+		url : url,
+		type : 'post',
+		dataType : 'jsonp',
+		contentType: "application/x-www-form-urlencoded; charset=utf-8", 
+		data : {
+			id : id,
+			name : name,
+			type : type,
+			org_path : org_path,
+			remark : remark,
+			image_change : image_change,
+			imageid : imageid,
+			adminid:adminid,
+			city_number:area
+		},
+		jsonp : "jsonpCallback",
+		//jsonpCallback : "success_jsonpCallback",
+		success : function(data) {
+			var result = parseInt(data.result);
+			var msg = data.msg;
+			switch(result){
+				case 1000 :
+					var resultData = data.data;
+					alert("修改成功");
+					var page = "manager/basicInfoList.html?page="+currentpage;
+					window.parent.$("#mainFrame").attr("src",page);
+					break;
+				default: 
+					alert("操作异常");
+					break;
+			}
+		},
+		error : function(XMLHttpRequest, textStatus, errorThrown) {
+		    alert("操作异常");
+		},
+		timeout : 32000
+	});
+}
+
+//ajax 动态获取city数据
+function loadCityData(){
+	if(loadCityData_flag){
+	$.ajax({
+		url :  requestUrl + "rest/join/getCityData",
+		type : 'post',
+		dataType : 'jsonp',
+		jsonp : "jsonpCallback",
+		success : function(data) {
+			var result = parseInt(data.result);
+			switch(result){
+				case 1000 :
+					var resultData = data.data;
+					for(var i=0;i<resultData.length;i++){
+						var city_number = resultData[i].city_number;
+						var city_name = resultData[i].city_name;
+						$("#add_area").append("<option  " + 'value=' + city_number + '>' + city_name + '</option>'+'</br>');
+						$("#update_city_name").append("<option  " + 'value=' + city_number + '>' + city_name + '</option>'+'</br>');
+					}
+					
+					break;
+				case 1001 :
+					break;
+				default:
+					break;
+			}
+		},
+		error : function(XMLHttpRequest, textStatus, errorThrown) {
+		},
+		timeout : 32000
+	});
+	//这是个标记，意味着这个函数只生效一次，除非再次刷新页面
+	loadCityData_flag = false;
+	}
+	
+}
+
+
+function  update_JoinCinema_choiceCityData_Default(id){
+
+	$.ajax({
+		url :  requestUrl + "rest/join/getJoinCinema",
+		type : 'post',
+		data:{
+			id:id
+		},
+		dataType : 'jsonp',
+		jsonp : "jsonpCallback",
+		success : function(data) {
+			var result = parseInt(data.result);
+			switch(result){
+				case 1000 :
+					var resultData = data.data;
+					    var city_number = resultData.city_number;
+					    var city_name = resultData.city_name;
+					    setSelectChecked("update_city_name",city_name);
+					    
+				//	    $("#update_city_name option:first").attr("value",city_number).text(city_name).attr("selected","selected");
+					break;
+				case 1001 :
+					break;
+				default:
+					break;
+			}
+		},
+		error : function(XMLHttpRequest, textStatus, errorThrown) {
+		},
+		timeout : 32000
+	});
+}
+
+
+/** 
+ * 设置select选中 
+ * @param selectId select的id值 
+ * @param checkValue 选中option的值 
+ * @author zz
+ * @since 2016-07-07
+*/  
+function setSelectChecked(selectId, checkValue){  
+    var select = document.getElementById(selectId);  
+    for(var i=0; i<select.options.length; i++){  
+        if(select.options[i].innerHTML == checkValue){  
+            select.options[i].selected = true;  
+            break;  
+        }  
+    }  
+};  
+

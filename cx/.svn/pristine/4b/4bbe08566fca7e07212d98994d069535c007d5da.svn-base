@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>影院总部管理系统</title>
+		<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
+		<script type="text/javascript" src="../js/jquery-1.11.2.min.js" ></script>
+		<script type="text/javascript" src="../js/ajaxfileupload.js"></script>
+		<script type="text/javascript" src="../js/public.js" ></script>
+ 		<script type="text/javascript" src="../js/carouselManager.js" ></script> 
+		<script>
+			$(function(){
+				$("#addMaterial").fadeIn(200);
+				$(document).scrollTop(document.body.scrollHeight);
+			});
+			
+		</script>
+		<link rel="stylesheet" href="../css/base.css" />
+		<link rel="stylesheet" href="../css/main.css" />
+	</head>
+	<body>
+		<!-- 主面板 -->
+		<div class="main-box">
+			<div class="content-title">
+				<span>您当前位置：轮播图管理</span>
+<!-- 				<p class="search"><input placeholder="请输入您要查询的信息" /><i></i></p> -->
+				<div class="clear"></div>
+			</div>
+			
+			<!-- 数据区 -->
+			<div class="content-data">
+				<h3 class="title">轮播图上传</h3>
+				<!-- 面板 -->
+				<div class="panel" id="addMaterial">				
+					<table class="panel-tab">
+						<tr><td class="title">第四张</td>
+							<td ><input type="file" id="carousel_1"  name="carousel_1"/>
+					    <button id="btn_1" onclick="ajaxCarouselUpload('carousel_1');" >上传 </button></td>
+						</tr>
+						<tr><td class="title">第三张</td>
+							<td ><input type="file" id="carousel_2"  name="carousel_2" />
+							<button id="btn_2" onclick="ajaxCarouselUpload('carousel_2');" >上传 </button></td>
+						</tr>
+						<tr><td class="title">第二张</td>
+							<td ><input type="file" id="carousel_3"  name="carousel_3"/>
+							<button id="btn_3" onclick="ajaxCarouselUpload('carousel_3');" >上传 </button></td>
+						</tr>
+						<tr><td class="title">第一张</td>
+							<td ><input type="file" id="carousel_4" name="carousel_4" />
+							<button id="btn_4" onclick="ajaxCarouselUpload('carousel_4');">上传 </button></td>
+						</tr>
+						<tr><td class="title" ></td>
+						  <td><h4 style="color: red;">建议图片尺寸:1920 * 375</h4></td>
+						</tr>
+<!-- 						<tr><td class="title">下载地址</td> -->
+<!-- 					        <td colspan="3"><input id='download_url' class="w" /></td> -->
+<!-- 					        </tr> -->
+<!-- 							<tr><td class="title">提取码</td> -->
+<!-- 							<td colspan="3"><input id='fetch_code' class="w" /></td> -->
+<!-- 						</tr> -->
+<!-- 						<tr><td class="title">备注</td> -->
+<!-- 							<td colspan="3"><input id='remark' class="w" /></td> -->
+<!-- 						</tr>				 -->
+					</table>
+<!-- 					<p class="panel-btn"> -->
+<!-- 						<button onclick="addCarousel();">提交</button> -->
+<!-- 					</p> -->
+				</div>
+				
+			</div>
+		</div>
+		
+		
+	</body>
+</html>
+
+
+
+
+
+
+

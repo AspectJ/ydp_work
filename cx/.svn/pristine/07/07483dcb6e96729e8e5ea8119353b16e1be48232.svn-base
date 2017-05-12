@@ -1,0 +1,110 @@
+package com.cx.rest.information.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cx.filter.BaseDao;
+
+@Service("adminInfoDao")
+public class AdminInfoDaoImpl extends BaseDao {
+
+	/**
+	 * 登录查询用户信息（用户名和密码）
+	 * @param Map
+	 * @return
+	 */
+	public Map<String, Object> selAdminInfo(Map<String, Object> paramsMap) {
+		Map<String, Object> resultMap = this.getSqlSession().selectOne("adminInfo.selAdminInfo", paramsMap);
+		return resultMap;
+	}
+	
+
+	/**
+	 * 查询用户数量
+	 * @param Map
+	 * @return
+	 */
+	public Map<String, Object> getAdminInfoListCount(Map<String, Object> Map) {
+		Map<String, Object> resultMap = this.getSqlSession().selectOne("adminInfo.getAdminInfoListCount", Map);
+		return resultMap;
+	}
+
+	/**
+	 * 查询全部用户信息列表
+	 * @param paramsMap
+	 * @return
+	 */
+	public List<Map<String, Object>> getAdminInfoList(Map<String, Object> paramsMap) {
+		List<Map<String, Object>> adminList = this.getSqlSession().selectList("adminInfo.getAdminInfoList", paramsMap);
+		return adminList;
+	}
+
+	/**
+	 * 查询全部影院Id及影院名称
+	 * @return
+	 */
+	public List<Map<String, Object>> getCinemaIdList() {
+		List<Map<String, Object>> cinemaIdList = this.getSqlSession().selectList("adminInfo.getCinemaIdList");
+		return cinemaIdList;
+	}
+	/**
+	 * 添加管理员账号信息
+	 * @param paramsMap
+	 * @return
+	 */
+	public Map<String, Object> insertAdminInfo(Map<String, Object> paramsMap) {
+		this.getSqlSession().insert("adminInfo.insertAdminInfo", paramsMap);
+		return paramsMap;
+	}
+
+	/**
+	 * 删除单条管理员信息
+	 * @param paramsMap
+	 * @return
+	 */
+	public Map<String, Object> deleteAdminInfo(Map<String, Object> paramsMap) {
+		this.getSqlSession().delete("adminInfo.deleteAdminInfo", paramsMap);
+		return paramsMap;
+	}
+
+	/**
+	 * 查询单个管理员（根据id查询）
+	 * @param paramsMap
+	 * @return 
+	 */
+	public Map<String, Object> selSingleAdmin(Map<String, Object> paramsMap) {
+		Map<String, Object> resultMap = this.getSqlSession().selectOne("adminInfo.selSingleAdmin",paramsMap);
+		return resultMap;
+	}
+    
+	public Map<String,Object> selAdminById (Map<String,Object> paramsMap){
+		Map<String,Object> resultMap = this.getSqlSession().selectOne("adminInfo.selAdminById", paramsMap);
+		return resultMap;
+	}
+
+	public Map<String, Object> updateAdminInfo(Map<String, Object> paramsMap) {
+		this.getSqlSession().update("adminInfo.updateAdminInfo", paramsMap);
+		return paramsMap;
+	}
+
+	/**
+	 * 更改管理员最后一次登录的时间
+	 * @param paramsMap
+	 */
+	public void update_lastLoginTime(Map<String, Object> paramsMap) {
+		this.getSqlSession().update("adminInfo.update_lastLoginTime", paramsMap);
+	}
+
+	/**
+	 * 管理员修改密码
+	 * @param paramsMap
+	 */
+	public void modifyPwd(Map<String, Object> paramsMap) {
+		this.getSqlSession().update("adminInfo.modifyPwd", paramsMap);
+	}
+
+}

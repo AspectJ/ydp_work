@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>影院总部管理系统</title>
+		<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
+		<script type="text/javascript" src="../js/jquery-1.11.2.min.js" ></script>
+		<script type="text/javascript" src="../js/jquery.pagination.js" ></script>
+		<script type="text/javascript" src="../js/ajaxfileupload.js"></script>
+		<script type="text/javascript" src="../js/public.js" ></script>
+		<script type="text/javascript" src="../js/basicmanage.js" ></script>
+		<link rel="stylesheet" href="../css/base.css" />
+		<link rel="stylesheet" href="../css/main.css" />
+		<link rel="stylesheet" href="../css/pagination.css" />		
+	</head>
+	<body>
+		<!-- 主面板 -->
+		<div class="main-box">
+			<div class="content-title">
+				<span id="basic_index">您当前位置：首页</span>
+<!-- 				<p class="search"><input placeholder="请输入您要查询的信息" /><i></i></p> -->
+				<div class="clear"></div>
+			</div>
+			
+			
+			<!-- 数据列表区 -->
+			<div class="content-data" id="dataList">
+				<h3 class="title" id="title"></h3>
+				<table class="data-tab" id="result">
+					<tr id="row_title"><th>全选</th><th>影院编号</th><th>影院名称</th><th>所属院线</th><th>客服电话</th>
+						<th>详细地址</th><th>联系人</th><th>联系电话</th><th>创建时间</th><th>修改时间</th><th>操作</th></tr>	
+				</table>
+	
+				<div class="page">
+					<i class="delSelect">删除所选</i>
+						
+					<ul class="data-tab-ul">
+						<div id="Pagination" class="meneame"></div>
+						
+					</ul>
+				</div>
+				<div class="page">
+					<i class="add"></i>
+				</div>
+			</div>
+			
+			<!-- 数据新增区 -->
+			<div class="content-data" id="dataAdd" style="display:none;">
+				<h3 class="title" id="add_title"></h3>
+				<!-- 面板 -->
+				<div class="panel" id="addInfo">				
+					<table class="panel-tab">
+						<tr><td class="title" id="add_name_td">名称：</td>
+							<td colspan="3"><input id='add_name' class="w" /></td>
+						</tr>
+						<tr id="add_joinCinema" style="display:none;"><td class="title">地区：</td>
+							<td colspan="3">
+								<select id="add_area" >
+									<option  value="0" selected="selected">--请选择--</option>
+								</select>
+							</td>
+						</tr>
+						
+						<tr id="add_cinemastyle" style="display:none;"><td class="title">类型：</td>
+							<td colspan="3">
+								<select id="add_type" onchange="checkType()">
+									<option value="0" selected="selected">影院环境</option>
+									<option value="1">休闲娱乐</option>
+									<option value="2">户外活动</option>
+								</select>
+							</td>
+						</tr>
+						<tr><td class="title">主题图片：</td>
+							<td colspan="3" id="btnuploadimg">
+								<input type="file" id="add_img" name="add_img"/>
+								<button  onclick="ajaxThemeImgUpload('add_img');">上传</button>
+<!-- 								<span  style='color:red'  ''> 建议 图片尺寸：200*200 (像素) </span> -->
+							</td>
+						</tr>
+						<tr style="display:none;" id="add_img_show"><td class="title">预览图片：</td>
+							<td colspan="3">
+								<img src="" id="add_imgshow" picurl=""/>
+							</td>
+						</tr>
+						<tr id="add_content" ><td class="title">备注：</td>
+							<td colspan="3">
+								<textarea id="add_remark" class="w" name="add_remark" cols="120" rows="6"></textarea> 
+							</td>
+						</tr>
+					</table>
+					<p class="panel-btn">
+						<button onclick="addInfo();">提交</button>
+					</p>
+				</div>
+			</div>
+			
+			
+			<!-- 查看数据区 -->
+			<div class="content-data" id="dataShow" style="display:none;">
+				<h3 class="title" id="show_title"></h3>
+				<!-- 面板 -->
+				<div class="panel" id="showInfo">				
+					<table class="panel-tab">
+					<input type="hidden" id="show_id" value=""/>	
+						<tr><td class="title">影院名称：</td>
+							<td id="join_cinema_name"></td>
+							<td class="title">所属院线：</td>
+							<td id="belong_cinema_name"></td>
+						</tr>
+						<tr><td class="title">影院编号：</td>
+							<td colspan="3" id="cinema_number"></td>
+						</tr>
+						<tr><td class="title">客服电话：</td>
+							<td colspan="1" id="customer_phone"></td>
+							<td class="title">详细地址：</td>
+							<td colspan="1" id="detailed_address"></td>
+						</tr>
+						<tr><td class="title">联系人：</td>
+							<td colspan="1" id="linkman"></td>
+							<td class="title">创建时间：</td>
+							<td colspan="1" id="create_time"></td>
+						</tr>
+						<tr><td class="title">联系电话：</td>
+							<td colspan="1" id="contact_phone"></td>
+							<td class="title">更改时间：</td>
+							<td colspan="1" id="update_time"></td>
+						</tr>
+						<tr><td class="title">影院简介：</td>
+							<td colspan="3" id="profile"></td>
+						</tr>
+						<tr><td class="title">主题图片：</td>
+							<td colspan="3">
+								<img src="" id="t_logo"/>
+							</td>
+						</tr>
+					</table>
+					<p class="panel-btn">
+						<button onclick="toUpdateInfo();">修改</button>
+					</p>
+				</div>
+			</div>
+				
+				
+			<!-- 修改数据区 -->
+			<div class="content-data" id="dataUpdate" style="display:none;">
+				<h3 class="title" id="update_title"></h3>
+				<!-- 面板 -->
+				<div class="panel" id="updateInfo">	
+					<input type="hidden" id="update_id" value=""/>			
+					<table class="panel-tab">
+						<tr><td class="title">名称：</td>
+							<td colspan="3"><input id='update_name' class="w"/></td>
+						</tr>
+						<tr id="update_area" style="display:none;"><td class="title">地区：</td>
+							<td colspan="3">
+							<select id="update_city_name" >
+									<option  value="0" >--请选择--</option>
+								</select>
+							</td>
+						</tr>
+						<tr id="update_cinemastyle" style="display:none;"><td class="title">类型：</td>
+							<td colspan="3">
+								<select id="update_type" onchange="checkType()">
+									<option value="0" selected="selected">影院环境</option>
+									<option value="1">休闲娱乐</option>
+									<option value="2">户外活动</option>
+								</select>
+							</td>
+						</tr>
+						<tr id="update_show_img_tr"><td class="title">主题图片：</td>
+							<td colspan="3">
+								<input type="hidden" id="imageid"/>
+								<img id="update_img_toshow" src=""/>&nbsp;<a href="javascript:void(0);"  onclick="updateThemeImg();">修改</a>
+							</td>
+						</tr>
+						<tr id="update_img_tr" style="display:none;"><td class="title">主题图片：</td>
+							<td colspan="3"  id="btnuploadimg_update">
+								<input type="file" id="update_img" name="update_img"/>
+								<button onclick="ajaxThemeImgUpload('update_img');">上传</button>
+							</td>
+						</tr>
+						<tr id="update_img_show" style="display:none;"><td class="title">预览图片：</td>
+							<td colspan="3">
+								<img src="" id="update_imgshow" picurl=""/>
+							</td>
+						</tr>
+						<tr id="add"><td class="title">备注：</td>
+							<td colspan="3">
+								<textarea id="update_remark" class="w" name="update_remark" cols="120" rows="6"></textarea> 
+							</td>
+						</tr>
+					</table>
+					<p class="panel-btn">
+						<button onclick="doUpdateInfo();">修改</button>
+					</p>
+				</div>
+			</div>
+			
+		</div>
+		
+		
+	</body>
+</html>
+
+
+
+
+
+
+

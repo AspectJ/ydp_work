@@ -1,0 +1,74 @@
+package com.cx.rest.information.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.support.SqlSessionDaoSupport;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service("partnerDao")
+public class PartnerChannelDaoImpl extends SqlSessionDaoSupport{
+
+	/**
+	 * 新增合作渠道基本信息
+	 */
+	public Map<String, Object> insertPartnerChannel(Map<String, Object> insertMap){
+		getSqlSession().insert("partner.insertPartnerChannel", insertMap);
+		return insertMap;
+	}
+	
+	
+	/**
+	 * 查询合作渠道信息
+	 */
+	public Map<String, Object> getPartnerChannel(Map<String, Object> Map){
+		Map<String, Object> paramMap = getSqlSession().selectOne("partner.getPartnerChannel", Map);
+		return paramMap;
+	}
+
+	
+	/**
+	 * 修改合作渠道信息
+	 * 
+	 * @param updateMap
+	 */
+	public Map<String, Object> updatePartnerChannel(Map<String, Object> updateMap){
+		getSqlSession().update("partner.updatePartnerChannel", updateMap);
+		return updateMap;
+	}
+	
+	/**
+	 * 删除合作渠道信息
+	 * 
+	 * @param newsMap
+	 */
+	public Map<String, Object> deletePartnerChannel(Map<String, Object> paramMap){
+		getSqlSession().delete("partner.deletePartnerChannel", paramMap);
+		return paramMap;
+	}
+	
+	
+	/**
+	 * 查询合作渠道列表
+	 * @param paramMap
+	 * @return
+	 */
+	public List<Map<String, Object>> getPartnerChannelList(Map<String, Object> paramMap){
+		List<Map<String, Object>> paramList = getSqlSession().selectList("partner.getPartnerChannelList", paramMap);
+		return paramList;
+	}
+	
+	/**
+	 * 查询合作渠道总数量
+	 */
+	public int getPartnerChannelListCount(Map<String, Object> countMap){
+		return getSqlSession().selectOne("partner.getPartnerChannelListCount", countMap);
+	}
+	
+	@Autowired
+	public void setSqlSessionFactory(SqlSessionFactory sqlSessionFactory) {
+		super.setSqlSessionFactory(sqlSessionFactory);
+	}
+}

@@ -1,0 +1,36 @@
+
+.yyjm{background:#fff;height:inherit}
+.yyjm .leftText{width:240px;min-height:500px;float:left;background-color:#E7E8E9;padding-bottom: 50px;}
+.yyjm .leftText .head{font-weight:bold;padding:15px 0px 15px 15px;background-color:#C7C8C9;color:#4C4C4C}
+
+.option{font-weight:bold;padding:15px 0px 15px 50px;color:#666767;cursor:pointer}
+.option.cur{padding:15px 0px 15px 46px;background-color:#fff;border-left:4px solid #EB002A}
+
+.rightText{min-height:500px;float:right; background: #fff; padding-bottom: 50px;}
+.rightText>div{display: none;}
+#league_condition{display: block;}
+.headline{background-color:#EB002A;line-height:50px;width:160px;height:50px;text-align:center;font-size:18px;font-weight:600;color:#FFFFFF}
+.content {
+	padding: 0px 35px;
+	padding-top: 0.5rem;
+	border-top: 2px solid #EB002A;
+	width: 835px;
+	height: auto;
+	color: dimgrey;
+	
+	line-height: 200% !important;
+	color: #666767 !important;
+	font-size: 16px !important;
+}
+.content img{width: 905px; margin-left: -2rem;}
+/*.league_condition{position:absolute;background-color:#fff;height:350px;left:0px;top:900px;width:100%}
+.league_condition .headline,.league_guarantee .headline,.league_flow .headline{background-color:#EB002A;line-height:50px;width:160px;height:50px;text-align:center;font-size:18px;font-weight:600;color:#FFFFFF}
+.league_condition .content{border-top:2px solid #EB002A;height:225px;font-weight:bold;color:#6E7172;padding-top:30px}
+.league_condition .content div{padding:8px;margin-left:20px}
+.league_guarantee{position:absolute;background-color:#26272A;height:800px;left:0px;top:1250px;width:100%}
+.league_guarantee{color:#E5E5E5;font-size:15px;font-weight:bold;margin-top:30px}
+.league_guarantee .content{margin-top:30px}
+.league_guarantee .content div{padding:5px 10px;margin-left:20px;font-weight:300}
+.league_guarantee .content .head{font-size:17px;font-weight:bold}
+.league_flow{position:absolute;background-color:#fff;height:900px;left:0px;top:2050px;width:100%;text-align:center}
+.league_flow img{width:60%}*/

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<!-- 接口地址 -->
+<!-- 	<service url="http://localhost:8080" /> -->
+	<service url="http://cp.yidepiao.net:8080" />
+	
+	<!-- 河南省 410000、湖北省 420000、湖南省 430000、广东省 440000、江西省 360000、宁夏回族自治区 640000 -->
+	<province province="360000,410000,420000,430000,440000,640000"/>
+
+	<!-- 导出文件保存路径 -->
+	<path file="C:/" />
+	
+	<MongoDB host="192.168.190.3" dbname="test" collname="java" user="" pass="i" />
+</config>

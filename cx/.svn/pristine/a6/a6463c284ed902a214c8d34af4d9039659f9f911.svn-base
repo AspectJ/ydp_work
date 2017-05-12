@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>楚湘院线-院线家园</title>
+		<link rel="icon" href="img/favicon.ico" type="image/x-icon" />
+		<link rel="stylesheet" href="css/base.css" />
+		<link rel="stylesheet" href="css/main.css" />
+		<link rel="stylesheet" href="css/homeland.css" />
+		<link rel="stylesheet" href="css/pagination.css" />
+
+		<script type="text/javascript" src="js/lib/jquery/jq.min.js" ></script>
+		<script type="text/javascript" src="js/lib/jquery/jquery.cookie.js" ></script>
+		<script type="text/javascript" src="js/lib/swiper/swiper-3.4.0.jquery.min.js"></script>
+		<script type="text/javascript" src="js/public.js" ></script>
+		<script type="text/javascript" src="js/homeland.js" ></script>
+		<script type="text/javascript" src="js/jquery.pagination.js" ></script>
+
+	</head>
+	<body>
+		<!-- Logo，地区，主菜单 -->
+		<div class="title" id="header"></div>
+		<div class="index-wrapper clearfix">
+			<div class="yxjy">
+				<div class="leftText">
+					<div class="head">院线家园</div>
+					<div class="view1" target="issue_notice" onclick="InitData_issue(0)"><div class="option cur">发行通知</div></div>
+					<div class="view2" target="theatre_notice" onclick="InitData_theatre(0)"><div class="option">院线通知</div></div>
+					<div class="view3" target="material_load" onclick="InitData_material(0)"><div class="option">素材下载</div></div>
+				</div>
+				<div class="rightText">
+					<div class="issue_notice" id="issue_notice">
+						<div class="headline">发行通知</div>
+						<div class="search">
+							<input type="text" placeholder="输入您要查询的信息"/>
+							<img src="img/search.png">
+						</div>
+						<div class="content"><ul></ul></div>
+						<div id="Pagination" class="meneame"></div>
+					</div>
+
+					<div class="theatre_notice" id="theatre_notice">
+						<div class="headline">院线通知</div>
+						<div class="search">
+							<input type="text" placeholder="输入您要查询的信息"/>
+							<img src="img/search.png">
+						</div>
+						<div class="content"><ul></ul></div>
+						<div id="Pagination" class="meneame"></div>
+					</div>
+
+					<div class="material_load" id="material_load">
+						<div class="headline">素材下载</div>
+						<div class="search">
+							<input type="text" placeholder="输入您要查询的信息"/>
+							<img src="img/search.png">
+						</div>
+						<div class="content"><ul></ul></div>
+						<div id="Pagination" class="meneame"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+    <!-- 描述：底部 -->
+    <div class="bottom"></div>
+
+    <!-- 在线资讯 -->
+    <div class="online_consultation"></div>
+	</body>
+</html>

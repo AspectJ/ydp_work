@@ -1,0 +1,8 @@
+.ContentHeader{
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #ccc;
+}
+.ContentQuery{
+  margin-bottom: 20px;
+}

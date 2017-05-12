@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="user">
+
+	<!-- 注册 -->
+	<insert id="regist" parameterType="java.util.Map">
+        INSERT INTO t_userinfo(nickname, password, email, mobile, realname, cinema_name)  
+        VALUES (#{nickname}, #{pass}, #{email}, #{mobile}, #{realname}, #{cinema_name})
+        <selectKey resultType="java.lang.Integer" keyProperty="userid" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+
+	<!-- 登录 -->
+	<select id="login" parameterType="java.util.Map" resultType="java.util.Map">
+		select userid, nickname, password pass,cinema_name, state
+		  from t_userinfo
+		 where adminname = #{account}
+	</select>
+	
+	<select id="checkRepetition" parameterType="java.util.Map" resultType="java.util.Map">
+		select mobile, email from t_userinfo where mobile = #{mobile} or email = #{email}
+	</select>
+	
+	<!-- 查询所有用户信息 -->
+	<select id="selAllUser" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT userid, email, password, nickname, mobile, birthday, sex, realname, 
+       		createtime, modifytime, state,cinema_name
+  		FROM t_userinfo
+  		order by createtime desc
+   		limit #{pageSize} offset #{offsetNum}
+	</select>
+	
+	<!-- 查询状态被启用的用户个数 （用于分页）-->
+	<select id="getUserInfoListCount" resultType="java.util.Map">
+		SELECT COUNT(*) count FROM t_userinfo
+	</select>
+	
+	<!-- 更改用户状态（启用/禁用） -->
+	<update id="changeState" parameterType="java.util.Map">
+		UPDATE t_userinfo SET state = #{state} WHERE userid = #{userid}
+	</update>
+	
+	<!-- 根据userid查询用户信息 -->
+	<select id="selSingleUser" parameterType="java.lang.Integer" resultType="java.util.Map">
+		SELECT userid, email, password, nickname, mobile, birthday, sex, realname, 
+       		createtime, modifytime, state,cinema_name
+ 		FROM t_userinfo
+ 		WHERE userid = #{userid}
+	</select>
+	
+	<select id="sel_status_false" resultType="java.util.Map" parameterType="java.util.Map">
+		SELECT userid, email, password, nickname, mobile, birthday, sex, realname, 
+       	state, createtime, modifytime,cinema_name  FROM t_userinfo
+       	WHERE state=0
+       	limit #{pageSize} offset #{offsetNum}
+	</select>
+</mapper>

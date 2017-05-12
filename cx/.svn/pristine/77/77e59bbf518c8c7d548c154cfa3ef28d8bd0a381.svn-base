@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="notice">
+
+	<!-- 新增通知信息 -->	
+	<insert id="insertNotice" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="noti_id">
+		insert into t_theater_notice( noti_title,noti_content,noti_type,noti_status,cinemaid,author,brows_times,noti_document_url) 
+			values (#{noti_title},#{noti_content}, #{noti_type},#{noti_status}, #{cinemaid}, #{author},#{brows_times},#{noti_document_url})
+	</insert>
+	
+	
+	<!-- 查询通知信息 -->
+	<select id="getNotice" parameterType="java.util.Map" resultType="java.util.Map">
+		select noti_id,noti_title,noti_content,noti_type,noti_status,a.cinemaid,a.create_time,a.update_time,a.author,brows_times ,name,noti_document_url
+		from t_theater_notice a join t_cinemainfo b on a.cinemaid = b.cinemaid
+		where noti_id = #{noti_id}		
+	</select> 
+	
+	<!-- 修改通知信息 -->
+	<update id="updateNotice" parameterType="map">
+		update t_theater_notice set noti_title = #{noti_title}, audit_flag=0
+		<if test="noti_content != null">
+			,noti_content = #{noti_content}
+		</if>
+		<if test="noti_type != null">
+			,noti_type = #{noti_type}
+		</if>
+		<if test="noti_status != null">
+			,noti_status = #{noti_status}
+		</if>
+		<if test="update_time != null">
+			,update_time = #{update_time}
+		</if>
+		<if test="author != null">
+			,author = #{author}
+		</if>
+		<if test="noti_document_url !=null">
+			,noti_document_url=#{noti_document_url}
+		</if>
+		where noti_id = #{noti_id} 
+	</update>
+	
+	<!-- 删除通知信息 -->
+	<delete id="deleteNotice" parameterType="java.util.Map">
+		delete from t_theater_notice where noti_id = #{noti_id} 
+	</delete>
+	
+	<!-- 通知信息查询 -->
+	<select id="getNoticeListCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+		select count(*) from t_theater_notice 
+		<if test="noti_type != null">
+			where noti_type = #{noti_type};
+		</if>
+	</select>
+	<select id="getNoticeList" parameterType="java.util.Map" resultType="java.util.Map">
+		select noti_id,noti_title,noti_content,noti_type,noti_status,cinemaid,create_time,update_time,author,brows_times,noti_document_url ,audit_flag 
+		from t_theater_notice  
+		<if test="noti_type != null">
+			where noti_type = #{noti_type};
+		</if>
+   order by create_time desc limit ${pageSize} offset ${offsetNum} 
+	</select>
+	
+	<!-- 前台查看通知信息列表 -->
+	<select id="getFrontNoticeList" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT noti_id, noti_title, noti_content, update_time,noti_document_url
+  		  FROM t_theater_notice
+  		 WHERE noti_type = #{noti_type} AND noti_status = 0 AND audit_flag = 1
+  	  ORDER BY update_time desc
+  		<if test="pageSize != null">
+			LIMIT #{pageSize} OFFSET #{offsetNum}
+		</if>
+	</select>
+	
+	<!-- 更新通知的点击量 -->
+	<update id="updateBrowsTimes" parameterType="java.util.Map">
+		UPDATE t_theater_notice SET brows_times = brows_times + 1 WHERE noti_id = #{noti_id}
+	</update>
+	
+	<update id="updateNotice_Audit" parameterType="map">
+		update t_theater_notice set audit_flag = #{audit_flag} where noti_id = #{noti_id} 
+	</update>
+	
+	<!-- 查看其它发行通知 -->
+	<select id="getOtherNotice" parameterType="java.lang.Integer" resultType="java.util.Map">
+		SELECT noti_id, noti_title, update_time, noti_type
+		  FROM t_theater_notice
+		 WHERE noti_type = (SELECT noti_type FROM t_theater_notice WHERE noti_id = #{noti_id})
+		   AND audit_flag = 1
+	  ORDER BY update_time desc LIMIT 5 OFFSET 0;
+	</select>
+	
+	<select id="getNoticeByCriteria" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT noti_id, noti_title, noti_content, update_time,noti_document_url
+  		  FROM t_theater_notice
+  		 WHERE noti_type = #{noti_type} AND noti_status = 0 and noti_title like '%${criteral}%'
+  	 ORDER BY update_time desc LIMIT #{pageSize} OFFSET #{offsetNum};
+	</select>
+</mapper>

@@ -1,0 +1,59 @@
+$(function() {
+	// Logo，地区，主菜单
+	LogoMenuTextLoad(3);
+
+	// 底部导航
+	bottomTextLoad();
+
+	var href = window.location.href;
+	var noti_id = "";
+	var index = href.lastIndexOf("=");
+	if(index != -1) {
+		noti_id = href.substring(index+1);
+	}else {
+		alert("news_id错误");
+	}
+
+	//查询通知信息
+	$.ajax({
+		url: service_url + "notice/getNotice",
+		data: {
+			noti_id: noti_id,
+			updateFlag: 1  	//更新通知的点击量 标记
+		},
+		dataType: "jsonp",
+		jsonp: "jsonpCallback",
+		success: function(data) {
+			var data = data.data;
+			var noti_content = data.noti_content;
+
+			$(".content .content-title").html(data.noti_title);
+			$(".cinema").html(data.name);
+			$(".date").html(data.create_time);
+
+			//文档下载
+			if(data.noti_document_url != null && typeof(data.noti_document_url) != "undefined") {
+				var content = "资源：<a href='javascript:void(0);'>"+data.doc_name+"</a>";
+				$(".resourse").append(content);
+				$(".resourse a").bind("click", {url:data.noti_document_url}, function(event) {
+					window.location.href = service_url + "image/download?f=" + event.data.url;
+				});
+			}
+			$(".content .rules").html(noti_content);
+
+
+			//面包屑
+			var notice_heading = '';
+			if(data.noti_type == 0) {
+                notice_heading = '发行通知';
+			}else if(data.noti_type == 1) {
+                notice_heading = '院线通知';
+			}
+			$('.breadcrumb div:eq(1)').html(notice_heading);
+            $('.breadcrumb div:eq(1)').bind('click', function(){window.location.href='../homeland.html';});
+		}
+	});
+
+});
+
+

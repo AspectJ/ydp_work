@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cinema">
+
+	<!-- 查询影院信息 -->
+	<select id="selCinemaInfo" resultType="java.util.Map">
+		SELECT cinemaid, profile, philosophy FROM t_cinemainfo WHERE cinemaid = 9
+	</select>
+	
+	<!-- 查询加盟影院数量 -->
+	<select id="getJoinCinemaCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+		SELECT count(*) FROM t_join_cinema jc join dq_area a on jc.area_number = a.areaID
+		 WHERE cinemaid = 9
+		<if test="city_number != null and city_number != ''">
+			AND a.fatherID = #{city_number}
+		</if>
+	</select>
+	<!-- 查询加盟影院信息（用于风采展示） -->
+	<select id="getJoinCinemaInfo" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT j_id, j_name, cinemaid, t_logo_url
+		  FROM t_join_cinema jc join dq_area a on jc.area_number = a.areaID
+		 WHERE cinemaid = 9 AND audit_flag = 1 AND t_logo_url != ''
+		<if test="city_number != null and city_number != ''">
+			AND a.fatherID = #{city_number}
+		</if>
+		ORDER BY create_time desc
+ 		LIMIT #{pageSize} OFFSET #{offsetNum}
+	</select>
+	
+	<!-- 用户首页风采展示 -->
+	<select id="getJoinCinemaShow" resultType="java.util.Map">
+		SELECT j_id, j_name, cinemaid, t_logo_url 
+		  FROM t_join_cinema
+		 WHERE cinemaid = 9 AND audit_flag = 1
+	  ORDER BY create_time desc
+	</select>
+	
+	<!-- 查询影院风采展示 -->
+	<select id="getCinemaStyle" parameterType="java.util.Map" resultType="java.util.Map">
+	    SELECT s_id, s_type, s_name, s_img, s_remark, cinemaid, org_path
+  		FROM t_theater_style a join t_image b on a.s_img = b.imageid
+  		WHERE cinemaid = 9 and s_type = #{s_type}
+	</select>
+	
+	<!-- Ajax获取省份数据 -->
+	<select id="AjaxProvince" resultType="java.util.Map">
+		SELECT id, provinceID, province FROM dq_province 
+		<if test="provinceID != null">
+			where provinceID in 
+			<foreach item="item" index="index" collection="provinceID" open="(" separator="," close=")">
+             	#{item}
+        	</foreach>
+		</if>
+	</select>
+	<!-- Ajax获取地市数据 -->
+	<select id="AjaxCity" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT id, cityID, city, fatherID FROM dq_city where fatherID = #{fatherID}
+	</select>
+	<!-- Ajax获取区县数据 -->
+	<select id="AjaxArea" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT id, areaID, area, fatherID FROM dq_area where fatherID = #{fatherID}
+	</select>
+	
+</mapper>

@@ -1,0 +1,201 @@
+package com.cx.rest.information.dao;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.support.SqlSessionDaoSupport;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service("newsInfoDao")
+public class NewsInfoDaoImpl extends SqlSessionDaoSupport{
+	
+	@Autowired
+	public void setSqlSessionFactory(SqlSessionFactory sqlSessionFactory) {
+		super.setSqlSessionFactory(sqlSessionFactory);
+	}
+
+	/**
+	 * 新增主题图片信息
+	 * 
+	 * @param imageMap
+	 */
+	public Map<String, Object> insertImage(Map<String, Object> imageMap){
+		imageMap.put("create_time", new Date());
+		getSqlSession().insert("newsinfo.insertImage", imageMap);
+		return imageMap;
+	}
+	
+	/**
+	 * 新增新闻基本信息
+	 * 
+	 * @param insertNewsMap
+	 */
+	public Map<String, Object> insertNewsInfo(Map<String, Object> insertNewsMap){
+		getSqlSession().insert("newsinfo.insertNewsInfo", insertNewsMap);
+		return insertNewsMap;
+	}
+	
+	
+	/**
+	 * 查询新闻信息
+	 */
+	public Map<String, Object> getNewsDetail(int news_id){
+		Map<String, Object> paramMap = getSqlSession().selectOne("newsinfo.getNewsDetail", news_id);
+		return paramMap;
+	}
+	
+	/**
+	 * 修改图片信息
+	 * 
+	 * @param newsMap
+	 */
+	public Map<String, Object> updateImageInfo(Map<String, Object> imageMap){
+		getSqlSession().update("newsinfo.updateImageInfo", imageMap);
+		return imageMap;
+	}
+	
+	/**
+	 * 修改新闻信息
+	 * 
+	 * @param newsMap
+	 */
+	public Map<String, Object> updateNewsInfo(Map<String, Object> newsMap){
+		getSqlSession().update("newsinfo.updateNewsInfo", newsMap);
+		return newsMap;
+	}
+	
+	/**
+	 * 修改审核标记
+	 */
+	public Map<String, Object> updateNewsInfo_Audit(Map<String, Object> updateMap){
+		getSqlSession().update("newsinfo.updateNewsInfo_Audit", updateMap);
+		return updateMap;
+	}
+	
+	
+	/**
+	 * 删除新闻信息
+	 * 
+	 * @param newsMap
+	 */
+	public Map<String, Object> deleteNewsInfo(Map<String, Object> newsMap){
+		getSqlSession().delete("newsinfo.deleteNewsInfo", newsMap);
+		return newsMap;
+	}
+	
+	/**
+	 * 删除新闻主题图片信息
+	 * 
+	 * @param newsMap
+	 */
+	public Map<String, Object> deleteImage(Map<String, Object> newsMap){
+		getSqlSession().delete("newsinfo.deleteImage", newsMap);
+		return newsMap;
+	}
+	
+	/**
+	 * 查询新闻列表
+	 * @param paramMap
+	 * @return
+	 */
+	public List<Map<String, Object>> getNewsInfoList(Map<String, Object> paramMap){
+		return getSqlSession().selectList("newsinfo.getNewsInfoList", paramMap);
+	}
+	
+	/**
+	 * 查询新闻信息总数量
+	 */
+	public int getNewsInfoListCount(Map<String, Object> newsMap){
+		return getSqlSession().selectOne("newsinfo.getNewsInfoListCount", newsMap);
+	}
+	
+	/**
+	 * 根据新闻状态查询新闻信息（首页展示）
+	 * @param news_type
+	 * @return
+	 */
+//	public List<Map<String, Object>> selNewsByNewsType(Map<String, Object> paramsMap) {
+//		List<Map<String, Object>> resultList = this.getSqlSession().selectList("newsinfo.selNewsByNewsType", paramsMap);
+//		return resultList;
+//	}
+	
+
+	/**
+	 * 查询图片路径
+	 * @param news_img
+	 * @return
+	 */
+	public Map<String, Object> getImgPath(int news_img) {
+		Map<String, Object> resultMap= this.getSqlSession().selectOne("newsinfo.getImgPath", news_img);
+		return resultMap;
+	}
+	
+	
+	/**
+	 * 查询热门资讯
+	 * @return
+	 */
+	public List<Map<String, Object>> getHotIntelligence(Map<String, Object> paramsMap) {
+		List<Map<String, Object>> resultList = this.getSqlSession().selectList("newsinfo.getHotIntelligence", paramsMap);
+		return resultList;
+	}
+
+	/**
+	 * 查询公司动态
+	 * @return
+	 */
+	public List<Map<String, Object>> getCompanyDynamic(int news_id) {
+		List<Map<String, Object>> resultList = this.getSqlSession().selectList("newsinfo.getCompanyDynamic", news_id);
+		return resultList;
+	}
+	
+	/**
+	 * 更新新闻的点击量（brows_times）
+	 * @param newsInfo
+	 */
+	public void updateBrowsTimes(int news_id) {
+		this.getSqlSession().update("newsinfo.updateBrowsTimes", news_id);
+	}
+	
+	public int getMoreNewsInfoCount(Map<String, Object> newsInfo) {
+		return getSqlSession().selectOne("newsinfo.getMoreNewsInfoCount", newsInfo);
+	}
+	
+	public List<Map<String, Object>> getMoreNewsInfo(Map<String, Object> newsInfo) {
+		List<Map<String, Object>> resultList = this.getSqlSession().selectList("newsinfo.getMoreNewsInfo", newsInfo);
+		return resultList;
+	}
+	
+
+	public Map<String, Object> selFreshImgNews(int news_type) {
+		Map<String, Object> resultMap = this.getSqlSession().selectOne("newsinfo.selFreshImgNews", news_type);
+		return resultMap;
+	}
+	
+
+
+	public Map<String, Object> selFreshDynamicImg() {
+		return this.getSqlSession().selectOne("newsinfo.selFreshDynamicImg");
+	}
+
+
+	public List<Map<String, Object>> getNewsListByType(Map<String, Object> paramsMap) {
+		return this.getSqlSession().selectList("newsinfo.getNewsListByType", paramsMap);
+	}
+
+	public int getNewsListCountByType(String newsType) {
+		return this.getSqlSession().selectOne("newsinfo.getNewsListCountByType", newsType);
+	}
+
+	public Map<String, Object> getPreviousNews(int news_id) {
+		return this.getSqlSession().selectOne("newsinfo.getPriviousNews", news_id);
+	}
+
+	public Map<String, Object> getNextNews(int news_id) {
+		return this.getSqlSession().selectOne("newsinfo.getNextNews", news_id);
+	}
+
+}

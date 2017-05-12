@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+	<mappers>
+		<mapper resource="com/cx/rest/user/dao/user-Mapper.xml" />
+		
+		<mapper resource="com/cx/rest/carousel/dao/carousel-Mapper.xml" />
+		
+		<mapper resource="com/cx/rest/company/dao/company-Mapper.xml" />
+		<mapper resource="com/cx/rest/information/dao/newsInfo-Mapper.xml" />
+		<mapper resource="com/cx/rest/information/dao/activityInfo-Mapper.xml" />
+		<mapper resource="com/cx/rest/information/dao/noticeInfo-Mapper.xml" />
+		<mapper resource="com/cx/rest/information/dao/partner-Mapper.xml" />
+		<mapper resource="com/cx/rest/information/dao/joinCinema-Mapper.xml" />
+		<mapper resource="com/cx/rest/information/dao/theaterStyle-Mapper.xml" />
+		<mapper resource="com/cx/rest/cinema/dao/cinemaInfoList-Mapper.xml" />
+		<mapper resource="com/cx/rest/information/dao/materialInfo-Mapper.xml" />
+		
+	
+		
+		<!-- 管理员登陆 -->
+		<mapper resource="com/cx/rest/information/dao/adminInfo-Mapper.xml"/>
+		
+		<!-- 查询影院信息 -->
+		<mapper resource="com/cx/rest/cinema/dao/cinema-Mapper.xml"/>
+	</mappers>
+
+</configuration>

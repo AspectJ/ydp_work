@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>影院总部管理系统</title>
+		<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
+		<script type="text/javascript" src="../js/jquery-1.11.2.min.js" ></script>
+		<script type="text/javascript" src="../js/ajaxfileupload.js"></script>
+		<script type="text/javascript" src="../js/public.js" ></script>
+		<script type="text/javascript" src="../js/noticeadd.js" ></script>
+		<script>
+		  
+			$(function(){
+				$("#addNotice").fadeIn(200);
+				$(document).scrollTop(document.body.scrollHeight);
+				$("#upload_button").attr("disabled","true");
+			});
+	//		document.getElementById("upload_button").disabled=true;
+			
+		</script>
+		<link rel="stylesheet" href="../css/base.css" />
+		<link rel="stylesheet" href="../css/main.css" />
+	</head>
+	<body>
+		<!-- 主面板 -->
+		<div class="main-box">
+			<div class="content-title">
+				<span>您当前位置：首页/添加通知</span>
+<!-- 				<p class="search"><input placeholder="请输入您要查询的信息" /><i></i></p> -->
+				<div class="clear"></div>
+			</div>
+			
+			<!-- 数据区 -->
+			<div class="content-data">
+				<h3 class="title">通知中心</h3>
+				<!-- 面板 -->
+				<div class="panel" id="addNotice">				
+					<table class="panel-tab">
+						<tr><td class="title">通知标题</td>
+							<td colspan="3"><input id='noti_title' class="w" /></td>
+						</tr>
+						<tr><td class="title">通知状态</td>
+							<td>
+								<select id="noti_status">
+									<option value="0" selected="selected">正式发布</option>
+									<option value="1">不可查阅</option>
+									<option value="2">草稿</option>
+								</select>
+							</td>						
+						</tr>
+						<tr>
+								<td class="title">通知类别</td>
+							<td>
+								<select id="noti_type">
+									<option value="0" selected="selected">发行通知</option>
+									<option value="1">院线通知</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td class="title">上传文档</td>
+							<td colspan="3" id="btnimg">
+							<input type="file" id="document_upload" name="document_upload" onchange="changeButtonStatus();">
+							<button onclick="ajaxDocumentUpload();" id="upload_button">上传</button>
+							</td>
+						</tr>
+						<tr style="display:none;" id="doc_show"><td class="title"></td>
+							<td colspan="3">
+								<h4 id="doc_name"></h4>
+							</td>
+						</tr>
+						
+						
+						<tr><td> &nbsp;</td><tr><td> &nbsp;</td><tr><td> &nbsp;</td>
+						<tr id="add_content" ><td class="title">编辑内容</td>
+							<td colspan="3">
+								&nbsp;
+								<!-- <textarea id="news_content" class="w" name="news_content" cols="120" rows="6"></textarea> -->
+							</td>
+						</tr>
+						<tr id="add"><td class="title">&nbsp;</td>
+							<td colspan="3">
+								<button onclick="addTextArea();">添加文本</button> 
+								<button onclick="addImage();">添加图片</button>
+							</td>
+						</tr>
+					</table>
+					<p class="panel-btn">
+						<button onclick="addNotice();">提交</button>
+					</p>
+				</div>
+				
+			</div>
+		</div>
+		
+		
+	</body>
+</html>
+
+
+
+
+
+
+

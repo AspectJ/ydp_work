@@ -1,0 +1,116 @@
+$(document).ready(function() {
+	//底部导航
+	bottomTextLoad();
+	
+	// 弹出框文本事件
+	maskInputEvent(".mask1 .account input");
+	$("#account").focus();
+	
+	$(".personal").hide();
+});
+
+var params = {};
+/**
+ * 注册请求服务器
+ */
+function regist(){
+	
+	if(!document.getElementById("remember").checked){
+		toolTip("请选择遵守服务条款");
+		return;
+	}
+	var realname = $("#realname").val();
+	var mobile = $("#mobile").val();
+	var email = $("#email").val();
+	var cinamename = $("#cinamename").val();
+	
+	if(realname == "" || mobile == "" || cinamename == "" || email == ""){
+		$(".mask1 .personal input").blur();
+		return;
+	}
+	if(!isPhone(mobile)) {
+		toolTip("请输入正确的手机号码");
+		return;
+	}
+	if(!isEmail(email)) {
+		toolTip("请输入正确的邮箱格式");
+		return;
+	}
+//	params.realname = realname;
+	params.realname = encodeURIComponent(realname);
+	
+	params.mobile = mobile;
+//	params.cinema_name = cinamename;
+	params.cinema_name = encodeURIComponent(cinamename);
+	params.email = email;
+
+	console.log(params);
+	$.ajax({
+        url: service_url + "user/regist",
+        dataType: 'jsonp',
+        data: params,
+        async: false,
+        jsonp: "jsonpCallback",
+        success: function(data){
+			switch(data.result){
+				case 1000:
+					var user = data.data;
+//					var nickname = user.nickname;
+//					$("#userName").text(nickname);
+//					localStorage.setItem("nickname", nickname);
+//
+//					if(document.getElementById("remember").checked){
+//						$.cookie("userid", user.userid, { expires: 7, path: '/' }); 
+//						$.cookie("nickname", nickname, { expires: 7, path: '/' }); 
+//					}
+					
+					toolTip("恭喜您，注册成功！请登录", "./login.html");
+					break;
+				case 1006:
+					$("#mobile").after("<div class='text_error_tip'>"+ data.msg +"</div>"); break;
+				case 1007:
+					$("#email").after("<div class='text_error_tip'>"+ data.msg +"</div>"); break;
+				default:
+					toolTip(data.msg);
+					break;
+			}
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown){
+        	alert(errorThrown);
+        },
+        timeout: 30000
+    });
+}
+
+function next() {
+	params.account = encodeURIComponent($("#account").val());
+	params.pass = $("#pass").val();
+	params.repass = $("#repass").val();
+	if(params.account == null || params.pass == null || params.repass == null 
+			|| params.account == '' || params.pass == '' || params.repass == '') {
+		$(".mask1 .account input").blur();
+		return;
+	}
+	if(params.pass != params.repass) {
+		$("#repass").after("<div class='text_error_tip'>两次密码输入不一致</div>");
+		return;
+	}
+	if(!passLength(params.pass)) {
+		toolTip("密码长度必须在3~12位之间");
+		return;
+	}
+	$(".account").hide();
+	$(".personal").show();
+	$(".mask1 .registtext").css("height", "460px");
+	
+	maskInputEvent(".mask1 .personal input");
+	$("#realname").focus();
+}
+
+/**
+ * 验证密码长度
+ */
+function passLength(pass) {
+	var reg = /^\w{3,12}$/;
+	return reg.test(pass);
+}

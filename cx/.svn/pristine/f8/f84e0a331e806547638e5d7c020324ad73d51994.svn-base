@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>影院总部管理系统</title>
+		<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
+		<link rel="stylesheet" href="../css/sweet-alert.css" />
+		<script type="text/javascript" src="../js/jquery-1.11.2.min.js" ></script>
+		<script type="text/javascript" src="../js/ajaxfileupload.js"></script>
+		<script type="text/javascript" src="../js/public.js" ></script>
+		<script type="text/javascript" src="../js/materialupdate.js" ></script>
+		<script type="text/javascript" src="../js/sweet-alert.min.js"></script>
+		<script>
+			$(function(){
+				$("#showMaterial").fadeIn(200);
+				$(document).scrollTop(document.body.scrollHeight);
+				var src = window.parent.$("#mainFrame").attr("src");
+				var material_id = src.replace("manager/MaterialShow.html?material_id=","");
+				$("#material_id").val(material_id);
+				getMaterialShow(material_id,"show");
+			});
+			
+		</script>
+		<link rel="stylesheet" href="../css/base.css" />
+		<link rel="stylesheet" href="../css/main.css" />
+	</head>
+	<body>
+		<!-- 主面板 -->
+		<div class="main-box">
+			<div class="content-title">
+				<span>您当前位置：素材管理</span>
+<!-- 				<p class="search"><input placeholder="请输入您要查询的信息" /><i></i></p> -->
+				<div class="clear"></div>
+			</div>
+			
+			<!-- 数据区 -->
+			<div class="content-data">
+				<h3 class="title">素材中心</h3>
+				<!-- 面板 -->
+				<div class="panel" id="showMaterial">				
+					<table class="panel-tab">
+					<input type="hidden" id="material_id" value=""/>	
+						<tr><td class="titl">标题：</td>
+							<td colspan="3" id="material_name"></td>
+						</tr>
+						<tr><td class="titl">内容 :</td>
+								<td colspan="3" id="material_content"></td>
+						
+						</tr>
+<!-- 						<tr><td class="titl">下载地址：</td> -->
+<!-- 							<td colspan="3" id="download_url"></td> -->
+<!-- 						</tr> -->
+<!-- 						<tr><td class="titl" > 提取码  :</td> -->
+<!-- 							<td colspan="3" id="fetch_code"></td> -->
+<!-- 						</tr> -->
+<!-- 						<tr><td class="titl">  备注     :</td> -->
+<!-- 							<td colspan="3" id="remark"></td> -->
+<!-- 						</tr> -->
+					
+						
+						<input type="hidden" id="add" />
+					</table>
+					<p class="panel-btn">
+					    <button onclick="doAudit();">审核</button>
+						<button onclick="toUpdateMaterial();">修改</button>
+					</p>
+				</div>
+				
+			</div>
+		</div>
+		
+	
+	</body>
+</html>
+
+
+
+
+
+
+

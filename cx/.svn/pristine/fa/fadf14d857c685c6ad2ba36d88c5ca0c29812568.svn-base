@@ -1,0 +1,32 @@
+/* .mask{position:absolute;width:100%;height:100%;top:0;left:0;z-index: -1;background: none!important;} */
+.mask1 .logintext{width:380px;height:400px;background-color:#fff;margin:13.5% auto;}
+.mask1 .head{background-color:#EB002A;color:#F7F6F7;padding:14px 22px;font-weight:bold}
+.mask1 .head .cancel{background-color:#EB002A;vertical-align:middle;position:absolute;margin-left:290px;margin-top:-5px}
+.mask1 #account,.mask1 #pass{letter-spacing: 1px; border:1px solid #DDDDDD;border-radius:5px;line-height:40px;font-size:15px;width:260px;box-shadow:0 0 5px 1px #DDDDDD;padding-left:60px}
+.mask1 .account i,.mask1 .pass i{position:absolute;margin-left:50px;margin-top:5px;padding:40px 5px;background-image:url(../img/login_vertical_bar.png);background-repeat:no-repeat; background-size: 2px 35px;}
+.mask1 .logintext .account{margin-top:55px;text-align:center}
+.mask1 #account{background-image:url(../img/login_account.png);background-repeat:no-repeat;background-position:5px}
+.mask1 .logintext .pass{margin-top:20px;text-align:center}
+.mask1 #pass{background-image:url(../img/login_pass.png);background-repeat:no-repeat;background-position:5px}
+.mask1 .tip{margin-top:15px;padding-left:20px;font-size:14px;color:#B9B8B8}
+.mask1 #remember{margin-left:10px;cursor:pointer}
+.mask1 .logintext .remember{margin-left:10px;vertical-align:top}
+.mask1 .logintext .forget{margin-left:100px;margin-right:10px;vertical-align:top;cursor: pointer;}
+.mask1 .logintext .regist{margin-left:10px;vertical-align:top;color:#EB002A;font-weight:bold;cursor: pointer;}
+.mask1 .logintext .loginbn{cursor:pointer;width:85%;background-color:#EB002A;margin:35px auto;padding:14px 0px;text-align:center;color:#fff;letter-spacing:10px;padding-left: 10px;font-weight:bold;border-radius:5px;box-shadow:0 0 2px 0px #EB002A}
+.mask1 .logintext input{outline:none;resize:none}
+
+.mask1 .text_error_tip{
+	position: absolute;
+	border: 1px solid;
+	margin-top: -34px;
+	font-size: 13px;
+	background-color: #EB002A;
+	color: #fff;
+	padding: 3px 7px;
+	border-radius: 5px;
+	border: none;
+	margin-left: 255px;
+}
+
+.bottom{ /* bottom: 0px; */position: absolute;}

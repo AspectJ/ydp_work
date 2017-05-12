@@ -1,0 +1,25 @@
+import React, { PropTypes } from 'react'
+import { Router, Route, Redirect } from 'dva/router'
+import AdminLogin from './routes/AdminLogin'
+import Main from './routes/Main'
+import CinemaList from './routes/CinemaList'
+import NewsManage from './routes/NewsManage'
+
+export default function({ history }) {
+  return (
+    <Router history={history}>
+      <Redirect from="/" to="/cx/" />
+      <Route path="/cx/login" component={AdminLogin} />
+      <Router path="/cx" component={Main}>
+        <Route breadcrumbName="影院信息管理" path="cinemalist" component={CinemaList} />
+        <Route breadcrumbName="平台用户管理" path="usersmanage" component={NewsManage} />
+        <Route breadcrumbName="院线资讯管理" path="newsmanage" component={NewsManage} />
+        <Route breadcrumbName="最新活动管理" path="activesmanage" component={NewsManage} />
+        <Route breadcrumbName="发行通知管理" path="releasesmanage" component={NewsManage} />
+        <Route breadcrumbName="素材中心管理" path="sourcesmanage" component={NewsManage} />
+        <Route breadcrumbName="轮播管理" path="bannermanage" component={NewsManage} />
+        <Route breadcrumbName="系统用户管理" path="adminsmanage" component={NewsManage} />
+      </Router>
+    </Router>
+  );
+};

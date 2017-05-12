@@ -1,0 +1,47 @@
+import request from '../utils/request';
+import qs from 'qs';
+
+const baseUrl = 'http://localhost:8080/cx/rest',
+      POST = (params) => {
+        return {
+          method: 'POST',
+          mode: 'cors',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=utf8'
+          },
+          body: qs.stringify(params)
+        }
+      },
+      GET =  {
+        method: 'GET',
+        credentials: 'include',
+      };
+
+export async function AdminLogin(params) {
+  return request(baseUrl + '/adminInfo/selAdminInfo', POST(params));
+}
+
+export async function CinemaList(params){
+  return request(baseUrl + '/join/getJoinCinemaList', POST(params));
+}
+
+export async function queryCinemaInfo(params){
+  return request(baseUrl + '/join/getJoinCinema', POST(params));
+}
+
+export async function createCinema(params){
+  return request(baseUrl + '/join/addJoinCinema', POST(params));
+}
+
+export async function updateCinema(params){
+  return request(baseUrl + '/join/updateJoinCinema', POST(params));
+}
+
+export async function deleteCinema(params){
+  return request(baseUrl + '/join/deleteJoinCinema', POST(params));
+}
+
+export async function loadAreaInfo(){
+  return request(baseUrl + '/cinema/AjaxAreaInfo', GET);
+}

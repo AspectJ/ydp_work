@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>影院总部管理系统</title>
+		<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
+			<script type="text/javascript" src="../js/jquery-1.11.2.min.js" ></script>
+		<script type="text/javascript" src="../js/ajaxfileupload.js"></script>
+		<script type="text/javascript" src="../js/public.js" ></script>
+		<script type="text/javascript" src="../js/newsinfoupdate.js" ></script>
+		<script>
+			$(function(){
+				$("#updateNewsInfo").fadeIn(200);
+				$(document).scrollTop(document.body.scrollHeight);
+				
+				var src = window.parent.$("#mainFrame").attr("src");
+				var news_id = src.replace("manager/newsInfoUpdate.html?news_id=","");
+				$("#news_id").val(news_id);
+				getNewsInfoShow(news_id,"update");
+				document.getElementById("upload_button").disabled=true;
+				
+			});
+			
+		</script>
+		<link rel="stylesheet" href="../css/base.css" />
+		<link rel="stylesheet" href="../css/main.css" />
+	</head>
+	<body>
+		<!-- 主面板 -->
+		<div class="main-box">
+			<div class="content-title">
+				<span>您当前位置：首页/修改新闻</span>
+<!-- 				<p class="search"><input placeholder="请输入您要查询的信息" /><i></i></p> -->
+				<div class="clear"></div>
+			</div>
+			
+			<!-- 数据区 -->
+			<div class="content-data">
+				<h3 class="title">新闻中心</h3>
+				<!-- 面板 -->
+				<div class="panel" id="updateNewsInfo">	
+					<input type="hidden" id="news_id" value=""/>			
+					<table class="panel-tab">
+						<tr><td class="title">新闻标题</td>
+							<td colspan="3"><input id='news_title' class="w"/></td>
+						</tr>
+						<tr><td class="title">新闻状态</td>
+							<td>
+								<select id="news_status">
+									<option value="0">正式发布</option>
+									<option value="1">不可查阅</option>
+									<option value="2">草稿</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td class="title">新闻类别</td>
+							<td>
+								<select id="news_type">
+									<option value="0">公司政策</option>
+									<option value="1">行业资讯</option>
+									<option value="2">院线资讯</option>
+									<option value="3">楚湘动态</option>
+								</select>
+							</td>
+						</tr>
+						<tr id="show_img_tr"><td class="title">主题图片</td>
+							<td colspan="3">
+								<input type="hidden" id="imageid"/>
+								<img id="img_show" src=""/>&nbsp;<a href="javascript:void(0);"  onclick="updateThemeImg();">修改</a>
+							</td>
+						</tr>
+						<tr id="update_img_tr" style="display:none;"><td class="title">主题图片</td>
+							<td colspan="3">
+								<input type="file" id="news_img" name="news_img" onchange="changeButtonStatus();"/>
+								<button onclick="ajaxFileUpload();" id="upload_button">上传主题图片</button>
+								<span  style='color:red'  ''> 建议 图片尺寸：310*145 (像素) </span>
+							</td>
+						</tr>
+						<tr id="update_img_tr_show" style="display:none;"><td class="title">预览图片</td>
+							<td colspan="3">
+								<img src="" id="update_img_show" picurl=""/>
+							</td>
+						</tr>
+						
+						
+						<tr><td> &nbsp;</td><tr><td> &nbsp;</td><tr><td> &nbsp;</td>
+						<tr id="add"><td class="title">&nbsp;</td>
+							<td colspan="3">
+								<button onclick="addTextArea();">添加文本</button> 
+								<button onclick="addImage();">添加图片</button>
+							</td>
+						</tr>
+					</table>
+					<p class="panel-btn">
+						<button onclick="updateNewsInfo();">修改</button>
+					</p>
+				</div>
+				
+			</div>
+		</div>
+		
+	
+	</body>
+</html>
+
+
+
+
+
+
+

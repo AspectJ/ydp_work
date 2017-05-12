@@ -1,0 +1,12 @@
+import React from 'react'
+import { Modal, Form, Input, Select, Upload } from 'antd'
+
+const FormItem = Form.Item;
+
+let NewsModal = () => {
+  return (
+    <div></div>
+  );
+};
+
+ export default NewsModal

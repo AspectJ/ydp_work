@@ -1,0 +1,284 @@
+package com.cx.rest.company;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+
+import org.jboss.resteasy.annotations.cache.NoCache;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cx.bean.ResMessage;
+import com.cx.filter.BaseServlet;
+import com.cx.rest.company.dao.CompanyDaoImpl;
+import com.cx.rest.information.dao.AdminInfoDaoImpl;
+import com.cx.util.CodeUtil;
+import com.mongo.MyMongo;
+
+import net.sf.json.JSONObject;
+
+@Path("rest/company")
+@NoCache
+@Service()
+public class CompanyRest extends BaseServlet
+{
+	
+	@Resource
+	private CompanyDaoImpl companyDao;
+	@Autowired
+	private AdminInfoDaoImpl adminInfoDao;
+	
+	/**
+	 * 新增院线信息
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/addCompanyInfo")
+	@Produces("text/html;charset=UTF-8")
+	public String addCompanyInfo(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		
+		String cinemaName = URLDecoder.decode(request.getParameter("cinemaName"), "UTF-8");
+		String customer_phone = URLDecoder.decode(request.getParameter("customer_phone"), "UTF-8");
+		String customer_qq = URLDecoder.decode(request.getParameter("customer_qq"), "UTF-8");
+		String customer_email = URLDecoder.decode(request.getParameter("customer_email"), "UTF-8");
+		String address = URLDecoder.decode(request.getParameter("address"), "UTF-8");
+		String profile = URLDecoder.decode(request.getParameter("profile"), "UTF-8");
+		String philosophy = URLDecoder.decode(request.getParameter("philosophy"), "UTF-8");
+		String remark = URLDecoder.decode(request.getParameter("remark"), "UTF-8");
+//		String cinemaNumber = URLDecoder.decode(request.getParameter("cinemaNumber"), "UTF-8");
+//		String cinemaLinkMan = URLDecoder.decode(request.getParameter("cinemaLinkMan"), "UTF-8");
+//		String cinemaLinkMan_telphone = URLDecoder.decode(request.getParameter("cinemaLinkMan_telphone"), "UTF-8");
+//		String job = URLDecoder.decode(request.getParameter("job"), "UTF-8");
+
+		try{
+			if (CodeUtil.checkParam(cinemaName)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			
+			Map<String, Object> cinemaInfo = new HashMap<String, Object>();
+			cinemaInfo.put("cinemaid", "0");
+			cinemaInfo.put("name", cinemaName);
+			cinemaInfo.put("customer_phone", customer_phone);
+			cinemaInfo.put("customer_qq", customer_qq);
+			cinemaInfo.put("customer_email", customer_email);
+			cinemaInfo.put("address", address);
+			cinemaInfo.put("profile", profile);
+			cinemaInfo.put("philosophy", philosophy);
+			cinemaInfo.put("remark", remark);
+			cinemaInfo.put("create_time", new Date());
+			cinemaInfo.put("update_time", new Date());
+			cinemaInfo.put("author", "游客");
+			Map<String, Object> resultMap = companyDao.insertCompanyInfo(cinemaInfo);
+			JSONObject data = new JSONObject();
+			data.put("cinemaid", resultMap.get("cinemaid"));
+			data.put("cinemaName", resultMap.get("name"));
+			data.put("profile", resultMap.get("profile"));
+			data.put("philosophy", resultMap.get("philosophy"));
+			data.put("customer_phone", resultMap.get("customer_phone"));
+			data.put("customer_qq", resultMap.get("customer_qq"));
+			data.put("customer_email", resultMap.get("customer_email"));
+			data.put("address", resultMap.get("address"));
+			data.put("create_time", resultMap.get("create_time"));
+			data.put("update_time", resultMap.get("update_time"));
+			data.put("author", resultMap.get("author"));
+			data.put("remark", resultMap.get("remark"));
+			resultJson.put("data", data);
+			
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("新增院线信息", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("新增院线信息",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	
+	
+	
+	/**
+	 * 修改院线信息
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/updateCompanyInfo")
+	@Produces("text/html;charset=UTF-8")
+	public String updateCompanyInfo(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String cinemaId = request.getParameter("cinemaid");
+		String cinemaName = URLDecoder.decode(request.getParameter("cinemaName"), "UTF-8");
+		String customer_phone = URLDecoder.decode(request.getParameter("customer_phone"), "UTF-8");
+		String customer_qq = URLDecoder.decode(request.getParameter("customer_qq"), "UTF-8");
+		String customer_email = URLDecoder.decode(request.getParameter("customer_email"), "UTF-8");
+		String address = URLDecoder.decode(request.getParameter("address"), "UTF-8");
+		String profile = URLDecoder.decode(request.getParameter("profile"), "UTF-8");
+		String philosophy = URLDecoder.decode(request.getParameter("philosophy"), "UTF-8");
+		String remark = URLDecoder.decode(request.getParameter("remark"), "UTF-8");
+		String adminid = URLDecoder.decode(request.getParameter("adminid"), "UTF-8");
+		
+		
+		try{
+			if (CodeUtil.checkParam(cinemaId,cinemaName)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			Map<String,Object> adminMap = new HashMap<String,Object>();
+			adminMap.put("adminid", Integer.parseInt(adminid));
+			Map<String,Object> resultMap_admin = adminInfoDao.selAdminById(adminMap);
+		    String adminname = (String) resultMap_admin.get("adminname");
+		    
+			Map<String, Object> cinemaInfo = new HashMap<String, Object>();
+			cinemaInfo.put("cinemaid", Integer.parseInt(cinemaId));
+			cinemaInfo.put("name", cinemaName);
+			cinemaInfo.put("customer_phone", customer_phone);
+			cinemaInfo.put("customer_qq", customer_qq);
+			cinemaInfo.put("customer_email", customer_email);
+			cinemaInfo.put("address", address);
+			cinemaInfo.put("profile", profile);
+			cinemaInfo.put("philosophy", philosophy);
+			cinemaInfo.put("remark", remark);
+			cinemaInfo.put("create_time", new Date());
+			cinemaInfo.put("update_time", new Date());
+			cinemaInfo.put("author", adminname);
+			
+			Map<String, Object> resultMap = companyDao.updateCompanyInfo(cinemaInfo);
+			JSONObject data = new JSONObject();
+			data.put("cinemaid", resultMap.get("cinemaid"));
+			data.put("cinemaName", resultMap.get("name"));
+			data.put("profile", resultMap.get("profile"));
+			data.put("philosophy", resultMap.get("philosophy"));
+			data.put("customer_phone", resultMap.get("customer_phone"));
+			data.put("customer_qq", resultMap.get("customer_qq"));
+			data.put("customer_email", resultMap.get("customer_email"));
+			data.put("address", resultMap.get("address"));
+			data.put("create_time", resultMap.get("create_time"));
+			data.put("update_time", resultMap.get("update_time"));
+			data.put("author", resultMap.get("author"));
+			data.put("remark", resultMap.get("remark"));
+			resultJson.put("data", data);
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("修改院线信息", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("修改院线信息",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 查看院线信息
+	 */
+	@GET
+	@POST
+	@Path("/getCompanyInfo")
+	@Produces("text/html;charset=UTF-8")
+	public String getCompanyInfo(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String cinemaId = request.getParameter("cinemaid");
+		try{
+			Map<String, Object> cinemaInfo = new HashMap<String, Object>();
+			cinemaInfo.put("cinemaid", Integer.parseInt(cinemaId));
+			Map<String, Object> resultMap = companyDao.getCompanyInfo(cinemaInfo);
+			JSONObject data = new JSONObject();
+			if(resultMap != null && resultMap.size() > 0){
+				data.put("cinemaid", resultMap.get("cinemaid"));
+				data.put("cinemaName", resultMap.get("name"));
+				data.put("profile", resultMap.get("profile"));
+				data.put("philosophy", resultMap.get("philosophy"));
+				data.put("customer_phone", resultMap.get("customer_phone"));
+				data.put("customer_qq", resultMap.get("customer_qq"));
+				data.put("customer_email", resultMap.get("customer_email"));
+				data.put("address", resultMap.get("address"));
+				data.put("create_time", resultMap.get("create_time"));
+				data.put("update_time", resultMap.get("update_time"));
+				data.put("author", resultMap.get("author"));
+				data.put("remark", resultMap.get("remark"));
+				resultJson.put("data", data);
+			}else{
+				MyMongo.mRequestFail(request, "查询院线信息不存在");
+				return this.returnError(resultJson, ResMessage.Info_NoExist.code, request);
+			}
+			
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("查询院线信息", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询院线信息",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 删除院线
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/deleteCompany")
+	@Produces("text/html;charset=UTF-8")
+	public String deleteCompany(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+	
+		String cinemaid = request.getParameter("cinemaid");
+		try{
+			if (CodeUtil.checkParam(cinemaid)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			
+			Map<String, Object> CompanyMap = new HashMap<String, Object>();
+			CompanyMap.put("cinemaid", Integer.parseInt(cinemaid));
+			companyDao.deleteCompanyInfo(CompanyMap);
+			JSONObject data = new JSONObject();
+			data.put("cinemaid", cinemaid);
+			resultJson.put("data", data);
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("删除院线信息", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("删除院线信息",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	
+}

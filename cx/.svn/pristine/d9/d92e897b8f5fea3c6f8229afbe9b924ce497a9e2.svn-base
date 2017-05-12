@@ -1,0 +1,57 @@
+$(function() {
+	// Logo，地区，主菜单
+	LogoMenuTextLoad(3);
+
+	// 底部导航
+	bottomTextLoad();
+
+	var href = window.location.href;
+	var noti_id = "";
+	var index = href.lastIndexOf("=");
+	if(index != -1) {
+		noti_id = href.substring(index+1);
+	}else {
+		alert("news_id错误");
+	}
+
+	//查询通知信息
+	$.ajax({
+		url: service_url + "notice/getNotice",
+		data: {
+			noti_id: noti_id,
+			updateFlag: 1  	//更新通知的点击量 标记
+		},
+		dataType: "jsonp",
+		jsonp: "jsonpCallback",
+		success: function(data) {
+			var data = data.data;
+			var noti_content = data.noti_content;
+			//将字符串的换行符转换成<br/>标签
+			noti_content = replaceAll(noti_content);
+
+			$(".content .content-title").html(data.noti_title);
+			$(".cinema").html(data.name);
+			$(".date").html(data.create_time);
+
+			//文档下载
+			if(data.noti_document_url != null && typeof(data.noti_document_url) != "undefined") {
+				var content = "资源：<a href='javascript:void(0);'>"+data.doc_name+"</a>";
+				$(".resourse").append(content);
+				$(".resourse a").bind("click", {url:data.noti_document_url}, function(event) {
+					window.location.href = service_url + "image/download?f=" + event.data.url;
+				});
+			}
+			$(".content .rules").html(noti_content);
+		}
+	});
+
+});
+
+
+function replaceAll(str) {
+	if(str != null) {
+		str = str.replace(/\n/g,"<br/>");
+		str = str.replace(/ /g, "&nbsp;");
+		return str;
+	}
+}

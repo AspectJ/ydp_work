@@ -1,0 +1,387 @@
+package com.cx.rest.information;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+
+import org.jboss.resteasy.annotations.cache.NoCache;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cx.bean.ResMessage;
+import com.cx.filter.BaseServlet;
+import com.cx.rest.information.dao.AdminInfoDaoImpl;
+import com.cx.rest.information.dao.NewsInfoDaoImpl;
+import com.cx.rest.information.dao.TheaterStyleDaoImpl;
+import com.cx.util.CodeUtil;
+import com.mongo.MyMongo;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+@Path("rest/style")
+@NoCache
+@Service()
+public class TheaterStyleRest extends BaseServlet
+{
+	
+	@Resource
+	private NewsInfoDaoImpl newsInfoDao;
+	
+	@Resource
+	private TheaterStyleDaoImpl styleDao;
+	
+	@Autowired
+	private AdminInfoDaoImpl adminInfoDao;
+	
+	/**
+	 * 新增院线风采信息
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/addTheaterStyle")
+	@Produces("text/html;charset=UTF-8")
+	public String addTheaterStyle(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String cinemaid = request.getParameter("cinemaid");
+		String s_name = URLDecoder.decode(request.getParameter("name"), "UTF-8");
+		String s_img = request.getParameter("img");
+		String s_remark = URLDecoder.decode(request.getParameter("remark"), "UTF-8");
+		String s_type = request.getParameter("type");
+		try{
+			if (CodeUtil.checkParam(s_name)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			
+			Map<String, Object> imageMap = new HashMap<String, Object>();
+			imageMap.put("imageid", "");
+			imageMap.put("org_path", s_img);
+			Map<String, Object> imageResult = newsInfoDao.insertImage(imageMap);
+			String img_id = imageResult.get("imageid").toString();
+			Map<String, Object> insertMap = new HashMap<String, Object>();
+			insertMap.put("s_id", "0");
+			insertMap.put("s_name", s_name);
+			insertMap.put("s_img", Integer.parseInt(img_id));
+			insertMap.put("s_type", Integer.parseInt(s_type));
+			insertMap.put("s_remark", s_remark);
+			insertMap.put("cinemaid", Integer.parseInt(cinemaid));
+			Map<String, Object> resultMap = styleDao.insertTheaterStyle(insertMap);
+			JSONObject data = new JSONObject();
+			data.put("s_id", resultMap.get("s_id"));
+			resultJson.put("data", data);
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("新增院线风采信息", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("新增院线风采信息",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 修改院线风采信息
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/updateTheaterStyle")
+	@Produces("text/html;charset=UTF-8")
+	public String updateTheaterStyle(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String s_id = request.getParameter("id");
+		String s_name = URLDecoder.decode(request.getParameter("name"), "UTF-8");
+		String org_path = URLDecoder.decode(request.getParameter("org_path"), "UTF-8");
+		String s_remark = URLDecoder.decode(request.getParameter("remark"), "UTF-8");
+		String image_change = request.getParameter("image_change");
+		String imageid = request.getParameter("imageid");
+		String s_type = request.getParameter("type");
+		String adminid = URLDecoder.decode(request.getParameter("adminid"), "UTF-8");
+		try{
+			if (CodeUtil.checkParam(s_name)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			if(image_change.equals("0")){//需要修改主题图片
+				Map<String, Object> imageMap = new HashMap<String, Object>();
+				imageMap.put("org_path", org_path);
+				imageMap.put("imageid", Integer.parseInt(imageid));
+				newsInfoDao.updateImageInfo(imageMap);
+			}
+			Map<String,Object> adminMap = new HashMap<String,Object>();
+			adminMap.put("adminid", Integer.parseInt(adminid));
+			Map<String,Object> resultMap_admin = adminInfoDao.selAdminById(adminMap);
+		    String adminname = (String) resultMap_admin.get("adminname");
+			Map<String, Object> updateMap = new HashMap<String, Object>();
+			updateMap.put("s_id", Integer.parseInt(s_id));
+			updateMap.put("s_name", s_name);
+			updateMap.put("s_type", Integer.parseInt(s_type));
+			updateMap.put("s_remark", s_remark);
+			updateMap.put("update_time", new Date());
+			updateMap.put("author", adminname);
+			Map<String, Object> resultMap = styleDao.updateTheaterStyle(updateMap);
+			JSONObject data = new JSONObject();
+			data.put("s_id", resultMap.get("s_id"));
+			resultJson.put("data", data);
+		} catch (Exception e){
+			MyMongo.mErrorLog("修改院线风采信息", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("修改院线风采信息",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 删除院线风采信息
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/deleteTheaterStyle")
+	@Produces("text/html;charset=UTF-8")
+	public String deleteTheaterStyle(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String imageid = request.getParameter("imageid");//图片ID
+		String s_id = request.getParameter("id");//院线风采ID
+		try{
+			if (CodeUtil.checkParam(s_id)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			
+			Map<String, Object> deleteMap = new HashMap<String, Object>();
+			deleteMap.put("imageid", Integer.parseInt(imageid));
+			deleteMap.put("s_id", Integer.parseInt(s_id));
+			newsInfoDao.deleteImage(deleteMap);
+			styleDao.deleteTheaterStyle(deleteMap);
+			JSONObject data = new JSONObject();
+			data.put("imageid", imageid);
+			data.put("news_id", s_id);
+			resultJson.put("data", data);
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("删除院线风采信息", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("删除院线风采信息",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 批量删除院线风采信息
+	 * @throws UnsupportedEncodingException 
+	 */
+	@GET
+	@POST
+	@Path("/deleteTheaterStyles")
+	@Produces("text/html;charset=UTF-8")
+	public String deleteTheaterStyles(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String imageid = request.getParameter("imageid");//图片ID
+		String s_id = request.getParameter("id");//院线风采ID
+		try{
+			if (CodeUtil.checkParam(s_id)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			String[] imageids = imageid.split(",");
+			String[] s_ids = s_id.split(",");
+			
+			for(int i=0;i<s_ids.length;i++){
+				String imgid = imageids[i];
+				String sid = s_ids[i];
+				Map<String, Object> deleteMap = new HashMap<String, Object>();
+				deleteMap.put("imageid", Integer.parseInt(imgid));
+				deleteMap.put("s_id", Integer.parseInt(sid));
+				newsInfoDao.deleteImage(deleteMap);
+				styleDao.deleteTheaterStyle(deleteMap);
+			}
+			
+			JSONObject data = new JSONObject();
+			data.put("imageid", imageid);
+			data.put("s_id", s_id);
+			resultJson.put("data", data);
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("删除院线风采信息失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("删除院线风采信息成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 查看院线风采信息
+	 */
+	@GET
+	@POST
+	@Path("/getTheaterStyle")
+	@Produces("text/html;charset=UTF-8")
+	public String getTheaterStyle(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		String s_id = request.getParameter("id");
+		try{
+			if (CodeUtil.checkParam(s_id)){
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			Map<String, Object> getInfo = new HashMap<String, Object>();
+			getInfo.put("s_id", Integer.parseInt(s_id));
+			Map<String, Object> resultMap = styleDao.getTheaterStyle(getInfo);
+			JSONObject data = new JSONObject();
+			if(resultMap != null && resultMap.size() > 0){
+				data.put("id", resultMap.get("s_id"));
+				data.put("name", resultMap.get("s_name"));
+				data.put("type", resultMap.get("s_type"));
+				String type = CodeUtil.convertStyleType(resultMap.get("s_type").toString());
+				data.put("type_name", type);
+				data.put("img", resultMap.get("s_img"));
+				data.put("remark", resultMap.get("s_remark"));
+				data.put("cinemaid", resultMap.get("cinemaid"));
+				data.put("create_time", resultMap.get("create_time"));
+				data.put("update_time", resultMap.get("update_time"));
+				data.put("org_path", resultMap.get("org_path"));
+				resultJson.put("data", data);
+			}else{
+				MyMongo.mRequestFail(request, "查询院线风采信息不存在");
+				return this.returnError(resultJson, ResMessage.Info_NoExist.code, request);
+			}
+			
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("查询院线风采信息失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询院线风采信息成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 查看院线风采信息总条数
+	 */
+	@GET
+	@POST
+	@Path("/getTheaterStyleCount")
+	@Produces("text/html;charset=UTF-8")
+	public String getTheaterStyleCount(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		try{
+			Map<String, Object> countInfo = new HashMap<String, Object>();
+			resultJson.put("total", styleDao.getTheaterStyleListCount(countInfo));
+		} catch (Exception e){
+			MyMongo.mErrorLog("查询院线风采信息总数量失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询院线风采信息总数量成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	
+	/**
+	 * 查看院线风采信息列表
+	 */
+	@GET
+	@POST
+	@Path("/getTheaterStyleList")
+	@Produces("text/html;charset=UTF-8")
+	public String getTheaterStyleList(@Context HttpServletRequest request, @Context HttpServletResponse response){
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		//分页参数、条件查询参数
+		String pageSize = request.getParameter("pageSize");//每页多少条数据
+		String offsetNum = request.getParameter("offsetNum");//offsetNum＝（当前页数－1）*pagesize
+		try{
+			Map<String, Object> info = new HashMap<String, Object>();
+			info.put("pageSize", Integer.parseInt(pageSize));
+			info.put("offsetNum", Integer.parseInt(offsetNum));
+			int count = styleDao.getTheaterStyleListCount(info);
+			List<Map<String, Object>> resultList = styleDao.getTheaterStyleList(info);
+			JSONArray jsonArray = new JSONArray();
+			if(resultList != null && resultList.size() > 0){
+				for(int i=0;i<resultList.size();i++){
+					Map<String, Object> resultMap = resultList.get(i);
+					JSONObject jsonObject = new JSONObject();
+					jsonObject.put("id", resultMap.get("s_id"));
+					jsonObject.put("name", resultMap.get("s_name"));
+					String type = CodeUtil.convertStyleType(resultMap.get("s_type").toString());
+					jsonObject.put("type", resultMap.get("s_type"));
+					jsonObject.put("type_name", type);
+					jsonObject.put("img", resultMap.get("s_img"));
+					jsonObject.put("remark", resultMap.get("s_remark"));
+					jsonObject.put("cinemaid", resultMap.get("cinemaid"));
+					jsonObject.put("create_time", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("create_time")));
+					if(resultMap.containsKey("update_time")){
+						jsonObject.put("update_time", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("update_time")));
+					}
+					jsonArray.add(jsonObject);
+				}
+				resultJson.put("total", count);
+				resultJson.put("data", jsonArray);
+			}else{
+				MyMongo.mRequestFail(request, "查询院线风采信息列表不存在");
+				return this.returnError(resultJson, ResMessage.Info_NoExist.code, request);
+			}
+			
+			
+		} catch (Exception e){
+			MyMongo.mErrorLog("查询院线风采信息列表失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询院线风采信息列表成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+}

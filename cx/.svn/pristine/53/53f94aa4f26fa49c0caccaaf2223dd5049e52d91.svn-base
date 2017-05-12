@@ -1,0 +1,57 @@
+*{margin:0;padding:0;list-style-type:none;}
+a,img{border:0;}
+
+.cf{zoom:1}
+.cf:after{display:block;height:0px;visibility:hidden;clear:both;overflow:hidden;content:''}
+.citybox {
+	background: #E7E8E9;
+	box-shadow: 0 0 1px #d4edf4;
+	width: 260px;
+}.citybox h2{position:relative;padding-bottom:0px;line-height:30px;margin:20px 20px 12px;padding-left:14px;padding-right:14px;zoom:1;display:inline-block;background:#00c7c7;height:32px;color:#fff;padding-top:0px;border-radius:0}
+.citybox h2 span{border-bottom:#fff 6px solid;position:absolute;border-left:#fff 6px solid;line-height:0;width:0px;display:block;float:none;height:0px;font-size:0px;border-top:#00c7c7 6px solid;top:32px;border-right:#fff 6px solid;left:20px}
+.citybox p {
+	border-bottom: #fff 1px solid;
+	padding-bottom: 6px;
+	padding-left: 8px;
+	padding-right: 10px;
+	border-top: #fff 1px solid;
+	padding-top: 6px
+}
+.citybox span.label {
+	display: inline-block;
+	color: #666;
+	vertical-align: top;
+}
+.citybox span.label strong {
+	text-align: center;
+	width: 20px;
+	display: block;
+	font-family: tahoma;
+	height: 20px;
+	font-size: 16px;
+	border-radius: 0
+}
+.citybox span{width:260px;zoom:1;display:inline-block;vertical-align:top}
+.citybox span i{font-style:normal;margin:0px 3px;color:#ccc}
+.citybox .hover{border-bottom-color:#e5e5e5;border-top-color:#e5e5e5;border-right-color:#e5e5e5;border-left-color:#e5e5e5}
+/*.citybox .hover p{background:#f7f7f7}*/
+.citybox .hover span.label{border-bottom-color:#1fb7bb;border-top-color:#1fb7bb;border-right-color:#1fb7bb;border-left-color:#1fb7bb}
+/*.citybox .hover span.label strong {
+	color: #fff;
+}*/
+.citybox a {
+	padding-bottom: 1px;
+	line-height: 20px;
+	margin: 1px 2px;
+	padding: 1px 6px;
+	zoom: 1;
+	display: inline-block;
+	height: 20px;
+	border-radius: 0;
+	font-weight: 500;
+	color: #575757;
+	font-size: 13px;
+	text-decoration: none;
+}
+.citybox a:hover{background:#F52428;color:#fff}
+.citybox a.cur{background:#F52428;color:#fff}

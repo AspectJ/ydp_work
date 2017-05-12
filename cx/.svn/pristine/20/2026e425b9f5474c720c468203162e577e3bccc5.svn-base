@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>楚湘院线-电影</title>
+		<link rel="icon" href="img/favicon.ico" type="image/x-icon" />
+		<link rel="stylesheet" href="css/base.css" />
+		<link rel="stylesheet" href="css/main.css" />
+		<link rel="stylesheet" href="css/movies.css" />
+		<link rel="stylesheet" type="text/css" href="js/lib/hzw-city/hzw-city-picker.css">
+		
+		<script type="text/javascript" src="js/lib/hzw-city/city-data.js"></script>
+		<script type="text/javascript" src="js/lib/hzw-city/hzw-city-picker.min.js"></script>
+		<script type="text/javascript" src="js/lib/jquery/jq.min.js" ></script>
+		<script type="text/javascript" src="js/lib/jquery/jquery.cookie.js" ></script>
+		<script type="text/javascript" src="js/public.js" ></script>
+		<link rel="stylesheet" href="css/index.css" />
+		<script type="text/javascript" src="js/movies.js" ></script>
+	</head>
+	<body>
+		<!-- 顶部登录部分 -->
+		<div class="top"></div>
+		<!-- Logo，地区，主菜单 -->
+		<div class="title"></div>
+		
+		<!-- 描述：轮播图 -->
+		<div class="carousel"></div>
+		
+		<!-- 描述：购票 -->
+		<div class="film">
+			<div class="body">
+				<div class="showing">
+					<div class="film_lab"><span class="cur" type="0">正在热映</span><span type="1">即将上映</span></div>
+					<div class="films"></div>
+				</div>
+				
+				<div class="quick">
+					<div class="quick_lab">快速购票</div>
+					<div class="quick_bn"><button>快速购票</button></div>
+					<div class="quick_lab">热门影片排行</div>
+					<div class="hot"></div>
+				</div>
+			</div>
+		</div>
+		
+		<!-- 描述：影院 -->
+        <div class="cinema">
+        	<div class="body">
+        		<div class="hot_cinema">
+        			<div class="lab"><span>热门影院</span></div>
+					<!--<div class="mess">潇湘国际影城,让你爱上看电影</div>-->
+					<div class="cinemas"></div>
+        		</div>
+        		<div class="activity">
+        			<div class="lab">最新活动</div>
+        			<div class="new_active"></div>
+        		</div>
+        	</div>
+        </div>
+        
+        <!-- 描述：底部 -->
+        <div class="bottom"></div>
+        
+        <!-- 在线资讯 -->
+        <div class="online_consultation"></div>
+	</body>
+</html>

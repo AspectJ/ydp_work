@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>regist.html</title>
+	
+    <meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+    <meta http-equiv="description" content="this is my page">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    
+    <link rel="icon" href="../img/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="../css/regist.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/base.css">
+    
+    <script type="text/javascript" src="../js/lib/jquery/jq.min.js" ></script>
+	<script type="text/javascript" src="../js/lib/jquery/jquery.cookie.js" ></script>
+    <script type="text/javascript" src="../js/public.js"></script>
+    <script type="text/javascript" src="../js/regist.js"></script>
+
+  </head>
+  
+  <body>
+    	<!-- 顶部登录部分 -->
+		<div class="top"></div>
+		<!-- Logo，地区，主菜单 -->
+		<div class="title">
+			<div class="body">
+				<img class="logo" src="/img/logo_top.png">
+			</div>
+		</div>
+		
+		<div class="mask1">
+			<div class="registtext">
+				<div class="head">注册
+					<!-- <img class="cancel" src="/img/cancel.png"> -->
+				</div>
+				<div class="account">
+					<div class="tap">帐号信息</div>
+					<div class="account"><i></i><input id="account" placeholder="请输入会员帐号" tip1="帐号不能为空" maxlength="20"></div>
+					<div class="pass"><i></i><input type="password" id="pass" placeholder="请输入密码" tip1="密码不能为空" maxlength="20"></div>
+					<div class="repass"><i></i><input type="password" id="repass" placeholder="确认密码" tip1="密码不能为空" maxlength="20"></div>
+					<div class="nextbtn" onclick="next();">下一步</div>
+				</div>
+				<div class="personal">
+					<div class="tap">个人信息</div>
+					<div class="realname"><i></i><input id="realname" placeholder="联系人姓名" tip1="姓名不能为空" maxlength="20"></div>
+					<div class="mobile"><i></i><input id="mobile" placeholder="联系电话" tip1="电话不能为空" maxlength="20"></div>
+					<div class="cinamename"><i></i><input id="cinamename" placeholder="影院名称" tip1="请填写影院名称" maxlength="20"></div>
+					<div class="email"><i></i><input id="email" placeholder="邮箱" tip1="邮箱不能为空" maxlength="20"></div>
+					<div class="tip"><input id="remember" checked type="checkbox" name="r" value="r">&nbsp;我已阅读并遵守本网站服务条款</div>
+					<div class="registbn" onclick="regist();">提交</div>
+				</div>
+			</div>
+		</div>
+		
+		<!-- 描述：底部 -->
+        <div class="bottom"></div>
+        
+        <!-- 在线资讯 -->
+        <div class="online_consultation"></div>
+  </body>
+</html>

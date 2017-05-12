@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>楚湘院线-电影</title>
+		<link rel="icon" href="img/favicon.ico" type="image/x-icon" />
+		<link rel="stylesheet" href="js/lib/swiper/swiper-3.4.0.min.css" />
+		<link rel="stylesheet" href="css/base.css" />
+		<link rel="stylesheet" href="css/main.css" />
+		<link rel="stylesheet" href="css/index.css" />
+
+		<script type="text/javascript" src="js/lib/jquery/jq.min.js"></script>
+		<script type="text/javascript" src="js/lib/jquery/jquery.cookie.js"></script>
+		<script type="text/javascript" src="js/lib/swiper/swiper-3.4.0.jquery.min.js"></script>
+		<script type="text/javascript" src="js/public.js"></script>
+		<script type="text/javascript" src="js/index.js"></script>
+	</head>
+	<body>
+		<!-- Logo，地区，主菜单 -->
+		<div class="title" id="header"></div>
+
+		<!-- 描述：轮播图 -->
+		<div class="carousel swiper-container"></div>
+
+		<div class="index-wrapper clearfix">
+			<!-- 院线资讯 -->
+			<div class="section yxzx">
+				<div class="section-header">
+					<h1>院线资讯</h1>
+					<a onclick="document.location.href='dynamic/more.html?news_type=2'">更多</a>
+				</div>
+				<div class="section-body yxzx">
+					<div class="item">
+						<div class="clearfix">
+							<img src="" alt="" />
+							<div class="item-title">有钱，有项目，先导概念片你来拍！</div>
+						</div>
+						<div class="item-intro">有钱，有项目，先导概念片你来拍！有钱，有项目，先导概念片你来拍！有钱，有项目，先导概念片你来拍！有钱，有项目，先导概念片你来拍！</div>
+					</div>
+					<div class="item">
+						<div>
+							<img src="" alt="" />
+							<div class="item-title"></div>
+						</div>
+						<div class="item-intro"></div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 电影政策 & 行业资讯 -->
+			<div class="section slide-tab">
+				<div class="section-header">
+					<h1>电影政策</h1>
+					<h1 class="current">行业资讯</h1>
+					<a class="pointer" id="dyzc">更多</a>
+					<a class="current pointer" id="hyzx">更多</a>
+				</div>
+				<div class="section-body">
+					<ul id="dyzc">
+						<li onclick="showNewsDetail()"><span class="item-title">啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊</span><span class="item-time">2016-11-14</span></li>
+						<li onclick="showNewsDetail()"><span class="item-title">啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊</span><span class="item-time">2016-11-14</span></li>
+						<li onclick="showNewsDetail()"><span class="item-title">啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊</span><span class="item-time">2016-11-14</span></li>
+						<li onclick="showNewsDetail()"><span class="item-title">啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊</span><span class="item-time">2016-11-14</span></li>
+						<li onclick="showNewsDetail()"><span class="item-title">啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊</span><span class="item-time">2016-11-14</span></li>
+						<li onclick="showNewsDetail()"><span class="item-title">啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊</span><span class="item-time">2016-11-14</span></li>
+						<li onclick="showNewsDetail()"><span class="item-title">啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊</span><span class="item-time">2016-11-14</span></li>
+						<li onclick="showNewsDetail()"><span class="item-title">啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊</span><span class="item-time">2016-11-14</span></li>
+						<li onclick="showNewsDetail()"><span class="item-title">啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊</span><span class="item-time">2016-11-14</span></li>
+						<li onclick="showNewsDetail()"><span class="item-title">啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊</span><span class="item-time">2016-11-14</span></li>
+					</ul>
+					<ul id="hyzx" class="current">
+						<li onclick="showNewsDetail()"><span class="item-title">噢噢噢噢哦哦哦哦哦哦哦哦哦哦哦哦哦哦哦</span><span class="item-time">2016-11-14</span></li>
+					</ul>
+				</div>
+			</div>
+
+			<!--活动轮播-->
+			<div class="active_carousel">
+				<img src="#" />
+				<div class="position_num">
+					<div class="cur"></div>
+					<div class=""></div>
+					<div class=""></div>
+					<div class=""></div>
+				</div>
+			</div>
+
+			<!-- 楚湘动态 -->
+			<div class="section cxdt">
+				<div class="section-header">
+					<h1>楚湘动态</h1>
+					<a onclick="document.location.href='dynamic/more.html?flag=1'">更多</a>
+				</div>
+				<div class="section-body">
+					<div class="first-item clearfix">
+						<img class="pointer" src="" alt="" />
+						<div class="item-info">
+							<div class="item-title pointer"></div>
+							<div class="item-intro"></div>
+						</div>
+					</div>
+					<ul>
+
+					</ul>
+				</div>
+			</div>
+
+			<div class="section zxyp">
+				<div class="section-header">
+					<h1>最新影片</h1>
+					<a href="#">更多</a>
+				</div>
+				<div class="section-body">
+					<div class="first-item clearfix">
+						<img class="pointer" src="" alt="" />
+						<div class="item-info">
+							<div class="item-title">
+								<span class="name pointer">奇异博士（Doctor Strage）</span>
+								<span class="rank">9.8</span>
+							</div>
+							<div class="item-intro">
+								<div class="detail">
+									<div>冯小刚<br>范冰冰 / 郭涛 / 董成鹏 / 张嘉译...<br>剧情 / 喜剧</div>
+								</div>
+								<div class="btn">查看详情</div>
+							</div>
+						</div>
+					</div>
+					<ul>
+						<li class="item-title">
+							<span class="name pointer"><i>1</i>奇异博士（Doctor Strage）</span>
+							<span class="rank">9.8</span>
+						</li>
+						<li class="item-title">
+							<span class="name pointer"><i>2</i>奇异博士（Doctor Strage）</span>
+							<span class="rank">9.8</span>
+						</li>
+						<li class="item-title">
+							<span class="name pointer"><i>3</i>奇异博士（Doctor Strage）</span>
+							<span class="rank">9.8</span>
+						</li>
+					</ul>
+				</div>
+			</div>
+
+        <!-- 影院风采-->
+			<div class="cinema">
+				<div class="headline">影院风采</div>
+				<div class="content">
+					<img class="left" src="img/index_right.png"/>
+					<div class="bg_img">
+						<img class="show" src="#" />
+						<div></div>
+					</div>
+					<div class="bg_img">
+						<img class="show" src="#" />
+						<div></div>
+					</div>
+					<div class="bg_img">
+						<img class="show" src="#" />
+						<div></div>
+					</div>
+					<div class="bg_img">
+						<img class="show" src="#" />
+						<div></div>
+					</div>
+					<img class="right" src="img/index_left.png"/>
+				</div>
+			</div>
+		</div>
+
+	  <!-- 描述：底部 -->
+	  <div class="bottom"></div>
+
+		<!-- 在线资讯 -->
+  	<div class="online_consultation"></div>
+	</body>
+</html>

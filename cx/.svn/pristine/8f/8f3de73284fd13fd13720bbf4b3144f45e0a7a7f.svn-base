@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="partner">
+
+	<!-- 新增合作渠道信息 -->	
+	<insert id="insertPartnerChannel" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="p_id">
+		insert into t_partner_channel( p_name,p_img,cinemaid,create_time,update_time,p_remark) 
+			values 
+		(#{p_name},#{p_img}, #{cinemaid}, #{create_time}, #{update_time},#{p_remark})
+	</insert>
+	
+	
+	<!-- 查询合作渠道信息 -->
+	<select id="getPartnerChannel" parameterType="java.util.Map" resultType="java.util.Map">
+		select p.p_id,p.p_name,p.p_img,p.cinemaid,p.create_time,p.update_time,p.p_remark,image.org_path 
+		from t_partner_channel p 
+		join t_image image on p.p_img = image.imageid 
+			where 1=1 and p.p_id = #{p_id} 
+	</select>
+	
+	<!-- 修改合作渠道信息 -->
+	<update id="updatePartnerChannel" parameterType="map">
+		update t_partner_channel set p_name = #{p_name}
+			<if test="p_remark != null">
+				,p_remark = #{p_remark}
+			</if>
+			<if test="update_time != null">
+				,update_time = #{update_time}
+			</if>
+		where p_id = #{p_id} 
+	</update>
+	
+	<!-- 删除合作渠道信息 -->
+	<delete id="deletePartnerChannel" parameterType="map">
+		delete from t_partner_channel 
+		where p_id = #{p_id} 
+	</delete>
+	
+	
+	<!-- 合作渠道信息查询 -->
+	<select id="getPartnerChannelList" parameterType="java.util.Map" resultType="java.util.Map">
+		select p_id,p_name,p_img,cinemaid,create_time,update_time,p_remark 
+		from t_partner_channel  
+		order by create_time desc limit ${pageSize} offset ${offsetNum} 
+	</select>
+	
+	<!-- 合作渠道信息查询 -->
+	<select id="getPartnerChannelListCount" parameterType="java.util.Map" resultType="java.util.Map">
+		select count(*) from t_partner_channel 
+	</select>
+	
+	
+	
+	
+	
+</mapper>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>影院总部管理系统</title>
+		<link rel="stylesheet" href="../css/base.css" />
+		<link rel="stylesheet" href="../css/main.css" />
+	</head>
+	<body>
+		<!-- 主面板 -->
+		<div class="main-box">
+			<div class="content-title">
+				<span>您当前位置：修改密码</span>
+				<!-- <p class="search"><input placeholder="请输入您要查询的信息" /><i></i></p>  -->
+				<div class="clear"></div>
+			</div>
+			
+			<!-- 数据区 -->
+			<div class="content-data">
+				<h3 class="title">管理员中心</h3>
+				<!-- 面板 -->
+				<div class="panel" id="modifypwd">
+					<input type="hidden" id="adminid" value=""/>				
+					<table class="panel-tab">
+						<tr>
+							<td class="title">用户名：</td>
+							<td id='admin_name'></td>
+						</tr>
+						<tr><td class="title">原密码：</td>
+							<td><input type="password" id='fore_adminpwd'/></td>
+						<tr/>
+						<tr><td class="title">新密码：</td>
+							<td><input type="password" id='new_adminpwd'/></td>
+						<tr/>
+						<tr><td class="title">确认密码：</td>
+							<td><input type="password" id='confirm_adminpwd'/></td>
+						<tr/>
+					</table>
+					<p class="panel-btn">
+						<button onclick="modifyPwd();">更改</button>
+					</p>
+				</div>
+				
+			</div>
+		</div>
+		
+		<script type="text/javascript" src="../js/jquery-1.11.2.min.js" ></script>
+		<script type="text/javascript" src="../js/public.js" ></script>
+		<script type="text/javascript" src="../js/modifyPwd.js" ></script>
+		<script>
+  			$(function(){
+				$("#modifypwd").fadeIn(200);
+				$(document).scrollTop(document.body.scrollHeight);
+				
+			});  
+		</script>
+	</body>
+</html>
+
+
+
+
+
+
+

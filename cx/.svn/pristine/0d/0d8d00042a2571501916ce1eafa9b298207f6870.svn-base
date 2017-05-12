@@ -1,0 +1,118 @@
+package com.cx.rest.information.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.support.SqlSessionDaoSupport;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service("activityDao")
+public class ActivityInfoDaoImpl extends SqlSessionDaoSupport{
+
+	/**
+	 * 新增最新活动基本信息
+	 * 
+	 * @param insertNewsMap
+	 */
+	public Map<String, Object> insertActivity(Map<String, Object> insertMap){
+		getSqlSession().insert("activity.insertActivity", insertMap);
+		return insertMap;
+	}
+	
+	
+	/**
+	 * 查询最新活动信息
+	 */
+	public Map<String, Object> getActivity(Map<String, Object> Map){
+		Map<String, Object> paramMap = getSqlSession().selectOne("activity.getActivity", Map);
+		return paramMap;
+	}
+
+	
+	/**
+	 * 修改最新活动信息
+	 * 
+	 * @param updateMap
+	 */
+	public Map<String, Object> updateActivity(Map<String, Object> updateMap){
+		getSqlSession().update("activity.updateActivity", updateMap);
+		return updateMap;
+	}
+	
+	/**
+	 * 修改审核标记
+	 * 
+	 * @param updateMap
+	 */
+	public Map<String, Object> updateActivity_Audit(Map<String, Object> updateMap){
+		getSqlSession().update("activity.updateActivity_Audit", updateMap);
+		return updateMap;
+	}
+	
+	/**
+	 * 删除最新活动信息
+	 * 
+	 * @param newsMap
+	 */
+	public Map<String, Object> deleteActivity(Map<String, Object> paramMap){
+		getSqlSession().delete("activity.deleteActivity", paramMap);
+		return paramMap;
+	}
+	
+	
+	/**
+	 * 查询最新活动列表
+	 * @param paramMap
+	 * @return
+	 */
+	public List<Map<String, Object>> getActivityList(Map<String, Object> paramMap){
+		List<Map<String, Object>> activityList = getSqlSession().selectList("activity.getActivityList", paramMap);
+		return activityList;
+	}
+	
+	/**
+	 * 查询最新活动总数量
+	 */
+	public Map<String, Object> getActivityListCount(Map<String, Object> activityMap){
+		Map<String, Object> paramMap = getSqlSession().selectOne("activity.getActivityListCount", activityMap);
+		return paramMap;
+	}
+	
+
+
+	/**
+	 * 前台查看    楚湘动态 --> 最新活动   信息
+	 * @return
+	 */
+	public List<Map<String, Object>> getFrontActivityList() {
+		List<Map<String, Object>> resultList = this.getSqlSession().selectList("activity.getFrontActivityList");
+		return resultList;
+	}
+	
+
+	/**
+	 * 更新最新活动点击量
+	 * @param actiInfo
+	 */
+	public void updateBrowsTimes(Map<String, Object> actiInfo) {
+		this.getSqlSession().update("activity.updateBrowsTimes", actiInfo);
+	}
+	
+	@Autowired
+	public void setSqlSessionFactory(SqlSessionFactory sqlSessionFactory) {
+		super.setSqlSessionFactory(sqlSessionFactory);
+	}
+
+	/**
+	 * 查询热门活动信息
+	 * @param acti_id
+	 * @return
+	 */
+	public List<Map<String, Object>> getHotActivity() {
+		List<Map<String, Object>> resultList = this.getSqlSession().selectList("activity.getHotActivity");
+		return resultList;
+	}
+
+}

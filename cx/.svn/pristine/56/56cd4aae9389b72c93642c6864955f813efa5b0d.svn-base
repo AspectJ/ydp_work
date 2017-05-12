@@ -1,0 +1,379 @@
+package com.cx.rest.user;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+
+import org.jboss.resteasy.annotations.cache.NoCache;
+import org.springframework.stereotype.Service;
+
+import com.cx.bean.ResMessage;
+import com.cx.filter.BaseServlet;
+import com.cx.rest.user.dao.UserDaoImp;
+import com.cx.util.CodeUtil;
+import com.cx.util.Md5;
+import com.mongo.MyMongo;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+@Path("rest/user")
+@NoCache
+@Service()
+public class UserRest extends BaseServlet
+{
+	
+	@Resource
+	private UserDaoImp userDao;
+	
+	/**
+	 * 登录
+	 */
+	@GET
+	@POST
+	@Path("/login")
+	@Produces("text/html;charset=UTF-8")
+	public String login(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		
+		String account = URLDecoder.decode(request.getParameter("account"), "UTF-8");
+		
+		String pass = request.getParameter("pass");
+		
+		try
+		{
+			if (CodeUtil.checkParam(account, pass))
+			{
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			
+			Map<String, Object> userMap = userDao.login(account);
+			if(userMap == null){
+				MyMongo.mRequestFail(request, ResMessage.User_Account_Not_Exist.code);
+				MyMongo.mRequestFail(request, ResMessage.User_Account_Not_Exist.code);
+				return this.returnError(resultJson, ResMessage.User_Account_Not_Exist.code, request);
+			}else{
+				if(!Md5.md5(pass).equals(userMap.get("pass").toString())){
+					MyMongo.mRequestFail(request, ResMessage.User_Login_Pass_Fail.code);
+					return this.returnError(resultJson, ResMessage.User_Login_Pass_Fail.code, request);
+				}
+			}
+			resultJson.put("data", userMap);
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("登录", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("登录",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 注册
+	 */
+	@GET
+	@POST
+	@Path("/regist")
+	@Produces("text/html;charset=UTF-8")
+	public String regist(@Context HttpServletRequest request, @Context HttpServletResponse response) throws UnsupportedEncodingException
+	{
+		JSONObject resultJson = new JSONObject();
+		long stime = System.currentTimeMillis();
+		// -------------------------------------------------------------------------------
+		
+	//	String account = request.getParameter("account");
+		String account = URLDecoder.decode(request.getParameter("account"), "UTF-8");
+		String pass = request.getParameter("pass");
+		String realname = URLDecoder.decode(request.getParameter("realname"), "UTF-8");
+	//	String realname = request.getParameter("realname");
+		String mobile = request.getParameter("mobile");
+		String email = request.getParameter("email");
+		String cinema_name =URLDecoder.decode(request.getParameter("cinema_name"), "UTF-8");
+		
+		try
+		{
+			if (CodeUtil.checkParam(account, pass, realname, mobile, email))
+			{
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			
+			Map<String, Object> user = new HashMap<String, Object>();
+			user.put("nickname", account);
+			user.put("email", email);
+			user.put("pass", Md5.md5(pass));
+			user.put("mobile", mobile);
+			user.put("realname", realname);
+			user.put("state", Boolean.parseBoolean("false"));
+			user.put("cinema_name", cinema_name);
+			
+			// 验证重复(手机号、邮箱)
+			List<Map<String, Object>> checkRepetition = userDao.checkRepetition(user);
+			if(checkRepetition != null){
+				for (Map<String, Object> map : checkRepetition)
+				{
+					if(map.get("mobile").equals(mobile)){
+						MyMongo.mRequestFail(request, ResMessage.User_Mobile_Exist.code);
+						return returnError(resultJson, ResMessage.User_Mobile_Exist.code, request);
+					}else if(map.get("email").equals(email)){
+						MyMongo.mRequestFail(request, ResMessage.User_Email_Exist.code);
+						return returnError(resultJson, ResMessage.User_Email_Exist.code, request);
+					}
+				}
+			}
+			userDao.regist(user);
+			
+			resultJson.put("data", user);
+		} catch (Exception e)
+		{
+			MyMongo.mErrorLog("注册", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("注册",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 查询所有用户信息列表
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@GET
+	@POST
+	@Path("/selAllUser")
+	@Produces("text/html;charset=UTF-8")
+	public String selAllUser(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+		JSONObject resultJson = new JSONObject();
+		Long stime = System.currentTimeMillis();
+		
+		// -------------------------------------------------------------------------------
+		String pageSize = request.getParameter("pageSize");
+		String offsetNum = request.getParameter("offsetNum");
+		
+		try {
+			//查询用户总条数
+			Map<String, Object> countMap = userDao.getUserInfoListCount();
+			String count = countMap.get("count").toString();
+			Map<String, Object> paramsMap = new HashMap<String, Object>();
+			paramsMap.put("pageSize", Integer.parseInt(pageSize));
+			paramsMap.put("offsetNum", Integer.parseInt(offsetNum));
+			List<Map<String, Object>> resultList = userDao.selAllUser(paramsMap);
+			JSONArray jsonArray = new JSONArray();
+
+			if(resultList != null && resultList.size() > 0) {
+				for(int i = 0; i < resultList.size(); i++) {
+					Map<String, Object> resultMap = resultList.get(i);
+					JSONObject jsonObject = new JSONObject();
+					jsonObject.put("userid", resultMap.get("userid"));
+					jsonObject.put("email", resultMap.get("email"));
+					jsonObject.put("password", resultMap.get("password"));
+					jsonObject.put("nickname", resultMap.get("nickname"));
+					jsonObject.put("mobile", resultMap.get("mobile"));
+//					jsonObject.put("birthday", new SimpleDateFormat("yyyy-MM-dd").format(resultMap.get("birthday")));
+//					jsonObject.put("sex", resultMap.get("sex"));
+					jsonObject.put("state", resultMap.get("state").toString());
+					jsonObject.put("realname", resultMap.get("realname"));
+					jsonObject.put("cinema_name", resultMap.get("cinema_name"));
+					jsonObject.put("createtime", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("createtime")));
+					jsonObject.put("modifytime", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("modifytime")));
+					
+					
+					jsonArray.add(jsonObject);
+					resultJson.put("total", count);
+					resultJson.put("data", jsonArray);
+				}
+			}else {
+				MyMongo.mRequestFail(request, "查询用户信息列表不存在");
+				return this.returnError(resultJson, ResMessage.Info_NoExist.code, request);
+			}
+			
+			 
+		}catch(Exception e) {
+			MyMongo.mErrorLog("查询管理员信息列表失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询管理员信息列表成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 查询用户状态为禁用的用户（为了审核用户用）
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@GET
+	@POST
+	@Path("/sel_status_false")
+	@Produces("text/html;charset=UTF-8")
+	public String sel_status_false(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+		JSONObject resultJson = new JSONObject();
+		Long stime = System.currentTimeMillis();
+		
+		// -------------------------------------------------------------------------------
+		String pageSize = request.getParameter("pageSize");
+		String offsetNum = request.getParameter("offsetNum");
+		
+		try {
+			//查询用户总条数
+			Map<String, Object> countMap = userDao.getUserInfoListCount();
+			String count = countMap.get("count").toString();
+			Map<String, Object> paramsMap = new HashMap<String, Object>();
+			paramsMap.put("pageSize", Integer.parseInt(pageSize));
+			paramsMap.put("offsetNum", Integer.parseInt(offsetNum));
+			List<Map<String, Object>> resultList = userDao.sel_status_false();
+			JSONArray jsonArray = new JSONArray();
+
+			if(resultList != null && resultList.size() > 0) {
+				for(int i = 0; i < resultList.size(); i++) {
+					Map<String, Object> resultMap = resultList.get(i);
+					JSONObject jsonObject = new JSONObject();
+					jsonObject.put("userid", resultMap.get("userid"));
+					jsonObject.put("email", resultMap.get("email"));
+					jsonObject.put("password", resultMap.get("password"));
+					jsonObject.put("nickname", resultMap.get("nickname"));
+					jsonObject.put("mobile", resultMap.get("mobile"));
+//					jsonObject.put("birthday", new SimpleDateFormat("yyyy-MM-dd").format(resultMap.get("birthday")));
+//					jsonObject.put("sex", resultMap.get("sex"));
+					jsonObject.put("state", resultMap.get("state").toString());
+					jsonObject.put("realname", resultMap.get("realname"));
+					jsonObject.put("cinema_name", resultMap.get("cinema_name"));
+					jsonObject.put("createtime", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("createtime")));
+					jsonObject.put("modifytime", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("modifytime")));
+					
+					jsonArray.add(jsonObject);
+					resultJson.put("total", count);
+					resultJson.put("data", jsonArray);
+				}
+			}else {
+				MyMongo.mRequestFail(request, "查询用户信息列表不存在");
+				return this.returnError(resultJson, ResMessage.Info_NoExist.code, request);
+			}
+			
+			 
+		}catch(Exception e) {
+			MyMongo.mErrorLog("查询管理员信息列表失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		// -------------------------------------------------------------------------------
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询管理员信息列表成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	/**
+	 * 更改用户状态（启用/禁用）
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@GET
+	@POST
+	@Path("/changeState")
+	@Produces("text/html;charset=UTF-8")
+	public String changeState(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+		JSONObject resultJson = new JSONObject();
+		Long stime = System.currentTimeMillis();
+		
+		// -------------------------------------------------------------------------------
+		Long userId = Long.parseLong(request.getParameter("userid"));
+		String state = request.getParameter("state");
+		try {
+			boolean change_state = true;
+			if("true".equals(state)) {
+				change_state = false;
+			}
+			Map<String, Object> paramsMap = new HashMap<String, Object>();
+			paramsMap.put("userid", userId);
+			paramsMap.put("state", change_state);
+			//更改用户状态
+			userDao.changeState(paramsMap);
+			//更改用户修改时间
+			userDao.changeModifyTime(paramsMap);
+		}catch(Exception e) {
+			MyMongo.mErrorLog("更改用户状态失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("更改用户状态成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+	
+	
+	/**
+	 * 根据用户Id查询用户信息
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@GET
+	@POST
+	@Path("/selSingleUser")
+	@Produces("text/html;charset=UTF-8")
+	public String selSingleUser(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+		JSONObject resultJson = new JSONObject();
+		Long stime = System.currentTimeMillis();
+		
+		// -------------------------------------------------------------------------------
+		
+		String userId = request.getParameter("userid");
+		try {
+			if (CodeUtil.checkParam(userId))
+			{
+				MyMongo.mRequestFail(request, ResMessage.Lack_Param.code);
+				return this.returnError(resultJson, ResMessage.Lack_Param.code, request);
+			}
+			int userid = Integer.parseInt(userId);
+			Map<String, Object> resultMap = userDao.selSingleUser(userid);
+			
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put("userid", resultMap.get("userid"));
+			jsonObject.put("email", resultMap.get("email"));
+//			jsonObject.put("password", resultMap.get("password"));
+			jsonObject.put("nickname", resultMap.get("nickname"));
+			jsonObject.put("mobile", resultMap.get("mobile"));
+//			jsonObject.put("birthday", new SimpleDateFormat("yyyy-MM-dd").format(resultMap.get("birthday")));
+//			jsonObject.put("sex", resultMap.get("sex"));
+			jsonObject.put("state", resultMap.get("state"));
+			jsonObject.put("realname", resultMap.get("realname"));
+			jsonObject.put("cinema_name", resultMap.get("cinema_name"));
+			jsonObject.put("createtime", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("createtime")));
+			jsonObject.put("modifytime", new SimpleDateFormat("yyyy-MM-dd HH:mm").format(resultMap.get("modifytime")));
+			
+			resultJson.put("data", jsonObject);
+			
+		}catch(Exception e) {
+			MyMongo.mErrorLog("查询用户信息失败", request, e);
+			return this.returnError(resultJson, ResMessage.Server_Abnormal.code, request);
+		}
+		long etime = System.currentTimeMillis();
+		MyMongo.mRequestLog("查询用户信息成功",  etime - stime, request, resultJson);
+		return this.response(resultJson, request);
+	}
+}

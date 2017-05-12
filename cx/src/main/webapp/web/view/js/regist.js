@@ -1,0 +1,128 @@
+$(document).ready(function() {
+	//底部导航
+	bottomTextLoad();
+
+	// 弹出框文本事件
+	// maskInputEvent(".mask1 .account input");
+	// $("#account").focus();
+
+	// $(".personal").hide();
+});
+
+var params = {};
+/**
+ * 注册请求服务器
+ */
+function regist(){
+
+	// var account = $('#account').val().trim(),
+	// 	pass = $('#pass').val().trim(),
+	// 	repass = $('#repass').val().trim(),
+	//     realname = $("#realname").val().trim(),
+     //  	mobile = $("#mobile").val().trim(),
+     //  	email = $("#email").val().trim(),
+     //  	cinemaname = $("#cinemaname").val().trim();
+
+    var account = encodeURIComponent($('#account').val().trim()),
+        pass = $('#pass').val().trim(),
+        repass = $('#repass').val().trim(),
+        realname = encodeURIComponent($("#realname").val().trim()),
+        mobile = $("#mobile").val().trim(),
+        email = $("#email").val().trim(),
+        cinemaname = encodeURIComponent($("#cinemaname").val().trim());
+
+	if(account == ''){
+		layer.msg("登录账号不能为空", {icon: 0, anim: 6});
+		return $("#account").focus();
+	} else if(pass == '') {
+		layer.msg("登录密码不能为空", {icon: 0, anim: 6});
+		return $("#pass").focus();
+	} else if(repass == '') {
+		layer.msg("确认密码不能为空", {icon: 0, anim: 6});
+		return $("#repass").focus();
+	} else if(realname == '') {
+		layer.msg("联系人姓名不能为空", {icon: 0, anim: 6});
+		return $("#realname").focus();
+	} else if(mobile == '') {
+		layer.msg("联系电话不能为空", {icon: 0, anim: 6});
+		return $("#mobile").focus();
+	} else if(email == '') {
+		layer.msg("联系邮箱不能为空", {icon: 0, anim: 6});
+		return $("#email").focus();
+	} else if(cinemaname == '') {
+		layer.msg("影院名称不能为空", {icon: 0, anim: 6});
+		return $("#cinemaname").focus();
+	}
+
+	if(!passLength(pass)){
+		layer.msg("密码长度由6-12位字母、数字组成");
+		return $('#pass').focus();
+	}
+
+	if(repass !== pass){
+		layer.msg("确认密码与登录密码不一致", {icon: 0, anim: 6});
+		return $("#repass").focus();
+	}
+
+	if(!isPhone(mobile)) {
+		layer.msg("请输入正确的手机号码", { icon: 0, anim: 6 });
+		return $('#mobile').focus();
+	}
+	if(!isEmail(email)) {
+		layer.msg("请输入正确的邮箱格式", { icon: 0, anim: 6 });
+		return $('#email').focus();
+	}
+
+	params.account = account;
+	params.pass = pass;
+	params.repass = repass;
+	params.realname = realname;
+	params.mobile = mobile;
+	params.cinema_name = cinemaname;
+	params.email = email;
+
+	$.ajax({
+        url: service_url + "user/regist",
+        dataType: 'jsonp',
+        data: params,
+        jsonp: "jsonpCallback",
+        success: function(data){
+				switch(data.result){
+					case 1000:
+						var user = data.data;
+	//					var nickname = user.nickname;
+	//					$("#userName").text(nickname);
+	//					localStorage.setItem("nickname", nickname);
+	//
+	//					if(document.getElementById("remember").checked){
+	//						$.cookie("userid", user.userid, { expires: 7, path: '/' });
+	//						$.cookie("nickname", nickname, { expires: 7, path: '/' });
+	//					}
+
+						layer.msg("注册成功！请等待审核", { icon: 6 }, function(){
+							window.location.href = "./login.html";
+						});
+
+						break;
+          case 1011:
+            layer.msg(data.msg, {icon: 0, anim: 6});
+						break;
+					default:
+						break;
+				}
+      },
+      error: function(XMLHttpRequest, textStatus, errorThrown){
+      	alert(errorThrown);
+      },
+      timeout: 30000
+    });
+}
+
+
+/**
+ * 验证密码长度
+ */
+function passLength(pass) {
+	var reg = /^\w{6,12}$/;
+	return reg.test(pass);
+}

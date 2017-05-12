@@ -1,0 +1,40 @@
+hr{margin-top:6px;border-top:1px solid #E5E5E5}
+
+.movie_info{height:360px;width:100%;position:absolute;top:102px;left:0px;background-image:url(img/movies_plan_1.png);margin:0px}
+.movie_info .movie_name{margin-top:15px;font-size:23px;color:#F7F9FA;font-weight:bold;margin-left:50px}
+.movie_info .movie_name span{margin-left:30px;color:#EB002A}
+.movie_info .poster{margin-left:20px;width: 200px;}
+.movie_info .message{margin-top:-300px;margin-left:250px}
+.movie_info .message p{width:800px;font-size:15px;color:#F7F9FA;line-height:18px}
+.movie_info .showtime{font-size:17px;color:#F7F9FA;float:right;margin-top:-280px}
+.movie_info .message .feature{line-height:22px;}
+.movie_info .stagePhoto{float:right;margin-top:-250px}
+.movie_info .stagePhoto div{font-size:12px;color:#CACACA;text-align:center}
+
+.choose{margin-top:500px}
+.choose .choose_lab span{font-size:18px;color:#EB002A;border-bottom:3px solid #EB002A;font-weight:bold;padding-bottom:5px}
+.choose .options{height:250px}
+.choose .options .option_key{background-color:#C7C8C9;width:150px;height:100%;float:left}
+.choose .options .option_key div{margin-left:30px;font-size:16px;font-weight:bold;color:#4C4C4C}
+.choose .options .option_value{background-color:#E7E8E9;width:1040px;height:100%;float:right}
+.choose .options .area,.choose .options .time{margin-top:35px;margin-left:-15px;height:25px}
+.choose .options .cinema{margin-top:35px;margin-left:-15px;height:60px}
+.choose .options .option_value li{list-style-type:none;float:left;margin-right:20px;margin-top:-5px;padding:5px 20px;font-size:16px;font-weight:bold;color:#4C4C4C;margin-bottom:10px; cursor: pointer;}
+.choose .options .option_value .area .area_cur,.choose .options .option_value .cinema .cinema_cur,.choose .options .option_value .time .time_cur{background-color:#EB002A;color:#fff}
+
+.plans{margin-top:30px}
+.plans .area_tap{font-size:18px;color:#EB002A;font-weight:bold;padding-bottom:5px}
+.plans .cinemaName{margin-left:25px;font-size:17px;color:#6E7172;font-weight:bold;padding-bottom:5px}
+.plans .cinemaMess{margin-left:35px;font-size:15px;color:#A4A5A5;padding-bottom:5px}
+.plans .plan table{width:100%;font-weight:bold;color:#929394}
+.plans .plan table tr{height:60px;text-align:center}
+.plans .plan table .even{background-color:#E7E8E9}
+.plans .plan table .head{background-color:#C7C8C9;height:40px;font-size:15px;color:#4F4F4F}
+.plans .plan .showtime{font-size:21px}
+.plans .plan .endtime{font-size:15px}
+.plans .plan label{font-size:15px}
+.plans .plan .price{font-size:21px;color:#EB002A}
+.plans .plan .markprice{font-size:14px;text-decoration:line-through;margin-left:8px}
+.plans .plan .buy_ticket{font-size:15px;background-color:#EB002A;width:100px;padding:5px 0px;color:#FEF9FA;margin:0px auto}
+.plans .plan .stop_ticket{font-size:15px;background-color:#C7C8C9;width:100px;padding:5px 0px;margin:0px auto}
+.plans .reminder{margin-left:15px;margin-top:10px;color:#929394;font-size:14px;vertical-align:top}

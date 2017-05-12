@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="carousel">
+
+<!-- 轮播图列表 -->
+	<select id="carouselList" parameterType="java.lang.String" resultType="java.util.Map">
+			select hp.title, 
+				   hp.href, 
+				   img.org_path 
+			  from t_homeparameter hp 
+			  join t_image img on img.imageid = hp.homeimageid 
+			 where hp.type = #{type} order by homeid desc
+	</select>
+	<update id="updateCarousel" parameterType="java.util.Map" >
+		update t_image set org_path=#{org_path}
+		where imageid=#{imageid}
+	</update>
+</mapper>

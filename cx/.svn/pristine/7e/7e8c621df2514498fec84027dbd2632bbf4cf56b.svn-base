@@ -1,0 +1,262 @@
+html {background: #fff; width: 100%;height: 100%; font-family: Microsoft Yahei,Hiragino Sans GB,WenQuanYi Micro Hei,sans-serif;}
+body {margin: 0 auto;padding: 0;}
+.body{
+	width: 1190px;
+	height: 90px;
+	margin: 0px auto;
+}
+.top {
+    float: right;
+    height: 90px;
+    line-height: 95px;
+    font-size: 12px;
+    color: #a5a5a5;
+}
+.top #userName{
+	padding-right: 12px;
+	border-right: 1px solid #a5a5a5;
+}
+.top .pointer{cursor: pointer;}
+.top .out_login{cursor: pointer;margin-left: 12px;margin-right: 5px; display: none;}
+.top .regist{cursor: pointer;margin-left: 12px;}
+
+.index-wrapper{
+  width: 1190px;
+  margin: 0 auto 140px;
+}
+
+.title{
+	width: 100%;
+	height: 90px;
+	line-height: 90px;
+	background: #101928;
+}
+.title .logo{
+    margin-top: 20px;
+}
+.title ul{
+	display: inline-block;
+	margin-left: 70px;
+	vertical-align: top;
+}
+.title li{
+    text-align: center;
+    float: left;
+    list-style-type: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #a5a5a5;
+    text-decoration: none;
+    width: 70px;
+    height: 87px;
+    padding: 0 15px;
+}
+.title .title_li_cur{
+	color: #fff;
+    border-bottom: 3px solid #eb002a;
+}
+.title .city {
+	margin-top: -90px;
+	margin-left: 250px;
+	position: absolute;
+	width: 100px;
+}
+#cityChoice {
+	padding-right: 30px;
+	border: none;
+	color: #666767;
+	font-weight: bold;
+	text-align: right;
+	width: 100%;
+	cursor: pointer;
+	font-size: 17px;
+	background-color: #F7F9FA;
+	background-image: url(img/city_select.png);
+	background-repeat: no-repeat;
+	background-position: 110px 6px;
+	background-size: 18px;
+	outline:none;resize:none
+}
+
+.carousel{
+    width: 100%;
+    height: 445px;
+		margin-bottom: 40px;
+}
+.carousel .Logo_img{
+	width:100%;
+	height:100%
+}
+.carousel .swiper-button-prev{
+    left: 18%;
+    background: url(../img/arrow.png) no-repeat;
+    background-size: 200% auto;
+    height: 80px;
+    width: 40px;
+}
+.carousel .swiper-button-next{
+	right: 18%;
+	background: url(../img/arrow.png) no-repeat -40px;;
+    background-size: 200% auto;
+    height: 80px;
+    width: 40px;
+}
+.carousel .swiper-pagination-bullet{
+    width: 50px;
+    height: 9px;
+    display: inline-block;
+    background: #fff;
+    opacity: .5;
+    border-radius: 0;
+}
+.carousel .swiper-pagination-bullet-active{
+    background: #fff;
+    opacity: 1;
+}
+
+.carousel .back,.carousel .next{width:40px;height:100px;position:absolute;top:140px;cursor: pointer;}
+.carousel .back{left:300px}
+.carousel .next{right:300px}
+.carousel ul{position:absolute;top:310px;right:306px}
+.carousel li{width:40px;height:5px;background-color:#fff;list-style-type:none;float:left;margin-left:9px;margin-top:3px}
+.carousel .cur_li{margin-top:0px;height:7px;background-color:#EB002A}
+
+.bottom{
+	color: #666;
+  font-size: 16px;
+  position: absolute;
+  height: 200px;
+  background-color: #f2f2f2;
+  left: 0px;
+  width: 100%;
+}
+.bottom .logo{margin-left: 220px; margin-top: 40px;}
+.bottom .phone{font-size: 30px;color: #eb002a;margin-left: 650px; margin-top: -60px;}
+.bottom .address{margin-left: 650px; margin-top: 10px;}
+.bottom .copy_right{
+	font-size: 14px;
+	margin: 40px auto;
+	text-align: center;
+}
+/*.bottom .div_1{margin-top: 30px;text-align: center;}
+.bottom .div_1 img{vertical-align:middle; padding: 0px 80px;}
+.bottom .div_1 span{padding-top:15px;color:#6E7172;font-size:40px}
+.bottom ul{margin-top: 50px;}
+.bottom li{float:left;padding-left:80px;list-style-type:none}
+.bottom li a{font-size:20px;color:#6E7172; text-decoration: none;}
+.bottom li span{background-color: #6E7172; display: block;width: 8px;height: 8px; float: left; border-radius: 10px; margin-top: 13px;margin-right: 15px;}
+.bottom .separate{padding: 0px 30px;}
+.bottom .qrcode{position: absolute; margin-left: 30px; margin-top: 20px;}*/
+
+/* .mask{position:absolute;width:100%;height:100%;top:0;left:0;background:rgba(0,0,0,0.4)!important;background:#000;filter:Alpha(opacity=60)}
+.mask .logintext,.mask .registtext{width:380px;height:400px;background-color:#fff;margin:8% auto}
+.mask .registtext{height:630px}
+.mask .head{background-color:#EB002A;color:#F7F6F7;padding:14px 22px;font-weight:bold}
+.mask .head .cancel{background-color:#EB002A;vertical-align:middle;position:absolute;margin-left:290px;margin-top:-5px}
+.mask .registtext .tap{margin-left:30px;margin-top:20px;font-weight:bold;color:#A7A7A7;font-size:15px;margin-bottom:10px}
+.mask #account,.mask #pass,.mask #realname,.mask #mobile,.mask #cinamename,.mask #email{letter-spacing: 1px; border:1px solid #DDDDDD;border-radius:5px;line-height:40px;font-size:15px;width:260px;box-shadow:0 0 5px 1px #DDDDDD;padding-left:60px}
+.mask .account i,.mask .pass i,.mask .realname i,.mask .mobile i,.mask .cinamename i,.mask .email i{position:absolute;margin-left:50px;margin-top:5px;padding:40px 5px;background-image:url(/img/login_vertical_bar.png);background-repeat:no-repeat; background-size: 2px 35px;}
+.mask .logintext .account{margin-top:55px;text-align:center}
+.mask .registtext .account{text-align:center}
+.mask #account{background-image:url(/img/login_account.png);background-repeat:no-repeat;background-position:5px}
+.mask .logintext .pass{margin-top:20px;text-align:center}
+.mask .registtext .pass{margin-top:15px;text-align:center}
+.mask #pass{background-image:url(/img/login_pass.png);background-repeat:no-repeat;background-position:5px}
+.mask .registtext .realname{margin-top:15px;text-align:center}
+.mask #realname{background-image:url(/img/regist_realname.png);background-repeat:no-repeat;background-position:5px}
+.mask .registtext .mobile{margin-top:15px;text-align:center}
+.mask .registtext .cinamename{margin-top:15px;text-align:center}
+.mask #mobile{background-image:url(/img/regist_mobile.png);background-repeat:no-repeat;background-position:5px}
+.mask #cinamename{background-image:url(/img/regist_cinema.png);background-repeat:no-repeat;background-position:5px}
+.mask .registtext .email{margin-top:15px;text-align:center}
+.mask #email{background-image:url(/img/regist_email.png);background-repeat:no-repeat;background-position:5px}
+.mask .tip{margin-top:15px;padding-left:20px;font-size:14px;color:#B9B8B8}
+.mask #remember{margin-left:10px;cursor:pointer}
+.mask .logintext .remember{margin-left:10px;vertical-align:top}
+.mask .logintext .forget{margin-left:100px;margin-right:10px;vertical-align:top;cursor: pointer;}
+.mask .logintext .regist{margin-left:10px;vertical-align:top;color:#EB002A;font-weight:bold;cursor: pointer;}
+.mask .logintext .loginbn,.mask .registtext .registbn{cursor:pointer;width:85%;background-color:#EB002A;margin:35px auto;padding:14px 0px;text-align:center;color:#fff;letter-spacing:10px;padding-left: 10px;font-weight:bold;border-radius:5px;box-shadow:0 0 2px 0px #EB002A}
+.mask .logintext input,.mask .registtext input{outline:none;resize:none}
+
+.mask .text_error_tip{
+	position: absolute;
+	border: 1px solid;
+	margin-top: -34px;
+	font-size: 13px;
+	background-color: #EB002A;
+	color: #fff;
+	padding: 3px 7px;
+	border-radius: 5px;
+	border: none;
+	margin-left: 255px;
+} */
+
+.online_consultation{display:block; position:fixed;width:80px;height:160px;border:1px solid #B9B8B8;right:0px;bottom:200px;background-color:#F5F5F5;text-align:center;font-size:14px;color:#6E7172;line-height: 123px;}
+.online_consultation .customer_service{width:100%;height:80px;border-top:1px solid #B9B8B8;background-image:url(../img/qq_over.png);background-position:27px 15px;background-repeat: no-repeat;cursor: pointer;}
+.online_consultation .customer_service .font{font-weight: 600;}
+.online_consultation .customer_service .online_service{
+	border: 1px solid #666;
+  margin-left: -146px;
+  margin-top: -125px;
+  background-color: #F5F5F5;
+  width: 130px;
+  height: 80px;
+  display: none;
+}
+.online_consultation .customer_service .jt{position:absolute;right:79px;top:32px;}
+.online_consultation .customer_service .QQ_service{height: 40px;line-height: 41px;}
+.online_consultation .customer_service .QQ_service img{position: absolute;left:-133px;padding-top: 3px;}
+.online_consultation .customer_service .QQ_service span{border:1px solid black;padding: 2px 4px;border-radius:10%;margin-left: 36px;cursor: pointer;}
+.online_consultation .customer_service .QQ_service span:hover{background-color:#c0c0c0;}
+.online_consultation .customer_service:hover{background-color: black;background-image:url(../img/qq_on.png)}
+
+.online_consultation .back_top{width:100%;height:80px;border-top:1px solid #B9B8B8;background-repeat:no-repeat;line-height:100px;cursor:pointer; font-size: 11px;padding-top: 18px;}
+.online_consultation .back_top{background-image:url(/img/online_consultation_backtop.png);background-position:27px 22px}
+
+.mask{
+	background: rgba(0, 0, 0, 0.4) none repeat scroll 0 0;
+	height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+		z-index: 999;
+ }
+.mask .head{background-color:#EB002A;color:#F7F6F7;padding:14px 22px;font-weight:bold}
+.mask .toolTip{
+	width:450px;height:250px;background-color:#fff;
+	margin:15% auto;
+	border-radius: 3px;
+}
+.mask .substance{
+	text-align: center;
+	margin-top: 60px;
+	color: #818181;
+	font-weight: bold;
+}
+.mask .toolTip .sure{
+	margin-top: 60px;
+	padding: 1px 0px;
+	text-align: center;
+}
+.mask .toolTip .sure p {
+	margin: 10px auto;
+	cursor: pointer;
+	width: 150px;
+	background-color: #EB002A;
+	padding: 10px 0px;
+	color: #fff;
+	padding-left: 10px;
+	letter-spacing: 10px;
+	font-weight: bold;
+	border-radius: 5px;
+	box-shadow: 0 0 2px 0px #EB002A
+}
+
+.clear{clear: both;}
+
+.content ul{;padding-left:8px;}
+.content ul span{background-color:#EB002A;width:7px;height:7px;display:block;float:left;margin-top:6px;margin-right:15px}
+.content li{ color:#666767;font-weight:700;font-size:15px;padding-top:5px;list-style-type: none;white-space:nowrap;text-overflow:ellipsis;overflow: hidden;}
+.content li:hover{text-decoration: underline; color:#6495ED;cursor: pointer;}
+.time{float: right !important; background-color: #fff !important; font-size: 14px; margin-right: 8px; color: #A7A8A8; font-weight: normal; width: auto !important; height: auto !important;}

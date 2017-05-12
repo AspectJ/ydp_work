@@ -1,0 +1,89 @@
+@charset "UTF-8";
+html, body {
+  height: 100%;
+}
+
+body {
+  background: url(../img/background.png) no-repeat center top;
+}
+
+.main-login {
+  width: 620px;
+  height: 460px;
+  padding: 40px;
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  /*bottom: 0;*/
+  margin: -200px auto 0 auto;
+  background-image: url(../img/white_background.png);
+  background-repeat: no-repeat;
+}
+.main-login h2 {
+  height: 50px;
+  margin: 30px auto;
+  width: 380px;
+  background-image: url(../img/title.png);
+  background-repeat: no-repeat;
+  background-position: 0 cneter;
+  font-family: "微软雅黑";
+}
+.main-login .inBox {
+  width: 375px;
+  height: 50px;
+  line-height: 50px;
+  margin: auto;
+  margin-bottom: 30px;
+  border: 1px solid  #acacac;
+  border-radius: 5px;
+}
+
+.inBox i {
+  float: left;
+  width: 50px;
+  height: 50px;
+  background: url(../img/zhanghao.png) no-repeat 10px 10px;
+}
+.inBox i.pass {
+  background-image: url(../img/mima.png);
+}
+.inBox input {
+  float: left;
+  width: 310px;
+  padding: 7px 0 0 12px;
+  height: 36px;
+  line-height: 36px;
+  background: url(../img/shutiao.png) no-repeat 0 8px;
+  font-size: 18px;
+  border: none;
+  font-family: "微软雅黑";
+}
+
+
+
+.submit {
+  width: 380px;
+  margin: 20px auto;
+}
+.submit span {
+  color: #ff4400;
+  font-size: 14px;
+  display: none;
+  font-family: "微软雅黑";
+}
+.submit input {
+  width: 380px;
+  background: #ff4400;
+  text-align: center;
+  padding: 0;
+  font-size: 22px;
+  height: 50px;
+  line-height: 50px;
+  border: none;
+  color: #FFF;
+  border-radius: 5px;
+  margin: 5px 0;
+  font-family: "微软雅黑";
+  cursor: pointer;
+}

@@ -1,0 +1,210 @@
+import {
+  AdminLogin,
+  CinemaList,
+  queryCinemaInfo,
+  createCinema,
+  updateCinema,
+  deleteCinema,
+  loadAreaInfo
+} from '../services/requests';
+import { routerRedux } from 'dva/router'
+import { message } from 'antd'
+
+export default {
+  namespace: 'app',
+  state: {
+    list: [],
+    total: null,
+    message: {},
+    areaInfo: [],
+    result: {}, // 返回信息
+    loading: false, // 控制加载状态
+    current: null, // 当前分页信息
+    currentItem: {}, // 当前操作的用户对象
+    modalVisible: false, // 弹出窗的显示状态
+    modalType: 'create', // 弹出窗的类型（添加用户，编辑用户）
+  },
+  subscriptions: {
+    setup({ dispatch, history }) {
+      history.listen(location => {
+        if(location.pathname === '/cx/cinemalist'){
+          dispatch({
+            type: 'queryCinemaList',
+            payload: {
+              pageSize: 10,
+              offsetNum: 0
+            }
+          });
+        }
+      });
+    },
+  },
+  effects: {
+    *AdminLogin({ payload }, { call, put }) {
+      yield put({ type: 'showLoading' });
+      const {data} = yield call(AdminLogin, payload);
+      if(data){
+        yield put({ type: 'querySuccess' });
+        if(data.result === 1000){
+          message.success('登陆成功', 3);
+          localStorage.setItem("adminname", data.data.adminname);
+					localStorage.setItem("adminid", data.data.adminid);
+					localStorage.setItem("cinemaid", data.data.cinemaid);
+          yield put(routerRedux.push('/cx/cinemalist'));
+        } else {
+          message.error(data.msg, 3);
+        }
+      } else {
+        yield put({ type: 'querySuccess' });
+        message.error('系统异常，请稍后再试', 3);
+      }
+    },
+    *queryCinemaList({ payload }, { call, put }){
+      yield put({
+        type: 'showLoading',
+        payload: {
+          list: [],
+          total: null
+        }
+      });
+      const {data} = yield call(CinemaList, payload);
+      if(data){
+        if( data.result === 1000 ){
+          yield put({
+            type: 'querySuccess',
+            payload: {
+              list: data.data,
+              total: parseInt(data.total)
+            }
+          });
+        } else {
+          yield put({ type: 'querySuccess' });
+          message.error(data.msg, 3);
+        }
+      } else {
+        yield put({ type: 'querySuccess' });
+        message.error('系统异常，请稍后再试', 3);
+      }
+    },
+    *queryCinemaInfo({ payload }, { select, call, put }){
+
+    },
+    *createCinema({ payload }, { select, call, put }){
+      const {data} = yield call(createCinema, payload);
+      if(data){
+        if(data.result === 1000){
+          message.success('影院添加成功', 3);
+          const list = yield select(({app}) => app.list);
+          list.unshift(data.data);
+          yield put({
+            type: 'hideModal',
+            payload: {
+              list: list
+            }
+          });
+        } else {
+          message.error(data.msg, 3);
+        }
+      } else {
+        message.error('系统异常，请稍后再试', 3);
+      }
+    },
+    *updateCinema({ payload }, { select, call, put }){
+      const {data} = yield call(updateCinema, payload);
+      if(data){
+        if(data.result === 1000){
+          message.success('影院信息修改成功', 3);
+          const list = yield select(({ app }) => app.list);
+          const newList = list.map(cinema => {
+            if( cinema.j_id === payload.j_id ){
+              return {...cinema, ...payload};
+            }
+
+            return cinema;
+          });
+          console.log(newList);
+          yield put({
+            type: 'hideModal',
+            payload: {
+              list: newList
+            }
+          });
+        } else {
+          message.error(data.msg, 3);
+        }
+      } else {
+        message.error('系统异常，请稍后再试', 3);
+      }
+    },
+    *deleteCinema({ payload }, { select, call, put }){
+      yield put({ type: 'showLoading' });
+      const {data} = yield call(deleteCinema, payload);
+      if(data){
+        if(data.result === 1000){
+          const list = yield select(({ app }) => app.list);
+          const newList = list.filter((cinema) => {
+            return cinema.j_id !== payload.j_id;
+          });
+          yield put({
+            type: 'querySuccess',
+            payload: {
+              list: newList
+            }
+          });
+        } else {
+          yield put({ type: 'querySuccess' });
+          message.error(data.msg, 3);
+        }
+      } else {
+        yield put({ type: 'querySuccess' });
+        message.error('系统异常，请稍后再试', 3);
+      }
+    },
+    *loadAreaInfo({ payload }, { select, call, put }){
+      const areaInfo = yield select(({ app }) => app.areaInfo);
+      if( areaInfo.length ){
+        yield put({
+          type: 'showModal',
+          payload: {
+            modalType: payload.modalType,
+            currentItem: payload.currentItem
+          }
+        });
+      } else {
+        const hide = message.loading('正在查询地区信息...', 0);
+        const { data } = yield call(loadAreaInfo);
+        if(data){
+          setTimeout(hide, 0);
+          if(data.result === 1000){
+            yield put({
+              type: 'showModal',
+              payload: {
+                areaInfo: data.data,
+                modalType: payload.modalType,
+                currentItem: payload.currentItem
+              }
+            });
+          } else {
+            message.error(data.error, 3);
+          }
+        }
+      }
+    }
+  },
+  reducers: {
+    showLoading(state, action){
+      return { ...state, ...action.payload, loading: true };
+    },
+    // 控制 Modal 显示状态的 reducer
+    showModal(state, action){
+      return { ...state, ...action.payload, modalVisible: true };
+    },
+    hideModal(state, action){
+      return { ...state, ...action.payload, modalVisible: false };
+    },
+    // 使用静态数据返回
+    querySuccess(state, action){
+      return { ...state, ...action.payload, loading: false };
+    }
+  }
+}

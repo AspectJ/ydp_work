@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>楚湘院线-楚湘动态</title>
+		<link rel="icon" href="img/favicon.ico" type="image/x-icon" />
+		<link rel="stylesheet" href="css/base.css" />
+		<link rel="stylesheet" href="css/main.css" />
+		<link rel="stylesheet" href="css/activity_detail.css" />
+		
+		<script type="text/javascript" src="js/lib/jquery/jq.min.js" ></script>
+		<script type="text/javascript" src="js/lib/jquery/jquery.cookie.js" ></script>
+		<script type="text/javascript" src="js/public.js" ></script>
+		<script type="text/javascript" src="js/activity_detail.js" ></script>
+		
+	</head>
+	<body>
+		<!-- 顶部登录部分 -->
+		<div class="top"></div>
+		<!-- Logo，地区，主菜单 -->
+		<div class="title"></div>
+        
+        <div class="left_activity">
+        	<div class="content">
+          		<h2><!-- 粉丝请愿艾莎在《冰雪奇缘2》出柜 --></h2>
+          		<!-- <div class="img"><img class="headImg" src="#" /></div> -->
+          		<div class="view"><span class="time"></span><span class="see"></span></div>
+        	</div>
+        </div>
+        
+        <div class="other_activity">
+        	<div class="other">其他活动</div>
+			<!-- <div style="position:relative;">
+        		<img src="#"/>
+        		<div></div>
+        	</div>
+        	<div style="position:relative;">
+        		<img src="#"/>
+        		<div></div>
+        	</div> -->
+        	
+       		<ul></ul>
+        </div>
+        
+        
+        <!-- 描述：底部 -->
+        <div class="bottom_top"></div>
+        <div class="bottom"></div>
+        
+        <!-- 在线资讯 -->
+        <div class="online_consultation"></div>
+	</body>
+</html>

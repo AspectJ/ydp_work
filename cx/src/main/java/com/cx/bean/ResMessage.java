@@ -1,0 +1,50 @@
+package com.cx.bean;
+
+/**
+ * 返回参数对应表
+ * @author stone
+ * 2015-6-18下午5:13:10
+ */
+public enum ResMessage {
+	Success(1000, "Success"),
+	
+	// 用户(1001 - 1150)
+	Not_Reqkey(1001, "操作前请先登录"),
+	Login_Timeout(1002, "登录超时"),
+	Logged_In_Elsewhere(1003, "登录超时或在其他地方登录"),
+	User_Account_Not_Exist(1004, "用户不存在"),
+	User_Login_Pass_Fail(1005, "密码错误"),
+	User_Mobile_Exist(1006, "电话已注册"),
+	User_Email_Exist(1007, "邮箱已注册"),
+	User_Is_Exist(1008, "用户已存在"),
+	User_Is_Forbid(1009, "用户未被启用"),
+	User_Lack_Privilege(1010,"用户没有审核权限"),
+	User_Is_Regist(1011, "用户已注册"),
+	
+	Info_NoExist(1304, "查询信息不存在"),
+	
+	// 公共信息(1901 - 2000)
+//	TimeStamp_Over(1901, "请求时间戳超时"),
+//	Request_Fail(1912, "请求失败"),
+	
+	Lack_Param(1998, "缺少参数"),
+	Server_Abnormal(1999, "服务器处理异常"),
+	;
+
+	public int code;
+	public String message;
+
+	private ResMessage(int code, String message) {
+		this.code = code;
+		this.message = message;
+	}
+
+	public static String getMessage(int code) {
+		for (ResMessage rm : values()) {
+			if (rm.code == code) {
+				return rm.message;
+			}
+		}
+		return "";
+	}
+}

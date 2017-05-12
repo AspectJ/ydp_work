@@ -1,0 +1,114 @@
+//左侧页面
+$(function() {
+	// Logo，地区，主菜单
+	LogoMenuTextLoad(1);
+	
+	// 底部导航
+	bottomTextLoad();
+	
+	var href = window.location.href;
+	var news_id = "";
+	var index = href.lastIndexOf("=");
+	
+	if(index != -1) {
+		news_id = href.substring(index+1);
+	}else {
+		alert("news_id错误");
+	}
+
+	//资讯详细
+	$.ajax({
+		url: service_url + "newsinfo/getNewsDetail",
+		type: "GET",
+		data: { news_id: news_id},
+		dataType: "jsonp",
+		jsonp: "jsonpCallback",
+		success: function(data) {
+			var resultData = data.data;
+			if(resultData != null){
+				$('.section-body .news-title').html(resultData.news_title);			//title
+				$('.section-body .news-helper .date').html(resultData.create_time);	//create_time
+				$('.section-body .news-helper .view').html(resultData.brows_times);	//brows_times
+				$('.section-body .news-content').html(resultData.news_content);	//brows_times
+			}
+		}
+	});
+
+
+
+    //查询热门资讯
+    $.ajax({
+        type: "POST",
+        url: service_url + "newsinfo/getHotIntelligence",
+        cache: false,
+        dataType: "jsonp",
+        data: {
+            pageSize: 3,
+            offsetNum: 0,
+            news_type: 2
+        },
+        jsonp: "jsonpCallback",
+        success: function (data) {
+            var resultData = data.data;
+            var content = '';
+            $('.hot-news ul').empty();
+            if(resultData != null && resultData.length > 0) {
+                for(var i = 0; i < resultData.length; i++) {
+                    content  = 	'<li>';
+                    content += 		'<img src="'+(!!resultData[i].org_path ? resultData[i].org_path :  default_img_zxdt)+'" alt="">';
+                    content += 		'<div class="news-title">'+ resultData[i].news_title+'</div>';
+                    content += 	'</li>';
+                    $('.hot-news ul').append(content);
+                }
+            }
+        }
+    });
+
+});
+
+function replaceAll(str) {
+	if(str != null) {
+		str = str.replace(/\n/g, "<br/>");
+		str = str.replace(/ /g, "&nbsp;");
+		return str;
+	}
+}
+
+//右侧
+$(function(){
+	
+	// var href = window.location.href;
+	// var news_id = "";
+	// var index = href.lastIndexOf("=");
+	// if(index != -1) {
+	// 	news_id = href.substring(index+1);
+	// }else {
+	// 	alert("news_id错误");
+	// }
+	//
+	// $.ajax({
+	// 	url: service_url + "newsinfo/getHotNews",
+	// 	type: "POST",
+	// 	data: {
+	// 		news_id: news_id
+	// 	},
+	// 	dataType: "jsonp",
+	// 	jsonp: "jsonpCallback",
+	// 	success: function(data) {
+	// 		var news_id = {};
+	// 		news_id[0] = data.data[0].news_id;
+	// 		news_id[1] = data.data[1].news_id;
+	// 		var content = {};
+	// 		content[0] = "<div onclick='showNewsDetail("+news_id[0]+");'>"+data.data[0].news_title+"</div>";
+	// 		content[1] = "<div onclick='showNewsDetail("+news_id[1]+");'>"+data.data[1].news_title+"</div>";
+	// 		$(".other_news img:eq(0)").attr("src", data.data[0].org_path);
+	// 		$(".other_news img:eq(0) + div").html(content[0]);
+	// 		$(".other_news img:eq(1)").attr("src", data.data[1].org_path);
+	// 		$(".other_news img:eq(1) + div").html(content[1]);
+	// 	}
+	// });
+});
+
+function showNewsDetail(news_id) {
+	window.location.href = "news.html?news_id="+news_id;
+}

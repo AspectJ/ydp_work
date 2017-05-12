@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>楚湘院线-楚湘动态</title>
+		<link rel="icon" href="../img/favicon.ico" type="image/x-icon" />
+		<link rel="stylesheet" href="../css/base.css" />
+		<link rel="stylesheet" href="../css/main.css" />
+		<link rel="stylesheet" href="../css/dynamic_news_detail.css" />
+		
+		<script type="text/javascript" src="../js/lib/jquery/jq.min.js" ></script>
+		<script type="text/javascript" src="../js/lib/jquery/jquery.cookie.js" ></script>
+		<script type="text/javascript" src="../js/public.js" ></script>
+		<script type="text/javascript" src="../js/dynamic_news_detail.js" ></script>
+		
+	</head>
+	<body>
+		<!-- 顶部登录部分 -->
+		<div class="top"></div>
+		<!-- Logo，地区，主菜单 -->
+		<div class="title"></div>
+        
+        <div class="left_news">
+        	<div class="content">
+          		<h2></h2>
+          		<div class="view"><span class="time"></span><span class="see"></span></div>
+        	</div>
+        </div>
+        
+        <div class="other_news">
+        	<div class="other">其他新闻</div>
+        	<div style="background:#fff; margin-top: 20px;">
+				<div>
+	        		<img src="#"/>
+	        		<div></div>
+	        	</div>
+	        	<div>
+	        		<img src="#"/>
+	        		<div></div>
+	        	</div>
+	        </div>
+        </div>
+        
+        <!-- 描述：底部 -->
+       	<div class="bottom_top"></div>
+        <div class="bottom"></div>
+        
+        <!-- 在线资讯 -->
+        <div class="online_consultation"></div>
+	</body>
+</html>

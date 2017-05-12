@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>影院总部管理系统</title>
+		<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
+		<link rel="stylesheet" href="../css/sweet-alert.css" />
+		<script type="text/javascript" src="../js/jquery-1.11.2.min.js" ></script>
+		<script type="text/javascript" src="../js/ajaxfileupload.js"></script>
+		<script type="text/javascript" src="../js/public.js" ></script>
+		<script type="text/javascript" src="../js/noticeupdate.js" ></script>
+		<script type="text/javascript" src="../js/sweet-alert.min.js"></script>
+		<script>
+			$(function(){
+				$("#showNotice").fadeIn(200);
+				$(document).scrollTop(document.body.scrollHeight);
+				var src = window.parent.$("#mainFrame").attr("src");
+				var noti_id = src.replace("manager/noticeShow.html?noti_id=","");
+				$("#noti_id").val(noti_id);
+				getNoticeShow(noti_id,"show");
+			});
+			
+		</script>
+		<link rel="stylesheet" href="../css/base.css" />
+		<link rel="stylesheet" href="../css/main.css" />
+	</head>
+	<body>
+		<!-- 主面板 -->
+		<div class="main-box">
+			<div class="content-title">
+				<span>您当前位置：首页/通知中心</span>
+<!-- 				<p class="search"><input placeholder="请输入您要查询的信息" /><i></i></p> -->
+				<div class="clear"></div>
+			</div>
+			
+			<!-- 数据区 -->
+			<div class="content-data">
+				<h3 class="title">通知中心</h3>
+				<!-- 面板 -->
+				<div class="panel" id="showNotice">				
+					<table class="panel-tab">
+					<input type="hidden" id="noti_id" value=""/>	
+						<tr><td class="title">通知标题：</td>
+							<td colspan="3" id="noti_title"></td>
+						</tr>
+						<tr><td class="title">通知状态：</td>
+							<td id="noti_status"></td>
+							<td class="title">通知类别：</td>
+							<td id="noti_type"></td>
+						</tr>
+						<tr style="display:none;" id="doc_show"><td class="title">上传文档：</td>
+							<td colspan="3">
+								<h4 id="doc_name"></h4>
+							</td>
+						</tr>
+						
+						<input type="hidden" id="add" />
+					</table>
+					<p class="panel-btn">
+					    <button onclick="doAudit();">审核</button>
+						<button onclick="toUpdateNotice();">修改</button>
+					</p>
+				</div>
+				
+			</div>
+		</div>
+		
+	
+	</body>
+</html>
+
+
+
+
+
+
+
