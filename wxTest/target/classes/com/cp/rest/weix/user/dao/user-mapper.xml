@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="user">
+
+	<insert id="regist" parameterType="java.util.Map">
+		INSERT INTO t_userinfo(unionid,nickname,phone,cinemaname,sex) VALUES(#{unionid},#{nickname},#{mobile},#{cinemaname},#{sex})
+	</insert>
+
+	<select id="getUserInfo" resultType="java.util.Map" parameterType="java.lang.String">
+		SELECT unionid,nickname,phone,cinemaname,sex
+		FROM t_userinfo
+		WHERE unionid = #{unionid}
+	</select>
+	
+	<select id="getConcernUser" resultType="java.util.Map" parameterType="java.lang.String">
+		SELECT * FROM wx_sub_user
+		WHERE unionid = #{unionid}
+	</select>
+</mapper>

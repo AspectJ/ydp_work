@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>楚湘院线-电影</title>
+			<script type="text/javascript" src="./js/lib/jquery/jq.min.js" ></script>
+	</head>
+<body>
+	<h1>注册</h1>
+		所属影院：<input type="text" id="cinemaname"><br/>
+		联系方式：<input type="text" id="mobile"><br/>
+		<button onclick='regist();'>注册</button>
+</body>
+
+<script type="text/javascript">
+
+	
+	var userJSON;
+	$(function() {
+		var href = decodeURIComponent(window.location.href);
+		//获取JSON字符串
+		var params = href.substring(href.lastIndexOf("=") + 1);
+		//将JSON字符串转换为JSON对象
+		userJSON = JSON.parse(params);
+	});
+	
+	
+	function regist() {
+		if($('#cinemaname').val() == null || $.trim($('#cinemaname').val()) == ''
+			&& $('#mobile').val() == null || $.trim($('#mobile').val()) == '') {
+				alert("请填写完整数据");
+				return;
+		}
+		var params = {};
+		params.cinemaname = encodeURIComponent($('#cinemaname').val());
+		params.nickname = encodeURIComponent(userJSON.nickname);
+		params.unionid = userJSON.unionid;
+		params.sex = encodeURIComponent(!!userJSON.sex ? '男' : '女');
+		params.mobile = $('#mobile').val();
+		
+		$.ajax({
+			url: "http://cp.yidepiao.net:8888/wxTest/rest/" + "user/regist",
+			data: params,
+			type: "POST",
+			timeout : 60000, //超时时间设置，单位毫秒
+			success: function(data) {
+				var dataJSON = $.parseJSON(data);
+				var ticket = dataJSON.ticket;
+				window.location.href = 'https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket='+encodeURIComponent(dataJSON.ticket);
+			},
+			error: function(XMLHttpRequest, textStatus, errorThrown){
+		      	alert(errorThrown);
+		    },
+		    timeout: 30000
+		});
+	}
+</script>
+</html>

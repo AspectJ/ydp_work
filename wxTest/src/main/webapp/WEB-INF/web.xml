@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" version="3.0">
+  <display-name></display-name>
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>classpath:**/root-spring.xml</param-value>
+  </context-param>
+  <filter>
+    <filter-name>reVerifyFilter</filter-name>
+    <filter-class>com.cp.filter.ReVerifyFilter</filter-class>
+    <init-param>
+      <param-name>url</param-name>
+      <param-value>regist,wxPayLogin,getUserInfo,getAccess_token,sendMessage,uploadTempMaterial,getUserCode,getAppList,createMenu,callback</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>reVerifyFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  <listener>
+    <listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
+  </listener>
+  <listener>
+    <listener-class>org.jboss.resteasy.plugins.spring.SpringContextLoaderListener</listener-class>
+  </listener>
+  <servlet>
+    <servlet-name>Resteasy</servlet-name>
+    <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Resteasy</servlet-name>
+    <url-pattern>/rest/*</url-pattern>
+  </servlet-mapping>
+  <session-config>
+    <session-timeout>15</session-timeout>
+  </session-config>
+  <servlet>
+    <servlet-name>initService</servlet-name>
+    <servlet-class>com.cp.init.InitService</servlet-class>
+    <init-param>
+      <param-name>log4j</param-name>
+      <param-value>WEB-INF/classes/log4jcfg.xml</param-value>
+    </init-param>
+    <init-param>
+      <param-name>config</param-name>
+      <param-value>WEB-INF/classes/config.xml</param-value>
+    </init-param>
+    <load-on-startup>0</load-on-startup>
+  </servlet>
+  
+  
+	  <servlet>
+	    <servlet-name>TokenServlet</servlet-name>
+	    <servlet-class>com.cp.rest.weix.token.TokenServlet</servlet-class>
+	  </servlet>
+	
+	  <servlet-mapping>
+	    <servlet-name>TokenServlet</servlet-name>
+	    <url-pattern>/TokenServlet</url-pattern>
+	  </servlet-mapping>
+</web-app>
