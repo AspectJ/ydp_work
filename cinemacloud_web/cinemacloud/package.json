@@ -1,0 +1,50 @@
+{
+  "private": true,
+  "entry": {
+    "index": "./src/index.js"
+  },
+  "dependencies": {
+    "antd": "^2.8.2",
+    "axios": "^0.15.3",
+    "dva": "^1.1.0",
+    "dva-loading": "^0.2.0",
+    "images": "^3.0.0",
+    "moment": "^2.17.0",
+    "nprogress": "^0.2.0",
+    "qs": "^6.3.0",
+    "react": "^15.1.0",
+    "react-dom": "^15.1.0",
+    "react-umeditor": "^1.0.0-rc5",
+    "routes": "^2.1.0"
+  },
+  "devDependencies": {
+    "atool-build": "^0.7.6",
+    "atool-test-mocha": "^0.1.5",
+    "babel-plugin-dev-expression": "^0.2.1",
+    "babel-plugin-dva-hmr": "^0.1.0",
+    "babel-plugin-transform-runtime": "^6.9.0",
+    "babel-polyfill": "^6.16.0",
+    "babel-runtime": "^6.9.2",
+    "cz-conventional-changelog": "^1.2.0",
+    "dora": "^0.4.3",
+    "dora-plugin-browser-history": "^0.2.0",
+    "dora-plugin-proxy": "^0.8.5",
+    "dora-plugin-webpack": "0.8.1",
+    "dora-plugin-webpack-hmr": "^0.2.1",
+    "expect": "^1.20.2",
+    "file-loader": "^0.10.1",
+    "redbox-react": "^1.2.10",
+    "redux-logger": "^2.7.4",
+    "url-loader": "^0.5.8"
+  },
+  "scripts": {
+    "start": "dora --plugins \"webpack,webpack-hmr,browser-history?index=/src/index.html\"",
+    "build": "atool-build",
+    "test": "atool-test-mocha ./src/**/*-test.js"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}
